@@ -7,7 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Dumbbell } from 'lucide-react';
+import { CustomExerciseDialog } from './custom-exercise-dialog';
+import { Search, Dumbbell, Plus } from 'lucide-react';
 import type { Exercise } from '@/lib/types';
 
 interface ExerciseSelectorProps {
@@ -28,6 +29,7 @@ export function ExerciseSelector({
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
+  const [showCustomDialog, setShowCustomDialog] = useState(false);
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -89,6 +91,12 @@ export function ExerciseSelector({
     }
   };
 
+  const handleCustomExerciseCreated = (exercise: Exercise) => {
+    setExercises(prev => [...prev, exercise]);
+    setFilteredExercises(prev => [...prev, exercise]);
+    handleSelectExercise(exercise);
+  };
+
   const groupedExercises = filteredExercises.reduce((groups, exercise) => {
     const primaryMuscle = exercise.muscles[0] || 'Other';
     if (!groups[primaryMuscle]) {
@@ -118,6 +126,16 @@ export function ExerciseSelector({
             className="pl-10"
           />
         </div>
+
+        {/* Create Custom Exercise Button */}
+        <Button
+          onClick={() => setShowCustomDialog(true)}
+          variant="outline"
+          className="w-full flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Create Custom Exercise
+        </Button>
 
         {/* Exercise List */}
         <div className="flex-1 overflow-y-auto space-y-4">
@@ -162,6 +180,13 @@ export function ExerciseSelector({
             </div>
           )}
         </div>
+
+        {/* Custom Exercise Dialog */}
+        <CustomExerciseDialog
+          open={showCustomDialog}
+          onClose={() => setShowCustomDialog(false)}
+          onExerciseCreated={handleCustomExerciseCreated}
+        />
       </DialogContent>
     </Dialog>
   );

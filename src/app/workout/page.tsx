@@ -6,10 +6,12 @@ import { useAppStore } from '@/lib/store';
 import { sessionRepository, userRepository } from '@/lib/db/repositories';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { ExerciseSelector } from '@/components/workout/exercise-selector';
 import { SessionExerciseCard } from '@/components/workout/session-exercise-card';
 import { RestTimer } from '@/components/workout/rest-timer';
-import { ArrowLeft, Plus, Save } from 'lucide-react';
+import { ArrowLeft, Plus, Save, FileText } from 'lucide-react';
 import type { WorkoutSession, SessionExercise } from '@/lib/types';
 import Link from 'next/link';
 
@@ -18,6 +20,7 @@ export default function WorkoutPage() {
   const { user, currentSession, setCurrentSession, setSessionActive } = useAppStore();
   const [isLoading, setIsLoading] = useState(false);
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
+  const [sessionNotes, setSessionNotes] = useState('');
 
   // Initialize session if none exists
   useEffect(() => {
@@ -52,6 +55,11 @@ export default function WorkoutPage() {
 
     setIsLoading(true);
     try {
+      if (sessionNotes.trim()) {
+        await sessionRepository.updateSession(currentSession.id, {
+          notes: sessionNotes.trim(),
+        });
+      }
       await sessionRepository.finishSession(currentSession.id);
       setCurrentSession(null);
       setSessionActive(false);
@@ -139,6 +147,24 @@ export default function WorkoutPage() {
             />
           ))}
         </div>
+
+        {/* Session Notes */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <FileText className="h-5 w-5" />
+              Session Notes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Textarea
+              value={sessionNotes}
+              onChange={(e) => setSessionNotes(e.target.value)}
+              placeholder="How did this workout feel? Any observations, achievements, or adjustments for next time..."
+              rows={3}
+            />
+          </CardContent>
+        </Card>
 
         {/* Add Exercise Button */}
         <Card>
