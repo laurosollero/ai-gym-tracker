@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Search, BookOpen, Clock, Dumbbell, Play, Star } from 'lucide-react';
+import { ArrowLeft, Search, BookOpen, Clock, Dumbbell, Play, Star, Settings } from 'lucide-react';
 import { formatDuration } from '@/lib/utils/calculations';
 import type { WorkoutTemplate } from '@/lib/types';
 import Link from 'next/link';
@@ -84,18 +84,26 @@ export default function TemplatesPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
-        <header className="flex items-center gap-4 mb-8">
-          <Button variant="outline" size="icon" asChild>
-            <Link href="/">
-              <ArrowLeft className="h-4 w-4" />
+        <header className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon" asChild>
+              <Link href="/">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">Workout Templates</h1>
+              <p className="text-muted-foreground">
+                Start your workouts faster with saved templates
+              </p>
+            </div>
+          </div>
+          <Button variant="outline" asChild>
+            <Link href="/template-manager" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Import/Export
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold">Workout Templates</h1>
-            <p className="text-muted-foreground">
-              Start your workouts faster with saved templates
-            </p>
-          </div>
         </header>
 
         {/* Filters */}
