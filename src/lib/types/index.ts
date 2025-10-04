@@ -69,6 +69,43 @@ export interface SessionSummary {
   exerciseCount: number;
 }
 
+// Template types
+export interface WorkoutTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  category: 'strength' | 'hypertrophy' | 'endurance' | 'powerlifting' | 'bodybuilding' | 'general' | 'custom';
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  estimatedDuration: number; // in minutes
+  exercises: TemplateExercise[];
+  tags: string[];
+  isBuiltIn: boolean;
+  ownerId?: string;
+  createdFromSessionId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TemplateExercise {
+  id: string;
+  exerciseId: string;
+  exerciseName: string;
+  orderIndex: number;
+  sets: TemplateSet[];
+  notes?: string;
+  restSeconds?: number;
+}
+
+export interface TemplateSet {
+  id: string;
+  index: number;
+  targetReps?: number;
+  targetWeight?: number;
+  targetRPE?: number;
+  isWarmup?: boolean;
+  notes?: string;
+}
+
 // Form types
 export interface CreateSessionExerciseForm {
   exerciseId: string;
@@ -78,4 +115,14 @@ export interface CreateSessionExerciseForm {
 export interface StartWorkoutForm {
   date?: string;
   notes?: string;
+  templateId?: string;
+}
+
+export interface CreateTemplateForm {
+  name: string;
+  description?: string;
+  category: WorkoutTemplate['category'];
+  difficulty: WorkoutTemplate['difficulty'];
+  estimatedDuration: number;
+  tags: string[];
 }

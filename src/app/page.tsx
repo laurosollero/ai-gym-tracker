@@ -3,7 +3,7 @@
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dumbbell, Play, History, Settings } from 'lucide-react';
+import { Dumbbell, Play, History, Settings, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -39,7 +39,7 @@ export default function Home() {
         </header>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -53,6 +53,23 @@ export default function Home() {
             <CardContent>
               <Button asChild className="w-full">
                 <Link href="/workout">Start New Session</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5" />
+                Templates
+              </CardTitle>
+              <CardDescription>
+                Browse workout templates
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" asChild className="w-full">
+                <Link href="/templates">Browse Templates</Link>
               </Button>
             </CardContent>
           </Card>

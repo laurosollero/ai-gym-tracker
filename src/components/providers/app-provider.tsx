@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { initializeDatabase } from '@/lib/db/seed';
+import { seedBuiltInTemplates } from '@/lib/db/seed-templates';
 import { userRepository } from '@/lib/db/repositories';
 import { useAppStore } from '@/lib/store';
 
@@ -12,6 +13,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const initApp = async () => {
       try {
         await initializeDatabase();
+        await seedBuiltInTemplates();
         const user = await userRepository.getCurrentUser();
         setUser(user || null);
       } catch (error) {

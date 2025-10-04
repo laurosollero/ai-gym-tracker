@@ -1,26 +1,45 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
-import { sessionRepository, userRepository } from '@/lib/db/repositories';
+import { sessionRepository, sessionExerciseRepository, templateRepository } from '@/lib/db/repositories';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { ExerciseSelector } from '@/components/workout/exercise-selector';
 import { SessionExerciseCard } from '@/components/workout/session-exercise-card';
 import { RestTimer } from '@/components/workout/rest-timer';
-import { ArrowLeft, Plus, Save, FileText } from 'lucide-react';
-import type { WorkoutSession, SessionExercise } from '@/lib/types';
+import { ArrowLeft, Plus, Save, FileText, BookOpen } from 'lucide-react';
+import type { WorkoutSession, WorkoutTemplate } from '@/lib/types';
 import Link from 'next/link';
 
-export default function WorkoutPage() {
+function WorkoutPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, currentSession, setCurrentSession, setSessionActive } = useAppStore();
   const [isLoading, setIsLoading] = useState(false);
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [sessionNotes, setSessionNotes] = useState('');
+  const [template, setTemplate] = useState<WorkoutTemplate | null>(null);
+  
+  const templateId = searchParams?.get('template');
+
+  // Load template if specified
+  useEffect(() => {
+    const loadTemplate = async () => {
+      if (!templateId) return;
+      
+      try {
+        const loadedTemplate = await templateRepository.getTemplateById(templateId);
+        setTemplate(loadedTemplate || null);
+      } catch (error) {
+        console.error('Failed to load template:', error);
+      }
+    };
+
+    loadTemplate();
+  }, [templateId]);
 
   // Initialize session if none exists
   useEffect(() => {
@@ -38,7 +57,38 @@ export default function WorkoutPage() {
         };
 
         const session = await sessionRepository.createSession(newSession);
-        setCurrentSession(session);
+        
+        // If we have a template, add its exercises to the session
+        if (template) {
+          for (const templateExercise of template.exercises) {
+            const sessionExercise = await sessionExerciseRepository.addExerciseToSession(
+              session.id,
+              templateExercise.exerciseId,
+              templateExercise.exerciseName,
+              templateExercise.orderIndex
+            );
+
+            // Add template sets as incomplete sets
+            for (const templateSet of templateExercise.sets) {
+              await sessionExerciseRepository.addSetToExercise(sessionExercise.id, {
+                index: templateSet.index,
+                reps: templateSet.targetReps,
+                weight: templateSet.targetWeight,
+                rpe: templateSet.targetRPE,
+                isWarmup: templateSet.isWarmup,
+                notes: templateSet.notes,
+                restSec: templateExercise.restSeconds,
+              });
+            }
+          }
+          
+          // Reload session with exercises
+          const updatedSession = await sessionRepository.getSessionById(session.id);
+          setCurrentSession(updatedSession || session);
+        } else {
+          setCurrentSession(session);
+        }
+        
         setSessionActive(true);
       } catch (error) {
         console.error('Failed to create session:', error);
@@ -47,8 +97,11 @@ export default function WorkoutPage() {
       }
     };
 
-    initSession();
-  }, [user, currentSession, setCurrentSession, setSessionActive]);
+    // Only init session after template is loaded (or confirmed not loading)
+    if (templateId ? template !== null : true) {
+      initSession();
+    }
+  }, [user, currentSession, setCurrentSession, setSessionActive, template, templateId]);
 
   const handleFinishWorkout = async () => {
     if (!currentSession) return;
@@ -117,10 +170,20 @@ export default function WorkoutPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">Workout Session</h1>
-              <p className="text-sm text-muted-foreground">
-                Duration: {sessionDuration} minutes
-              </p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold">Workout Session</h1>
+                {template && <BookOpen className="h-5 w-5 text-muted-foreground" />}
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">
+                  Duration: {sessionDuration} minutes
+                </p>
+                {template && (
+                  <p className="text-sm text-blue-600 dark:text-blue-400">
+                    From template: {template.name}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
           <Button 
@@ -189,5 +252,17 @@ export default function WorkoutPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function WorkoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <WorkoutPageContent />
+    </Suspense>
   );
 }

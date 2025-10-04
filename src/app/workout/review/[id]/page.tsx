@@ -7,7 +7,8 @@ import { useAppStore } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Clock, Dumbbell, Home, History } from 'lucide-react';
+import { SaveTemplateDialog } from '@/components/templates/save-template-dialog';
+import { CheckCircle2, Clock, Dumbbell, Home, History, BookmarkPlus } from 'lucide-react';
 import { calculateSessionSummary, formatWeight, formatDuration } from '@/lib/utils/calculations';
 import type { WorkoutSession, SessionSummary } from '@/lib/types';
 import Link from 'next/link';
@@ -19,6 +20,7 @@ export default function SessionReviewPage() {
   const [session, setSession] = useState<WorkoutSession | null>(null);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -179,20 +181,46 @@ export default function SessionReviewPage() {
         </Card>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-4">
-          <Button asChild variant="outline">
-            <Link href="/history" className="flex items-center gap-2">
-              <History className="h-4 w-4" />
-              View History
-            </Link>
+        <div className="space-y-4">
+          {/* Save as Template */}
+          <Button
+            onClick={() => setShowSaveTemplate(true)}
+            variant="outline"
+            className="w-full flex items-center gap-2"
+          >
+            <BookmarkPlus className="h-4 w-4" />
+            Save as Template
           </Button>
-          <Button asChild>
-            <Link href="/" className="flex items-center gap-2">
-              <Home className="h-4 w-4" />
-              Go Home
-            </Link>
-          </Button>
+
+          {/* Navigation Buttons */}
+          <div className="grid grid-cols-2 gap-4">
+            <Button asChild variant="outline">
+              <Link href="/history" className="flex items-center gap-2">
+                <History className="h-4 w-4" />
+                View History
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/" className="flex items-center gap-2">
+                <Home className="h-4 w-4" />
+                Go Home
+              </Link>
+            </Button>
+          </div>
         </div>
+
+        {/* Save Template Dialog */}
+        {session && (
+          <SaveTemplateDialog
+            open={showSaveTemplate}
+            onClose={() => setShowSaveTemplate(false)}
+            session={session}
+            onTemplateSaved={() => {
+              // Could show a success message here
+              console.log('Template saved successfully!');
+            }}
+          />
+        )}
       </div>
     </div>
   );
