@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, User as UserIcon, Dumbbell } from 'lucide-react';
+import { ArrowLeft, Save, User as UserIcon, Dumbbell, Download, Database } from 'lucide-react';
 import type { User } from '@/lib/types';
 import Link from 'next/link';
 
@@ -180,6 +180,44 @@ export default function SettingsPage() {
                 <p className="text-xs text-muted-foreground">
                   Timer will automatically start after completing a set
                 </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Data Management */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="h-5 w-5" />
+                Data Management
+              </CardTitle>
+              <CardDescription>
+                Export and manage your fitness data
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Download your workouts, measurements, personal records, and analytics in CSV or JSON format.
+                </p>
+                <Button variant="outline" asChild className="w-full">
+                  <Link href="/export" className="flex items-center gap-2">
+                    <Download className="h-4 w-4" />
+                    Export Data
+                  </Link>
+                </Button>
+              </div>
+              <div className="pt-3 border-t">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Data Location</span>
+                    <span>Local Device (IndexedDB)</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Privacy</span>
+                    <span>No cloud storage</span>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

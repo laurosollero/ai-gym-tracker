@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { sessionExerciseRepository } from '@/lib/db/repositories';
+import { sessionExerciseRepository, personalRecordRepository } from '@/lib/db/repositories';
 import { useAppStore } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Check, Timer } from 'lucide-react';
-import type { SessionExercise, SetEntry } from '@/lib/types';
+import { Plus, Check, Timer, Trophy } from 'lucide-react';
+import type { SessionExercise, SetEntry, PersonalRecord } from '@/lib/types';
 import { formatWeight } from '@/lib/utils/calculations';
 
 interface SessionExerciseCardProps {
@@ -28,6 +28,7 @@ export function SessionExerciseCard({
     weight: undefined,
   });
   const [isAddingSet, setIsAddingSet] = useState(false);
+  const [newPersonalRecords, setNewPersonalRecords] = useState<PersonalRecord[]>([]);
 
   const handleAddSet = async () => {
     if (!newSet.reps || !newSet.weight) return;
@@ -87,6 +88,32 @@ export function SessionExerciseCard({
         completedAt: new Date(),
       });
 
+      // Find the completed set for PR checking
+      const completedSet = sessionExercise.sets.find(set => set.id === setId);
+      
+      // Check for new personal records
+      if (completedSet && completedSet.weight && completedSet.reps && user) {
+        const newPRs = await personalRecordRepository.checkForNewRecord(
+          user.id,
+          sessionExercise.exerciseId,
+          sessionExercise.nameAtTime,
+          {
+            weight: completedSet.weight,
+            reps: completedSet.reps,
+            sessionId: sessionId,
+            setId: setId,
+          }
+        );
+        
+        if (newPRs.length > 0) {
+          setNewPersonalRecords(prev => [...prev, ...newPRs]);
+          // Auto-clear PR notifications after 5 seconds
+          setTimeout(() => {
+            setNewPersonalRecords(prev => prev.filter(pr => !newPRs.includes(pr)));
+          }, 5000);
+        }
+      }
+
       // Update local state
       if (currentSession) {
         const updatedExercises = currentSession.exercises.map(ex =>
@@ -139,6 +166,27 @@ export function SessionExerciseCard({
           </div>
         </div>
       </CardHeader>
+
+      {/* PR Notifications */}
+      {newPersonalRecords.length > 0 && (
+        <div className="px-6 pb-4">
+          {newPersonalRecords.map((pr) => (
+            <div
+              key={pr.id}
+              className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg mb-2 animate-in slide-in-from-top"
+            >
+              <Trophy className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                New {pr.recordType.replace('_', ' ').toUpperCase()} PR! 
+                {pr.recordType === 'max_weight' && ` ${formatWeight(pr.value, user?.unitSystem || 'metric')} x ${pr.reps}`}
+                {pr.recordType === 'max_reps' && ` ${pr.value} reps at ${formatWeight(pr.weight!, user?.unitSystem || 'metric')}`}
+                {pr.recordType === 'max_volume' && ` ${formatWeight(pr.value, user?.unitSystem || 'metric')} volume`}
+                {pr.recordType === 'best_estimated_1rm' && ` ${formatWeight(pr.value, user?.unitSystem || 'metric')} 1RM`}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <CardContent className="space-y-4">
         {/* Existing Sets */}

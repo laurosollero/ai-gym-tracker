@@ -60,6 +60,11 @@ export function formatWeight(weight: number, unit: 'metric' | 'imperial'): strin
   return `${weight} ${suffix}`;
 }
 
+export function formatHeight(height: number, unit: 'metric' | 'imperial'): string {
+  const suffix = unit === 'metric' ? 'cm' : 'in';
+  return `${height} ${suffix}`;
+}
+
 export function formatDuration(minutes: number): string {
   if (minutes < 60) {
     return `${minutes}m`;

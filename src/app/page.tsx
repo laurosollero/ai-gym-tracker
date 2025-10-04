@@ -3,7 +3,7 @@
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dumbbell, Play, History, Settings, BookOpen } from 'lucide-react';
+import { Dumbbell, Play, History, Settings, BookOpen, BarChart3, Ruler } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -39,7 +39,7 @@ export default function Home() {
         </header>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -77,6 +77,23 @@ export default function Home() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Analytics
+              </CardTitle>
+              <CardDescription>
+                View progress and stats
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" asChild className="w-full">
+                <Link href="/analytics">View Analytics</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
                 <History className="h-5 w-5" />
                 Recent Sessions
               </CardTitle>
@@ -87,6 +104,23 @@ export default function Home() {
             <CardContent>
               <Button variant="outline" asChild className="w-full">
                 <Link href="/history">View History</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Ruler className="h-5 w-5" />
+                Measurements
+              </CardTitle>
+              <CardDescription>
+                Track body measurements
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" asChild className="w-full">
+                <Link href="/measurements">Track Progress</Link>
               </Button>
             </CardContent>
           </Card>

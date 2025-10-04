@@ -106,6 +106,82 @@ export interface TemplateSet {
   notes?: string;
 }
 
+// Analytics types
+export interface PersonalRecord {
+  id: string;
+  userId: string;
+  exerciseId: string;
+  exerciseName: string;
+  recordType: 'max_weight' | 'max_reps' | 'max_volume' | 'best_estimated_1rm';
+  value: number;
+  reps?: number; // For max_weight records
+  weight?: number; // For max_reps records
+  achievedAt: Date;
+  sessionId: string;
+  setId: string;
+  previousRecord?: number;
+  createdAt: Date;
+}
+
+export interface BodyMeasurement {
+  id: string;
+  userId: string;
+  measurementType: 'weight' | 'body_fat' | 'muscle_mass' | 'chest' | 'waist' | 'hips' | 'thigh' | 'bicep' | 'neck';
+  value: number;
+  unit: string; // kg, lbs, cm, inches, %
+  date: string; // ISO date string
+  notes?: string;
+  createdAt: Date;
+}
+
+export interface WorkoutStreak {
+  id: string;
+  userId: string;
+  startDate: string; // ISO date string
+  endDate?: string; // ISO date string, null if current streak
+  workoutCount: number;
+  isCurrent: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Analytics summary types
+export interface ExerciseProgress {
+  exerciseId: string;
+  exerciseName: string;
+  totalSessions: number;
+  totalSets: number;
+  totalVolume: number;
+  maxWeight: number;
+  maxReps: number;
+  estimated1RM: number;
+  lastPerformed: Date;
+  trend: 'improving' | 'declining' | 'stable' | 'new';
+  recentPRs: PersonalRecord[];
+}
+
+export interface WorkoutStats {
+  totalWorkouts: number;
+  totalDuration: number; // minutes
+  totalVolume: number;
+  averageWorkoutDuration: number;
+  workoutsThisWeek: number;
+  workoutsThisMonth: number;
+  currentStreak: number;
+  longestStreak: number;
+  favoriteExercises: { exerciseId: string; exerciseName: string; count: number }[];
+  recentPRs: PersonalRecord[];
+}
+
+export interface ProgressData {
+  date: string;
+  value: number;
+  sessionId?: string;
+  setId?: string;
+  reps?: number;
+  weight?: number;
+}
+
 // Form types
 export interface CreateSessionExerciseForm {
   exerciseId: string;
@@ -125,4 +201,12 @@ export interface CreateTemplateForm {
   difficulty: WorkoutTemplate['difficulty'];
   estimatedDuration: number;
   tags: string[];
+}
+
+export interface BodyMeasurementForm {
+  measurementType: BodyMeasurement['measurementType'];
+  value: number;
+  unit: string;
+  date: string;
+  notes?: string;
 }
