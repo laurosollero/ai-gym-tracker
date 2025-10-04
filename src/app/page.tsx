@@ -3,7 +3,7 @@
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dumbbell, Play, History, Settings, BookOpen, BarChart3, Ruler } from 'lucide-react';
+import { Dumbbell, Play, History, Settings, BookOpen, BarChart3, Ruler, Calculator } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -121,6 +121,23 @@ export default function Home() {
             <CardContent>
               <Button variant="outline" asChild className="w-full">
                 <Link href="/measurements">Track Progress</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="h-5 w-5" />
+                Plate Calculator
+              </CardTitle>
+              <CardDescription>
+                Calculate plates for any weight
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" asChild className="w-full">
+                <Link href="/plate-calculator">Calculate Plates</Link>
               </Button>
             </CardContent>
           </Card>
