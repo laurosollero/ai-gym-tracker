@@ -20,12 +20,12 @@ export interface TemplateShareData {
 export function encodeTemplateForUrl(templateData: TemplateShareData): string {
   try {
     // Helper function to remove null/undefined values
-    const cleanObject = (obj: any): any => {
+    const cleanObject = (obj: unknown): unknown => {
       if (Array.isArray(obj)) {
         return obj.map(cleanObject).filter(item => item !== null && item !== undefined);
       }
       if (obj && typeof obj === 'object') {
-        const cleaned: any = {};
+        const cleaned: Record<string, unknown> = {};
         for (const [key, value] of Object.entries(obj)) {
           if (value !== null && value !== undefined && value !== '') {
             cleaned[key] = cleanObject(value);
@@ -97,13 +97,13 @@ export function decodeTemplateFromUrl(encodedData: string): TemplateShareData {
           category: data.c,
           difficulty: data.df,
           estimatedDuration: data.dur,
-          exercises: data.e.map((ex: any) => ({
+          exercises: data.e.map((ex: {id: string, n: string, o: number, r: number, s: Array<{i: number, tr?: number, tw?: number, trpe?: number, w?: number, n?: string}>}) => ({
             id: crypto.randomUUID(),
             exerciseId: ex.id,
             exerciseName: ex.n,
             orderIndex: ex.o,
             restSeconds: ex.r,
-            sets: ex.s.map((set: any) => ({
+            sets: ex.s.map((set) => ({
               id: crypto.randomUUID(),
               index: set.i,
               targetReps: set.tr,
@@ -117,7 +117,7 @@ export function decodeTemplateFromUrl(encodedData: string): TemplateShareData {
           isBuiltIn: false,
           createdFromSessionId: undefined
         },
-        exercises: data.ex.map((ex: any) => ({
+        exercises: data.ex.map((ex: {id: string, n: string, m: string[], eq?: string}) => ({
           exerciseId: ex.id,
           exerciseName: ex.n,
           muscles: ex.m,
