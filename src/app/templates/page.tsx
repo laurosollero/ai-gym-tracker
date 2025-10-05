@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Search, BookOpen, Clock, Dumbbell, Play, Star, Settings } from 'lucide-react';
+import { ArrowLeft, Search, BookOpen, Clock, Dumbbell, Play, Star, Settings, Edit } from 'lucide-react';
 import { formatDuration } from '@/lib/utils/calculations';
 import type { WorkoutTemplate } from '@/lib/types';
 import Link from 'next/link';
@@ -98,12 +98,20 @@ export default function TemplatesPage() {
               </p>
             </div>
           </div>
-          <Button variant="outline" asChild>
-            <Link href="/template-manager" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Import/Export
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild>
+              <Link href="/templates/create" className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                Create Template
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/template-manager" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Import/Export
+              </Link>
+            </Button>
+          </div>
         </header>
 
         {/* Filters */}
@@ -268,10 +276,19 @@ function TemplateCard({ template, onStart }: TemplateCardProps) {
               </CardDescription>
             )}
           </div>
-          <Button onClick={onStart} className="flex items-center gap-2">
-            <Play className="h-4 w-4" />
-            Start
-          </Button>
+          <div className="flex gap-2">
+            {!template.isBuiltIn && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/templates/create?edit=${template.id}`}>
+                  <Edit className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
+            <Button onClick={onStart} className="flex items-center gap-2">
+              <Play className="h-4 w-4" />
+              Start
+            </Button>
+          </div>
         </div>
       </CardHeader>
 

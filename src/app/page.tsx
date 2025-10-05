@@ -83,12 +83,15 @@ export default function Home() {
                 Templates
               </CardTitle>
               <CardDescription>
-                Browse workout templates
+                Browse and create workout templates
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-2">
               <Button variant="outline" asChild className="w-full">
                 <Link href="/templates">Browse Templates</Link>
+              </Button>
+              <Button asChild className="w-full">
+                <Link href="/templates/create">Create Template</Link>
               </Button>
             </CardContent>
           </Card>
