@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Image, FileText, ExternalLink } from 'lucide-react';
@@ -11,33 +11,73 @@ interface ExerciseMediaViewerProps {
   className?: string;
 }
 
+const ensureSafeMediaUrl = (raw?: string | null): string | null => {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  try {
+    const base = typeof window !== 'undefined' && window.location
+      ? window.location.origin
+      : 'http://localhost';
+    const url = new URL(trimmed, base);
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return null;
+    }
+    return url.href;
+  } catch {
+    return null;
+  }
+};
+
+const renderMediaFallback = (message: string, link?: string) => (
+  <div className="flex flex-col items-center gap-4 py-8">
+    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+      <Image className="h-6 w-6 text-muted-foreground" />
+    </div>
+    <p className="text-sm text-muted-foreground text-center">{message}</p>
+    {link && (
+      <Button asChild variant="outline" size="sm">
+        <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+          <ExternalLink className="h-4 w-4" />
+          Open in new tab
+        </a>
+      </Button>
+    )}
+  </div>
+);
+
 export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewerProps) {
   const [activeTab, setActiveTab] = useState<'instructions' | 'video' | 'gif' | 'image'>('instructions');
+  const [gifError, setGifError] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
-  const hasInstructions = exercise.instructions?.trim();
-  const hasVideo = exercise.videoUrl?.trim();
-  const hasGif = exercise.gifUrl?.trim();
-  const hasImage = exercise.imageUrl?.trim();
+  const instructions = exercise.instructions?.trim();
+  const videoUrl = ensureSafeMediaUrl(exercise.videoUrl);
+  const gifUrl = ensureSafeMediaUrl(exercise.gifUrl);
+  const imageUrl = ensureSafeMediaUrl(exercise.imageUrl);
+
+  const tabs = useMemo(() => (
+    [
+      { id: 'instructions' as const, label: 'Instructions', icon: FileText, available: Boolean(instructions) },
+      { id: 'video' as const, label: 'Video', icon: Play, available: Boolean(videoUrl) },
+      { id: 'gif' as const, label: 'GIF', icon: Image, available: Boolean(gifUrl) },
+      { id: 'image' as const, label: 'Image', icon: Image, available: Boolean(imageUrl) },
+    ].filter(tab => tab.available)
+  ), [instructions, videoUrl, gifUrl, imageUrl]);
+
+  useEffect(() => {
+    if (tabs.length > 0 && !tabs.find(tab => tab.id === activeTab)) {
+      setActiveTab(tabs[0].id);
+    }
+  }, [tabs, activeTab]);
 
   // Don't render if no media is available
-  if (!hasInstructions && !hasVideo && !hasGif && !hasImage) {
+  if (tabs.length === 0) {
     return null;
   }
 
-  const tabs = [
-    { id: 'instructions' as const, label: 'Instructions', icon: FileText, available: hasInstructions },
-    { id: 'video' as const, label: 'Video', icon: Play, available: hasVideo },
-    { id: 'gif' as const, label: 'GIF', icon: Image, available: hasGif },
-    { id: 'image' as const, label: 'Image', icon: Image, available: hasImage },
-  ].filter(tab => tab.available);
-
-  // Set default active tab to first available
-  if (tabs.length > 0 && !tabs.find(tab => tab.id === activeTab)) {
-    setActiveTab(tabs[0].id);
-  }
-
   const renderVideoEmbed = (url: string) => {
-    // YouTube URL handling
     const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
     if (youtubeMatch) {
       const videoId = youtubeMatch[1];
@@ -54,7 +94,6 @@ export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewer
       );
     }
 
-    // For other video URLs, show link to open externally
     return (
       <div className="flex flex-col items-center gap-4 py-8">
         <Play className="h-12 w-12 text-muted-foreground" />
@@ -80,7 +119,7 @@ export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewer
             {tabs.map((tab) => (
               <Button
                 key={tab.id}
-                variant={activeTab === tab.id ? "default" : "outline"}
+                variant={activeTab === tab.id ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setActiveTab(tab.id)}
                 className="flex items-center gap-1"
@@ -93,69 +132,49 @@ export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewer
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {activeTab === 'instructions' && hasInstructions && (
+        {activeTab === 'instructions' && instructions && (
           <div className="prose prose-sm max-w-none">
             <div className="whitespace-pre-wrap text-sm leading-relaxed">
-              {exercise.instructions}
+              {instructions}
             </div>
           </div>
         )}
 
-        {activeTab === 'video' && hasVideo && (
+        {activeTab === 'video' && videoUrl && (
           <div>
-            {renderVideoEmbed(exercise.videoUrl!)}
+            {renderVideoEmbed(videoUrl)}
           </div>
         )}
 
-        {activeTab === 'gif' && hasGif && (
+        {activeTab === 'gif' && gifUrl && (
           <div className="text-center">
-            <img
-              src={exercise.gifUrl}
-              alt={`${exercise.name} demonstration`}
-              className="max-w-full h-auto rounded-lg mx-auto"
-              style={{ maxHeight: '400px' }}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                target.parentElement!.innerHTML = `
-                  <div class="flex flex-col items-center gap-4 py-8">
-                    <div class="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                      <svg class="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <p class="text-sm text-muted-foreground">Failed to load GIF</p>
-                    <a href="${exercise.gifUrl}" target="_blank" rel="noopener noreferrer" class="text-sm text-primary hover:underline">Open in new tab</a>
-                  </div>
-                `;
-              }}
-            />
+            {!gifError ? (
+              <img
+                src={gifUrl}
+                alt={`${exercise.name} demonstration`}
+                className="max-w-full h-auto rounded-lg mx-auto"
+                style={{ maxHeight: '400px' }}
+                onError={() => setGifError(true)}
+              />
+            ) : (
+              renderMediaFallback('Failed to load GIF', gifUrl)
+            )}
           </div>
         )}
 
-        {activeTab === 'image' && hasImage && (
+        {activeTab === 'image' && imageUrl && (
           <div className="text-center">
-            <img
-              src={exercise.imageUrl}
-              alt={`${exercise.name} form reference`}
-              className="max-w-full h-auto rounded-lg mx-auto"
-              style={{ maxHeight: '400px' }}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                target.parentElement!.innerHTML = `
-                  <div class="flex flex-col items-center gap-4 py-8">
-                    <div class="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                      <svg class="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <p class="text-sm text-muted-foreground">Failed to load image</p>
-                    <a href="${exercise.imageUrl}" target="_blank" rel="noopener noreferrer" class="text-sm text-primary hover:underline">Open in new tab</a>
-                  </div>
-                `;
-              }}
-            />
+            {!imageError ? (
+              <img
+                src={imageUrl}
+                alt={`${exercise.name} form reference`}
+                className="max-w-full h-auto rounded-lg mx-auto"
+                style={{ maxHeight: '400px' }}
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              renderMediaFallback('Failed to load image', imageUrl)
+            )}
           </div>
         )}
       </CardContent>

@@ -12,14 +12,52 @@ interface ExerciseInfoPopoverProps {
   triggerClassName?: string;
 }
 
+const ensureSafeMediaUrl = (raw?: string | null): string | null => {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  try {
+    const base = typeof window !== 'undefined' && window.location
+      ? window.location.origin
+      : 'http://localhost';
+    const url = new URL(trimmed, base);
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return null;
+    }
+    return url.href;
+  } catch {
+    return null;
+  }
+};
+
+const renderMediaFallback = (message: string, link?: string) => (
+  <div className="text-center py-4">
+    <p className="text-xs text-muted-foreground">{message}</p>
+    {link && (
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+      >
+        <ExternalLink className="h-3 w-3" />
+        Open in new tab
+      </a>
+    )}
+  </div>
+);
+
 export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfoPopoverProps) {
   const [open, setOpen] = useState(false);
+  const [gifError, setGifError] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
-  const hasInstructions = exercise.instructions?.trim();
-  const hasVideo = exercise.videoUrl?.trim();
-  const hasGif = exercise.gifUrl?.trim();
-  const hasImage = exercise.imageUrl?.trim();
-  const hasMedia = hasInstructions || hasVideo || hasGif || hasImage;
+  const instructions = exercise.instructions?.trim();
+  const videoUrl = ensureSafeMediaUrl(exercise.videoUrl);
+  const gifUrl = ensureSafeMediaUrl(exercise.gifUrl);
+  const imageUrl = ensureSafeMediaUrl(exercise.imageUrl);
+  const hasMedia = Boolean(instructions || videoUrl || gifUrl || imageUrl);
 
   if (!hasMedia && !exercise.notes) {
     return null;
@@ -85,73 +123,63 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
             </div>
           )}
 
-          {hasInstructions && (
+          {instructions && (
             <div>
               <div className="flex items-center gap-1 mb-1">
                 <FileText className="h-3 w-3" />
                 <p className="text-xs font-medium text-muted-foreground">Instructions</p>
               </div>
               <p className="text-xs leading-relaxed whitespace-pre-wrap">
-                {exercise.instructions}
+                {instructions}
               </p>
             </div>
           )}
 
-          {hasVideo && (
+          {videoUrl && (
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <Play className="h-3 w-3" />
                 <p className="text-xs font-medium text-muted-foreground">Video</p>
               </div>
-              {renderVideoEmbed(exercise.videoUrl!)}
+              {renderVideoEmbed(videoUrl)}
             </div>
           )}
 
-          {hasGif && (
+          {gifUrl && (
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <Image className="h-3 w-3" />
                 <p className="text-xs font-medium text-muted-foreground">Animation</p>
               </div>
-              <img
-                src={exercise.gifUrl}
-                alt={`${exercise.name} demonstration`}
-                className="w-full h-auto rounded max-h-48 object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.insertAdjacentHTML('afterend', `
-                    <div class="text-center py-4">
-                      <p class="text-xs text-muted-foreground">Failed to load GIF</p>
-                      <a href="${exercise.gifUrl}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary hover:underline">Open in new tab</a>
-                    </div>
-                  `);
-                }}
-              />
+              {!gifError ? (
+                <img
+                  src={gifUrl}
+                  alt={`${exercise.name} demonstration`}
+                  className="w-full h-auto rounded max-h-48 object-contain"
+                  onError={() => setGifError(true)}
+                />
+              ) : (
+                renderMediaFallback('Failed to load GIF', gifUrl)
+              )}
             </div>
           )}
 
-          {hasImage && (
+          {imageUrl && (
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <Image className="h-3 w-3" />
                 <p className="text-xs font-medium text-muted-foreground">Reference</p>
               </div>
-              <img
-                src={exercise.imageUrl}
-                alt={`${exercise.name} form reference`}
-                className="w-full h-auto rounded max-h-48 object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.insertAdjacentHTML('afterend', `
-                    <div class="text-center py-4">
-                      <p class="text-xs text-muted-foreground">Failed to load image</p>
-                      <a href="${exercise.imageUrl}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary hover:underline">Open in new tab</a>
-                    </div>
-                  `);
-                }}
-              />
+              {!imageError ? (
+                <img
+                  src={imageUrl}
+                  alt={`${exercise.name} form reference`}
+                  className="w-full h-auto rounded max-h-48 object-contain"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                renderMediaFallback('Failed to load image', imageUrl)
+              )}
             </div>
           )}
         </div>
