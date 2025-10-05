@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
 import { templateRepository, exerciseRepository } from '@/lib/db/repositories';
@@ -32,7 +32,7 @@ const TEMPLATE_CATEGORIES = [
   { value: 'custom', label: 'Custom' },
 ];
 
-export default function CreateTemplatePage() {
+function CreateTemplatePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAppStore();
@@ -609,5 +609,17 @@ export default function CreateTemplatePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CreateTemplatePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <CreateTemplatePageContent />
+    </Suspense>
   );
 }

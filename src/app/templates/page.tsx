@@ -8,8 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Search, BookOpen, Clock, Dumbbell, Play, Star, Settings, Edit } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ArrowLeft, Search, BookOpen, Clock, Dumbbell, Play, Star, Settings, Edit, Share2, Copy, Check } from 'lucide-react';
 import { formatDuration } from '@/lib/utils/calculations';
+import { prepareTemplateForSharing, generateTemplateShareUrl } from '@/lib/utils/template-sharing';
 import type { WorkoutTemplate } from '@/lib/types';
 import Link from 'next/link';
 
@@ -21,6 +23,11 @@ export default function TemplatesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [sharingTemplate, setSharingTemplate] = useState<WorkoutTemplate | null>(null);
+  const [shareUrl, setShareUrl] = useState<string>('');
+  const [isGeneratingShareUrl, setIsGeneratingShareUrl] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   useEffect(() => {
     const loadTemplates = async () => {
@@ -67,6 +74,38 @@ export default function TemplatesPage() {
   const handleStartTemplate = (templateId: string) => {
     // Navigate to workout page with template ID
     window.location.href = `/workout?template=${templateId}`;
+  };
+
+  const handleShareTemplate = async (template: WorkoutTemplate) => {
+    if (!user) return;
+    
+    setSharingTemplate(template);
+    setShareDialogOpen(true);
+    setIsGeneratingShareUrl(true);
+    setShareUrl('');
+    setCopySuccess(false);
+
+    try {
+      const shareData = await prepareTemplateForSharing(template, user.displayName);
+      const url = generateTemplateShareUrl(shareData);
+      setShareUrl(url);
+    } catch (error) {
+      console.error('Failed to generate share URL:', error);
+    } finally {
+      setIsGeneratingShareUrl(false);
+    }
+  };
+
+  const handleCopyShareUrl = async () => {
+    if (!shareUrl) return;
+    
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+    }
   };
 
   const userTemplates = filteredTemplates.filter(t => !t.isBuiltIn);
@@ -181,6 +220,7 @@ export default function TemplatesPage() {
                     key={template.id}
                     template={template}
                     onStart={() => handleStartTemplate(template.id)}
+                    onShare={handleShareTemplate}
                   />
                 ))}
               </div>
@@ -200,6 +240,7 @@ export default function TemplatesPage() {
                     key={template.id}
                     template={template}
                     onStart={() => handleStartTemplate(template.id)}
+                    onShare={handleShareTemplate}
                   />
                 ))}
               </div>
@@ -230,6 +271,69 @@ export default function TemplatesPage() {
             </Card>
           )}
         </div>
+
+        {/* Share Dialog */}
+        <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Share Template</DialogTitle>
+              <DialogDescription>
+                Share &quot;{sharingTemplate?.name}&quot; with others using this link
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {isGeneratingShareUrl ? (
+                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  <span className="text-sm">Generating share link...</span>
+                </div>
+              ) : shareUrl ? (
+                <div className="space-y-3">
+                  <div className="p-3 bg-muted rounded-lg">
+                    <p className="text-sm font-medium mb-2">Share Link</p>
+                    <div className="flex gap-2">
+                      <Input
+                        value={shareUrl}
+                        readOnly
+                        className="text-xs"
+                        onClick={(e) => e.currentTarget.select()}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCopyShareUrl}
+                        className="shrink-0"
+                      >
+                        {copySuccess ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {copySuccess && (
+                      <p className="text-xs text-green-600 mt-2">Link copied to clipboard!</p>
+                    )}
+                  </div>
+                  
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm">
+                      <strong>How to share:</strong> Send this link to anyone you want to share the template with. 
+                      They can click it to preview and import the template into their app.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600">
+                    Failed to generate share link. Please try again.
+                  </p>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
@@ -238,9 +342,10 @@ export default function TemplatesPage() {
 interface TemplateCardProps {
   template: WorkoutTemplate;
   onStart: () => void;
+  onShare?: (template: WorkoutTemplate) => void;
 }
 
-function TemplateCard({ template, onStart }: TemplateCardProps) {
+function TemplateCard({ template, onStart, onShare }: TemplateCardProps) {
   const getDifficultyColor = (difficulty: WorkoutTemplate['difficulty']) => {
     switch (difficulty) {
       case 'beginner': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
@@ -277,6 +382,11 @@ function TemplateCard({ template, onStart }: TemplateCardProps) {
             )}
           </div>
           <div className="flex gap-2">
+            {onShare && (
+              <Button variant="outline" size="sm" onClick={() => onShare(template)}>
+                <Share2 className="h-4 w-4" />
+              </Button>
+            )}
             {!template.isBuiltIn && (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/templates/create?edit=${template.id}`}>
