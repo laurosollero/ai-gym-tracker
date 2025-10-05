@@ -9,11 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowLeft, Search, BookOpen, Clock, Dumbbell, Play, Star, Settings, Edit, Share2, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Search, BookOpen, Clock, Dumbbell, Play, Star, Settings, Edit, Share2, Copy, Check, QrCode } from 'lucide-react';
 import { formatDuration } from '@/lib/utils/calculations';
 import { prepareTemplateForSharing, generateTemplateShareUrl } from '@/lib/utils/template-sharing';
 import type { WorkoutTemplate } from '@/lib/types';
 import Link from 'next/link';
+import QRCode from 'qrcode';
 
 export default function TemplatesPage() {
   const { user } = useAppStore();
@@ -28,6 +29,8 @@ export default function TemplatesPage() {
   const [shareUrl, setShareUrl] = useState<string>('');
   const [isGeneratingShareUrl, setIsGeneratingShareUrl] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
+  const [showQrCode, setShowQrCode] = useState(false);
 
   useEffect(() => {
     const loadTemplates = async () => {
@@ -83,12 +86,25 @@ export default function TemplatesPage() {
     setShareDialogOpen(true);
     setIsGeneratingShareUrl(true);
     setShareUrl('');
+    setQrCodeDataUrl('');
     setCopySuccess(false);
+    setShowQrCode(false);
 
     try {
       const shareData = await prepareTemplateForSharing(template, user.displayName);
       const url = generateTemplateShareUrl(shareData);
       setShareUrl(url);
+      
+      // Generate QR code
+      const qrCode = await QRCode.toDataURL(url, {
+        width: 256,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+      setQrCodeDataUrl(qrCode);
     } catch (error) {
       console.error('Failed to generate share URL:', error);
     } finally {
@@ -278,7 +294,7 @@ export default function TemplatesPage() {
             <DialogHeader>
               <DialogTitle>Share Template</DialogTitle>
               <DialogDescription>
-                Share &quot;{sharingTemplate?.name}&quot; with others using this link
+                Share &quot;{sharingTemplate?.name}&quot; with others
               </DialogDescription>
             </DialogHeader>
             
@@ -289,40 +305,90 @@ export default function TemplatesPage() {
                   <span className="text-sm">Generating share link...</span>
                 </div>
               ) : shareUrl ? (
-                <div className="space-y-3">
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-sm font-medium mb-2">Share Link</p>
-                    <div className="flex gap-2">
-                      <Input
-                        value={shareUrl}
-                        readOnly
-                        className="text-xs"
-                        onClick={(e) => e.currentTarget.select()}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCopyShareUrl}
-                        className="shrink-0"
-                      >
-                        {copySuccess ? (
-                          <Check className="h-4 w-4" />
-                        ) : (
-                          <Copy className="h-4 w-4" />
+                <div className="space-y-4">
+                  {/* Toggle Buttons */}
+                  <div className="flex gap-2">
+                    <Button
+                      variant={!showQrCode ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setShowQrCode(false)}
+                      className="flex-1"
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Link
+                    </Button>
+                    <Button
+                      variant={showQrCode ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setShowQrCode(true)}
+                      className="flex-1"
+                    >
+                      <QrCode className="h-4 w-4 mr-2" />
+                      QR Code
+                    </Button>
+                  </div>
+
+                  {!showQrCode ? (
+                    /* Link Sharing */
+                    <div className="space-y-3">
+                      <div className="p-3 bg-muted rounded-lg">
+                        <p className="text-sm font-medium mb-2">Share Link</p>
+                        <div className="flex gap-2">
+                          <Input
+                            value={shareUrl}
+                            readOnly
+                            className="text-xs"
+                            onClick={(e) => e.currentTarget.select()}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCopyShareUrl}
+                            className="shrink-0"
+                          >
+                            {copySuccess ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                        {copySuccess && (
+                          <p className="text-xs text-green-600 mt-2">Link copied to clipboard!</p>
                         )}
-                      </Button>
+                      </div>
+                      
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm">
+                          <strong>How to share:</strong> Send this link via text, email, or messaging apps. 
+                          Recipients can click it to preview and import the template.
+                        </p>
+                      </div>
                     </div>
-                    {copySuccess && (
-                      <p className="text-xs text-green-600 mt-2">Link copied to clipboard!</p>
-                    )}
-                  </div>
-                  
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm">
-                      <strong>How to share:</strong> Send this link to anyone you want to share the template with. 
-                      They can click it to preview and import the template into their app.
-                    </p>
-                  </div>
+                  ) : (
+                    /* QR Code Sharing */
+                    <div className="space-y-3">
+                      <div className="p-3 bg-muted rounded-lg text-center">
+                        <p className="text-sm font-medium mb-3">QR Code</p>
+                        {qrCodeDataUrl && (
+                          <div className="flex justify-center">
+                            <img 
+                              src={qrCodeDataUrl} 
+                              alt="Template QR Code"
+                              className="w-48 h-48 border border-border rounded-lg"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm">
+                          <strong>How to use:</strong> Have someone scan this QR code with their phone camera 
+                          or QR scanner app to instantly open the template sharing page.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">

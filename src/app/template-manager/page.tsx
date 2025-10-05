@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Download, Upload, FileText, Share, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Download, Upload, FileText, Share, AlertTriangle, CheckCircle, FolderDown, Package } from 'lucide-react';
 import type { WorkoutTemplate, TemplateExercise, Exercise } from '@/lib/types';
 import Link from 'next/link';
 
@@ -39,6 +39,8 @@ export default function TemplateManagerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedTemplateIds, setSelectedTemplateIds] = useState<Set<string>>(new Set());
+  const [isExportingAll, setIsExportingAll] = useState(false);
 
   // Load user templates
   const loadTemplates = useCallback(async () => {
@@ -316,6 +318,120 @@ export default function TemplateManagerPage() {
     }
   };
 
+  const handleTemplateToggle = (templateId: string) => {
+    const newSelected = new Set(selectedTemplateIds);
+    if (newSelected.has(templateId)) {
+      newSelected.delete(templateId);
+    } else {
+      newSelected.add(templateId);
+    }
+    setSelectedTemplateIds(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedTemplateIds.size === templates.length) {
+      setSelectedTemplateIds(new Set());
+    } else {
+      setSelectedTemplateIds(new Set(templates.map(t => t.id)));
+    }
+  };
+
+  const exportSelectedTemplates = async () => {
+    if (selectedTemplateIds.size === 0) return;
+
+    setIsExportingAll(true);
+    try {
+      const selectedTemplates = templates.filter(t => selectedTemplateIds.has(t.id));
+      const exportData = [];
+
+      for (const template of selectedTemplates) {
+        // Get exercise details for each template
+        const exerciseDetails: Array<{
+          exerciseId: string;
+          exerciseName: string;
+          muscles: string[];
+          equipment?: string;
+        }> = [];
+
+        for (const templateExercise of template.exercises) {
+          try {
+            const exercise = await exerciseRepository.getExerciseById(templateExercise.exerciseId);
+            if (exercise) {
+              exerciseDetails.push({
+                exerciseId: exercise.id,
+                exerciseName: exercise.name,
+                muscles: exercise.muscles,
+                equipment: exercise.equipment,
+              });
+            } else {
+              exerciseDetails.push({
+                exerciseId: templateExercise.exerciseId,
+                exerciseName: templateExercise.exerciseName,
+                muscles: [],
+                equipment: undefined,
+              });
+            }
+          } catch (error) {
+            console.warn(`Failed to load exercise ${templateExercise.exerciseId}:`, error);
+            exerciseDetails.push({
+              exerciseId: templateExercise.exerciseId,
+              exerciseName: templateExercise.exerciseName,
+              muscles: [],
+              equipment: undefined,
+            });
+          }
+        }
+
+        const templateExportData: TemplateExportData = {
+          template: {
+            name: template.name,
+            description: template.description,
+            category: template.category,
+            difficulty: template.difficulty,
+            estimatedDuration: template.estimatedDuration,
+            exercises: template.exercises,
+            tags: template.tags,
+            isBuiltIn: false,
+            createdFromSessionId: template.createdFromSessionId,
+          },
+          exercises: exerciseDetails,
+          exportedAt: new Date().toISOString(),
+          exportedBy: user?.displayName || 'Unknown',
+          version: '1.0.0',
+        };
+
+        exportData.push(templateExportData);
+      }
+
+      const bulkExportData = {
+        templates: exportData,
+        exportedAt: new Date().toISOString(),
+        exportedBy: user?.displayName || 'Unknown',
+        version: '1.0.0',
+        count: exportData.length,
+      };
+
+      const json = JSON.stringify(bulkExportData, null, 2);
+      const filename = `gym_tracker_templates_${selectedTemplates.length}_${new Date().toISOString().split('T')[0]}.json`;
+      
+      downloadFile(json, filename, 'application/json');
+    } catch (error) {
+      console.error('Bulk export failed:', error);
+    } finally {
+      setIsExportingAll(false);
+    }
+  };
+
+  const exportAllTemplates = async () => {
+    if (templates.length === 0) return;
+    
+    // Select all templates and export
+    setSelectedTemplateIds(new Set(templates.map(t => t.id)));
+    setTimeout(() => {
+      exportSelectedTemplates();
+    }, 100);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 max-w-4xl">
@@ -333,9 +449,10 @@ export default function TemplateManagerPage() {
         </header>
 
         <Tabs defaultValue="export" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="export">Export Templates</TabsTrigger>
-            <TabsTrigger value="import">Import Templates</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="export">Single Export</TabsTrigger>
+            <TabsTrigger value="bulk">Bulk Operations</TabsTrigger>
+            <TabsTrigger value="import">Import</TabsTrigger>
           </TabsList>
 
           {/* Export Tab */}
@@ -406,6 +523,117 @@ export default function TemplateManagerPage() {
                     <p className="text-muted-foreground">No custom templates found</p>
                     <p className="text-sm text-muted-foreground">
                       Create some custom templates first to export them
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Bulk Operations Tab */}
+          <TabsContent value="bulk" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Bulk Template Operations
+                </CardTitle>
+                <CardDescription>
+                  Export multiple templates at once or import template collections
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {templates.length > 0 ? (
+                  <>
+                    {/* Quick Actions */}
+                    <div className="flex gap-3 flex-wrap">
+                      <Button
+                        onClick={exportAllTemplates}
+                        disabled={isExportingAll}
+                        variant="outline"
+                      >
+                        {isExportingAll ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                            Exporting...
+                          </>
+                        ) : (
+                          <>
+                            <FolderDown className="h-4 w-4 mr-2" />
+                            Export All ({templates.length})
+                          </>
+                        )}
+                      </Button>
+                      
+                      <Button
+                        onClick={handleSelectAll}
+                        variant="outline"
+                      >
+                        {selectedTemplateIds.size === templates.length ? 'Deselect All' : 'Select All'}
+                      </Button>
+
+                      {selectedTemplateIds.size > 0 && (
+                        <Button
+                          onClick={exportSelectedTemplates}
+                          disabled={isExportingAll}
+                        >
+                          {isExportingAll ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Exporting...
+                            </>
+                          ) : (
+                            <>
+                              <Download className="h-4 w-4 mr-2" />
+                              Export Selected ({selectedTemplateIds.size})
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Template Selection List */}
+                    <div className="border rounded-lg divide-y max-h-96 overflow-y-auto">
+                      {templates.map((template) => (
+                        <div key={template.id} className="p-3 flex items-center gap-3 hover:bg-muted/50">
+                          <input
+                            type="checkbox"
+                            checked={selectedTemplateIds.has(template.id)}
+                            onChange={() => handleTemplateToggle(template.id)}
+                            className="rounded"
+                          />
+                          <div className="flex-1">
+                            <div className="font-medium">{template.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {template.exercises.length} exercises • {template.category} • {template.difficulty}
+                            </div>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {template.estimatedDuration}min
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="p-3 bg-muted rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <Package className="h-4 w-4 mt-0.5 text-blue-500" />
+                        <div className="text-sm">
+                          <p className="font-medium">Bulk Export Benefits</p>
+                          <p className="text-muted-foreground">
+                            Export multiple templates in one file for easy sharing with coaching clients, 
+                            backup purposes, or transferring between devices.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">No templates available for bulk operations</p>
+                    <p className="text-sm text-muted-foreground">
+                      Create some custom templates first to use bulk features
                     </p>
                   </div>
                 )}
