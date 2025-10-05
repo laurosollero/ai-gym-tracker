@@ -1,27 +1,87 @@
 {
-  "name": "Gym Tracker",
+  "name": "AI Gym Tracker",
   "short_name": "GymTracker",
-  "description": "Track your workouts and progress",
+  "description": "Modern fitness tracking app with workout logging, progress analytics, and template sharing",
   "theme_color": "#0f172a",
   "background_color": "#ffffff",
   "display": "standalone",
-  "orientation": "portrait",
-  "scope": "/",
-  "start_url": "/",
+  "orientation": "portrait-primary",
+  "scope": "/ai-gym-tracker/",
+  "start_url": "/ai-gym-tracker/",
   "lang": "en",
-  "categories": ["health", "fitness", "productivity"],
+  "categories": ["health", "fitness", "productivity", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/ai-gym-tracker/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/ai-gym-tracker/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/ai-gym-tracker/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
+    },
+    {
+      "src": "/ai-gym-tracker/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ai-gym-tracker/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "shortcuts": [
+    {
+      "name": "Start Workout",
+      "short_name": "Workout",
+      "description": "Quick start a new workout session",
+      "url": "/ai-gym-tracker/workout",
+      "icons": [
+        {
+          "src": "/ai-gym-tracker/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "View History",
+      "short_name": "History",
+      "description": "View your workout history",
+      "url": "/ai-gym-tracker/history",
+      "icons": [
+        {
+          "src": "/ai-gym-tracker/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Templates",
+      "short_name": "Templates",
+      "description": "Browse workout templates",
+      "url": "/ai-gym-tracker/templates",
+      "icons": [
+        {
+          "src": "/ai-gym-tracker/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
