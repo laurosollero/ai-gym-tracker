@@ -22,7 +22,6 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "AI Gym Tracker",
-    startupImage: "/ai-gym-tracker/icon-512x512.png",
   },
   formatDetection: {
     telephone: false,
@@ -63,11 +62,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="AI Gym Tracker" />
-        <link rel="apple-touch-icon" href="/ai-gym-tracker/icon-192x192.png" />
-        <link rel="apple-touch-startup-image" href="/ai-gym-tracker/icon-512x512.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-TileColor" content="#0f172a" />
-        <meta name="msapplication-TileImage" content="/ai-gym-tracker/icon-192x192.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
