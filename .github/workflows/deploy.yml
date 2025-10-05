@@ -1,29 +1,38 @@
-  name: Deploy Next.js to GitHub Pages
+name: Deploy Next.js to GitHub Pages
 
-  on:
-    push:
-      branches: [ main ]
+on:
+  push:
+    branches: [ main ]
 
-  jobs:
-    build-and-deploy:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-
-        - name: Setup Node.js
-          uses: actions/setup-node@v3
-          with:
-            node-version: '18'
-            cache: 'npm'
-
-        - name: Install dependencies
-          run: npm ci
-
-        - name: Build and export
-          run: npm run export
-
-        - name: Deploy to GitHub Pages
-          uses: peaceiris/actions-gh-pages@v3
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: ./out
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Clear npm config
+        run: |
+          npm config delete registry || true
+          npm config set registry https://registry.npmjs.org/
+          npm config delete //npm.madbox.io/:_authToken || true
+          
+      - name: Install dependencies
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ''
+        
+      - name: Build and export
+        run: npm run export
+        
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./out
