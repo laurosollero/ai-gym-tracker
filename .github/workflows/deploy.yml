@@ -15,18 +15,17 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
           
-      - name: Clear npm config
+      - name: Clear npm config and force public registry
         run: |
-          npm config delete registry || true
+          rm -f ~/.npmrc || true
+          rm -f .npmrc || true
+          echo "registry=https://registry.npmjs.org/" > .npmrc
           npm config set registry https://registry.npmjs.org/
-          npm config delete //npm.madbox.io/:_authToken || true
+          npm config list
           
       - name: Install dependencies
         run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ''
         
       - name: Build and export
         run: npm run export
