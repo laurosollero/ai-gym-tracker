@@ -24,6 +24,11 @@ jobs:
           npm config set registry https://registry.npmjs.org/
           npm config list
           
+      - name: Remove package-lock and reinstall with public registry
+        run: |
+          rm -f package-lock.json
+          npm install
+          
       - name: Install dependencies
         run: npm ci
         
