@@ -123,8 +123,8 @@ export function InstallPrompt() {
               {isIOS ? (
                 <div className="text-xs text-muted-foreground mb-3">
                   <p>1. Tap the Share button in Safari</p>
-                  <p>2. Select "Add to Home Screen"</p>
-                  <p>3. Tap "Add" to install</p>
+                  <p>2. Select &quot;Add to Home Screen&quot;</p>
+                  <p>3. Tap &quot;Add&quot; to install</p>
                 </div>
               ) : null}
               
