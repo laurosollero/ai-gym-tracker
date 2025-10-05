@@ -1,36 +1,144 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏋️ AI Gym Tracker
 
-## Getting Started
+A modern, local-first fitness tracking Progressive Web App built with Next.js 15 and TypeScript. Track your workouts, manage templates, and monitor your progress - all while working offline.
 
-First, run the development server:
+## 🚀 Live Demo
+
+**Try it now:** [https://laurosollero.github.io/ai-gym-tracker/](https://laurosollero.github.io/ai-gym-tracker/)
+
+Install as a PWA on your mobile device for the best experience!
+
+## ✨ Features
+
+### 🏃‍♂️ Core Workout Tracking
+- **Exercise Library**: 20+ built-in exercises + custom exercise creation
+- **Workout Sessions**: Log sets with weight, reps, rest times, and RPE
+- **Rest Timer**: Automatic rest timing with visual progress
+- **Session History**: Complete workout history with detailed analytics
+
+### 📊 Progress Analytics  
+- **Personal Records**: Automatic PR detection and tracking
+- **Progress Charts**: Visual progress tracking per exercise
+- **Volume Analysis**: Weekly and monthly volume trends
+- **1RM Calculator**: Estimated 1-rep max with projections
+- **Body Measurements**: Track weight, body fat, and custom metrics
+
+### 📋 Template System
+- **Template Builder**: Create workout templates from scratch (Coach Mode)
+- **Template Library**: Browse and organize workout templates
+- **Template Sharing**: Share templates via URLs and QR codes
+- **Import/Export**: Bulk template operations for coaching workflows
+- **Auto-Import**: Seamless template import from shared links
+
+### 🛠️ Advanced Tools
+- **Plate Calculator**: Visual barbell loading calculator
+- **Exercise Media**: YouTube videos, GIFs, and instruction support
+- **PWA Installation**: Install as a native app on any device
+- **Offline First**: Full functionality without internet connection
+- **Responsive Design**: Optimized for mobile and desktop
+
+## 🏗️ Technical Stack
+
+- **Framework**: Next.js 15 with Turbopack
+- **Database**: IndexedDB via Dexie.js (local-first)
+- **UI**: ShadCN UI components + Tailwind CSS
+- **State Management**: Zustand
+- **Charts**: Recharts for analytics
+- **QR Codes**: qrcode library for template sharing
+- **PWA**: Custom service worker for offline functionality
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/laurosollero/ai-gym-tracker.git
+   cd ai-gym-tracker
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open in browser**
+   ```
+   http://localhost:3000
+   ```
+
+### Build for Production
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build      # Build for deployment
+npm run export     # Generate static export for GitHub Pages
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📱 PWA Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The app can be installed as a Progressive Web App:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Mobile**: Use "Add to Home Screen" option in your browser
+2. **Desktop**: Look for the install prompt in the address bar
+3. **Manual**: Use browser settings to install PWA
 
-## Learn More
+## 🎯 Usage
 
-To learn more about Next.js, take a look at the following resources:
+### Quick Start Workout
+1. Open the app and tap "Start Workout"
+2. Add exercises using the exercise selector
+3. Log your sets with weight and reps
+4. Use the automatic rest timer between sets
+5. Finish and review your session
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Template Sharing
+1. Create or edit a template
+2. Use the share button to generate a URL/QR code
+3. Share with others for instant template import
+4. Recipients can preview and import with one tap
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Coach Mode
+1. Navigate to "Templates" → "Create Template"
+2. Build detailed workout programs without performing them
+3. Set target weights, reps, RPE, and rest times
+4. Export templates for athletes or personal use
 
-## Deploy on Vercel
+## 🛣️ Roadmap
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Phase 4**: Supabase integration for cloud sync and user accounts
+- **Phase 5**: AI-powered recommendations and advanced analytics
+- **Phase 6**: Social features and community template marketplace
+- **Phase 7**: Wearable integrations and mobile apps
+- **Phase 8**: Enterprise coaching tools and multi-athlete management
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🤝 Contributing
+
+This is currently a personal project, but feedback and suggestions are welcome! Feel free to:
+
+- Open issues for bug reports or feature requests
+- Share your experience using the app
+- Suggest improvements or new features
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🙏 Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/)
+- UI components from [ShadCN/UI](https://ui.shadcn.com/)
+- Icons from [Lucide React](https://lucide.dev/)
+- Deployed on [GitHub Pages](https://pages.github.com/)
+
+---
+
+**Start tracking your fitness journey today!** 💪
