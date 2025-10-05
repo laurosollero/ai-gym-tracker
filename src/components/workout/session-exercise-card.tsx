@@ -1,26 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { sessionExerciseRepository, personalRecordRepository } from '@/lib/db/repositories';
 import { useAppStore } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Check, Timer, Trophy } from 'lucide-react';
-import type { SessionExercise, SetEntry, PersonalRecord } from '@/lib/types';
+import { Plus, Check, Trophy } from 'lucide-react';
+import { ExerciseInfoPopover } from '@/components/exercise/exercise-info-popover';
+import type { SessionExercise, SetEntry, PersonalRecord, Exercise } from '@/lib/types';
 import { formatWeight } from '@/lib/utils/calculations';
 
 interface SessionExerciseCardProps {
   sessionExercise: SessionExercise;
   sessionId: string;
   index: number;
+  exercise?: Exercise; // Full exercise object for media display
 }
 
 export function SessionExerciseCard({
   sessionExercise,
   sessionId,
-  index,
+  exercise,
 }: SessionExerciseCardProps) {
   const { user, currentSession, setCurrentSession, startRestTimer } = useAppStore();
   const [newSet, setNewSet] = useState<Partial<SetEntry>>({
@@ -82,7 +84,7 @@ export function SessionExerciseCard({
     }
   };
 
-  const handleCompleteSet = async (setId: string, setIndex: number) => {
+  const handleCompleteSet = async (setId: string) => {
     try {
       await sessionExerciseRepository.updateSet(sessionExercise.id, setId, {
         completedAt: new Date(),
@@ -153,7 +155,10 @@ export function SessionExerciseCard({
     <Card>
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">{sessionExercise.nameAtTime}</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-lg">{sessionExercise.nameAtTime}</CardTitle>
+            {exercise && <ExerciseInfoPopover exercise={exercise} />}
+          </div>
           <div className="flex gap-2">
             <Badge variant="secondary">
               {completedSets}/{sessionExercise.sets.length} sets
@@ -223,7 +228,7 @@ export function SessionExerciseCard({
                   ) : (
                     <Button
                       size="sm"
-                      onClick={() => handleCompleteSet(set.id, setIndex)}
+                      onClick={() => handleCompleteSet(set.id)}
                       className="flex items-center gap-1"
                     >
                       <Check className="h-3 w-3" />

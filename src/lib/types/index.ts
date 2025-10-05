@@ -18,6 +18,10 @@ export interface Exercise {
   isCustom: boolean;
   ownerId?: string;
   notes?: string;
+  instructions?: string;
+  videoUrl?: string;
+  gifUrl?: string;
+  imageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }

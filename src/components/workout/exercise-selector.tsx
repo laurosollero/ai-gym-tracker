@@ -175,8 +175,22 @@ export function ExerciseSelector({
           ))}
 
           {filteredExercises.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              {searchQuery ? 'No exercises found matching your search.' : 'No exercises available.'}
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-3">
+                {searchQuery ? 'No exercises found matching your search.' : 'No exercises available.'}
+              </p>
+              {searchQuery && (
+                <p className="text-sm text-muted-foreground mb-4">
+                  Try adjusting your search or create a custom exercise below.
+                </p>
+              )}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowCustomDialog(true)}
+              >
+                Create Custom Exercise
+              </Button>
             </div>
           )}
         </div>

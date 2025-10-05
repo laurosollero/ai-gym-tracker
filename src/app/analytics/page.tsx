@@ -105,12 +105,18 @@ export default function AnalyticsPage() {
             <CardContent className="pt-6 text-center">
               <Dumbbell className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-lg font-semibold mb-2">Start tracking your progress</h3>
-              <p className="text-muted-foreground mb-4">
-                Complete some workouts to see your analytics and progress charts
+              <p className="text-muted-foreground mb-6">
+                Complete a few workouts to unlock powerful analytics including personal records,
+                progress charts, volume trends, and strength gains over time.
               </p>
-              <Button asChild>
-                <Link href="/workout">Start Workout</Link>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button asChild>
+                  <Link href="/workout">Start First Workout</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/templates">Browse Templates</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>

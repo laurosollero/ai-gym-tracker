@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
-import { sessionRepository, sessionExerciseRepository, templateRepository } from '@/lib/db/repositories';
+import { sessionRepository, sessionExerciseRepository, templateRepository, exerciseRepository } from '@/lib/db/repositories';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,7 +11,7 @@ import { ExerciseSelector } from '@/components/workout/exercise-selector';
 import { SessionExerciseCard } from '@/components/workout/session-exercise-card';
 import { RestTimer } from '@/components/workout/rest-timer';
 import { ArrowLeft, Plus, Save, FileText, BookOpen } from 'lucide-react';
-import type { WorkoutSession, WorkoutTemplate } from '@/lib/types';
+import type { WorkoutSession, WorkoutTemplate, Exercise } from '@/lib/types';
 import Link from 'next/link';
 
 function WorkoutPageContent() {
@@ -22,6 +22,7 @@ function WorkoutPageContent() {
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [sessionNotes, setSessionNotes] = useState('');
   const [template, setTemplate] = useState<WorkoutTemplate | null>(null);
+  const [exercises, setExercises] = useState<Map<string, Exercise>>(new Map());
   
   const templateId = searchParams?.get('template');
 
@@ -103,6 +104,30 @@ function WorkoutPageContent() {
     }
   }, [user, currentSession, setCurrentSession, setSessionActive, template, templateId]);
 
+  // Load exercise data for the session
+  useEffect(() => {
+    const loadExercises = async () => {
+      if (!currentSession || currentSession.exercises.length === 0) return;
+
+      try {
+        const exerciseMap = new Map<string, Exercise>();
+        
+        for (const sessionExercise of currentSession.exercises) {
+          const exercise = await exerciseRepository.getExerciseById(sessionExercise.exerciseId);
+          if (exercise) {
+            exerciseMap.set(sessionExercise.exerciseId, exercise);
+          }
+        }
+        
+        setExercises(exerciseMap);
+      } catch (error) {
+        console.error('Failed to load exercises:', error);
+      }
+    };
+
+    loadExercises();
+  }, [currentSession]);
+
   const handleFinishWorkout = async () => {
     if (!currentSession) return;
 
@@ -124,8 +149,7 @@ function WorkoutPageContent() {
     }
   };
 
-  const handleAddExercise = (exerciseId: string, exerciseName: string) => {
-    // This will be handled by the exercise selector component
+  const handleAddExercise = () => {
     setShowExerciseSelector(false);
   };
 
@@ -201,12 +225,13 @@ function WorkoutPageContent() {
 
         {/* Exercises */}
         <div className="space-y-4 mb-6">
-          {currentSession.exercises.map((exercise, index) => (
+          {currentSession.exercises.map((sessionExercise, index) => (
             <SessionExerciseCard
-              key={exercise.id}
-              sessionExercise={exercise}
+              key={sessionExercise.id}
+              sessionExercise={sessionExercise}
               sessionId={currentSession.id}
               index={index}
+              exercise={exercises.get(sessionExercise.exerciseId)}
             />
           ))}
         </div>

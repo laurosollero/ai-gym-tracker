@@ -65,12 +65,18 @@ export default function HistoryPage() {
             <CardContent className="pt-6 text-center">
               <Dumbbell className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-lg font-semibold mb-2">No workouts yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Start your first workout to see your history here.
+              <p className="text-muted-foreground mb-6">
+                Your workout history will appear here once you complete your first session.
+                Each workout shows details like exercises, sets, and total volume.
               </p>
-              <Button asChild>
-                <Link href="/workout">Start Workout</Link>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button asChild>
+                  <Link href="/workout">Start First Workout</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/templates">Browse Templates</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (

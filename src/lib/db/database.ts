@@ -26,6 +26,18 @@ export class GymTrackerDatabase extends Dexie {
       bodyMeasurements: 'id, userId, measurementType, date, [userId+measurementType], [userId+date]',
       workoutStreaks: 'id, userId, isCurrent, startDate, [userId+isCurrent]',
     });
+
+    // Version 2: Add exercise media fields (instructions, videoUrl, gifUrl, imageUrl)
+    this.version(2).stores({
+      users: 'id, email, unitSystem',
+      exercises: 'id, name, isCustom, [isCustom+name]',
+      workoutSessions: 'id, userId, date, [userId+date]',
+      sessionExercises: 'id, sessionId, exerciseId, orderIndex, [sessionId+orderIndex]',
+      workoutTemplates: 'id, name, category, difficulty, ownerId, [ownerId+category], [category+difficulty]',
+      personalRecords: 'id, userId, exerciseId, recordType, achievedAt, [userId+exerciseId], [userId+recordType], [exerciseId+recordType], [userId+achievedAt]',
+      bodyMeasurements: 'id, userId, measurementType, date, [userId+measurementType], [userId+date]',
+      workoutStreaks: 'id, userId, isCurrent, startDate, [userId+isCurrent]',
+    });
   }
 }
 

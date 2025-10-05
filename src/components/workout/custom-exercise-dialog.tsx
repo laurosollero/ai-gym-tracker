@@ -39,6 +39,10 @@ export function CustomExerciseDialog({
     muscles: [] as string[],
     equipment: '',
     notes: '',
+    instructions: '',
+    videoUrl: '',
+    gifUrl: '',
+    imageUrl: '',
   });
   const [customMuscle, setCustomMuscle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +53,10 @@ export function CustomExerciseDialog({
       muscles: [],
       equipment: '',
       notes: '',
+      instructions: '',
+      videoUrl: '',
+      gifUrl: '',
+      imageUrl: '',
     });
     setCustomMuscle('');
   };
@@ -95,6 +103,10 @@ export function CustomExerciseDialog({
         isCustom: true,
         ownerId: user?.id,
         notes: formData.notes.trim() || undefined,
+        instructions: formData.instructions.trim() || undefined,
+        videoUrl: formData.videoUrl.trim() || undefined,
+        gifUrl: formData.gifUrl.trim() || undefined,
+        imageUrl: formData.imageUrl.trim() || undefined,
       };
 
       const exercise = await exerciseRepository.createExercise(exerciseData);
@@ -234,8 +246,57 @@ export function CustomExerciseDialog({
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               placeholder="Setup instructions, form cues, etc."
+              rows={2}
+            />
+          </div>
+
+          {/* Instructions */}
+          <div className="space-y-2">
+            <Label htmlFor="instructions">Detailed Instructions (Optional)</Label>
+            <Textarea
+              id="instructions"
+              value={formData.instructions}
+              onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
+              placeholder="Step-by-step exercise instructions..."
               rows={3}
             />
+          </div>
+
+          {/* Media URLs */}
+          <div className="space-y-3">
+            <Label>Exercise Media (Optional)</Label>
+            <div className="space-y-2">
+              <div>
+                <Label htmlFor="videoUrl" className="text-sm text-muted-foreground">Video URL</Label>
+                <Input
+                  id="videoUrl"
+                  value={formData.videoUrl}
+                  onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                  placeholder="https://youtube.com/watch?v=..."
+                  type="url"
+                />
+              </div>
+              <div>
+                <Label htmlFor="gifUrl" className="text-sm text-muted-foreground">GIF URL</Label>
+                <Input
+                  id="gifUrl"
+                  value={formData.gifUrl}
+                  onChange={(e) => setFormData({ ...formData, gifUrl: e.target.value })}
+                  placeholder="https://example.com/exercise.gif"
+                  type="url"
+                />
+              </div>
+              <div>
+                <Label htmlFor="imageUrl" className="text-sm text-muted-foreground">Image URL</Label>
+                <Input
+                  id="imageUrl"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  placeholder="https://example.com/exercise.jpg"
+                  type="url"
+                />
+              </div>
+            </div>
           </div>
         </form>
 

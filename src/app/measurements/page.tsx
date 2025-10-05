@@ -383,8 +383,14 @@ export default function MeasurementsPage() {
                 ) : (
                   <div className="text-center py-12">
                     <Ruler className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">No measurements recorded yet</p>
-                    <p className="text-sm text-muted-foreground">Start tracking your progress by adding your first measurement!</p>
+                    <h3 className="text-lg font-semibold mb-2">No measurements recorded yet</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Track your body measurements to see progress beyond just strength gains.
+                      Start with weight, then add measurements like waist, chest, or muscle mass.
+                    </p>
+                    <Button onClick={() => setIsAddingMeasurement(true)}>
+                      Add First Measurement
+                    </Button>
                   </div>
                 )}
               </CardContent>

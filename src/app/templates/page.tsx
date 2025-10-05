@@ -204,15 +204,20 @@ export default function TemplatesPage() {
               <CardContent className="pt-6 text-center">
                 <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-lg font-semibold mb-2">No templates found</h3>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-muted-foreground mb-6">
                   {searchQuery || selectedCategory !== 'all' || selectedDifficulty !== 'all'
-                    ? 'Try adjusting your filters'
-                    : 'Complete a workout and save it as a template to get started'
+                    ? 'Try adjusting your filters to see more templates'
+                    : 'Templates help you quickly start structured workouts. Create one by completing a workout and saving it as a template.'
                   }
                 </p>
-                <Button asChild>
-                  <Link href="/workout">Start Workout</Link>
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button asChild>
+                    <Link href="/workout">Start Workout</Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link href="/template-manager">Import Templates</Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
