@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { sessionRepository, userRepository } from '@/lib/db/repositories';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { sessionRepository } from '@/lib/db/repositories';
 import { useAppStore } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,9 +13,8 @@ import { calculateSessionSummary, formatWeight, formatDuration } from '@/lib/uti
 import type { WorkoutSession, SessionSummary } from '@/lib/types';
 import Link from 'next/link';
 
-export default function SessionReviewPage() {
-  const params = useParams();
-  const router = useRouter();
+function SessionReviewContent() {
+  const searchParams = useSearchParams();
   const { user } = useAppStore();
   const [session, setSession] = useState<WorkoutSession | null>(null);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
@@ -25,7 +24,12 @@ export default function SessionReviewPage() {
   useEffect(() => {
     const loadSession = async () => {
       try {
-        const sessionId = params.id as string;
+        const sessionId = searchParams?.get('id');
+        if (!sessionId) {
+          setIsLoading(false);
+          return;
+        }
+        
         const loadedSession = await sessionRepository.getSessionById(sessionId);
         
         if (loadedSession) {
@@ -40,7 +44,7 @@ export default function SessionReviewPage() {
     };
 
     loadSession();
-  }, [params.id]);
+  }, [searchParams]);
 
   if (isLoading) {
     return (
@@ -131,7 +135,7 @@ export default function SessionReviewPage() {
             <CardTitle>Exercise Breakdown</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {session.exercises.map((exercise, index) => {
+            {session.exercises.map((exercise) => {
               const completedSets = exercise.sets.filter(set => set.completedAt).length;
               const exerciseVolume = exercise.sets
                 .filter(set => set.reps && set.weight && set.completedAt)
@@ -216,12 +220,23 @@ export default function SessionReviewPage() {
             onClose={() => setShowSaveTemplate(false)}
             session={session}
             onTemplateSaved={() => {
-              // Could show a success message here
               console.log('Template saved successfully!');
             }}
           />
         )}
       </div>
     </div>
+  );
+}
+
+export default function SessionReviewPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <SessionReviewContent />
+    </Suspense>
   );
 }

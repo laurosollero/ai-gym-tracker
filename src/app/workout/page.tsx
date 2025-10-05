@@ -141,7 +141,7 @@ function WorkoutPageContent() {
       await sessionRepository.finishSession(currentSession.id);
       setCurrentSession(null);
       setSessionActive(false);
-      router.push(`/workout/review/${currentSession.id}`);
+      router.push(`/workout-review?id=${currentSession.id}`);
     } catch (error) {
       console.error('Failed to finish session:', error);
     } finally {

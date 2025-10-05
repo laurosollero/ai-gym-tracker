@@ -140,7 +140,7 @@ export default function HistoryPage() {
                     {/* View Details Button */}
                     <div className="pt-2">
                       <Button variant="outline" size="sm" asChild>
-                        <Link href={`/workout/review/${session.id}`}>
+                        <Link href={`/workout-review?id=${session.id}`}>
                           View Details
                         </Link>
                       </Button>
