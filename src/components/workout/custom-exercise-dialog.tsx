@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { exerciseRepository } from '@/lib/db/repositories';
 import { useAppStore } from '@/lib/store';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -16,6 +16,7 @@ interface CustomExerciseDialogProps {
   open: boolean;
   onClose: () => void;
   onExerciseCreated: (exercise: Exercise) => void;
+  editingExercise?: Exercise | null;
 }
 
 const COMMON_MUSCLES = [
@@ -32,6 +33,7 @@ export function CustomExerciseDialog({
   open,
   onClose,
   onExerciseCreated,
+  editingExercise,
 }: CustomExerciseDialogProps) {
   const { user } = useAppStore();
   const [formData, setFormData] = useState({
@@ -46,6 +48,24 @@ export function CustomExerciseDialog({
   });
   const [customMuscle, setCustomMuscle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Populate form when editing
+  useEffect(() => {
+    if (editingExercise) {
+      setFormData({
+        name: editingExercise.name,
+        muscles: [...editingExercise.muscles],
+        equipment: editingExercise.equipment || '',
+        notes: editingExercise.notes || '',
+        instructions: editingExercise.instructions || '',
+        videoUrl: editingExercise.videoUrl || '',
+        gifUrl: editingExercise.gifUrl || '',
+        imageUrl: editingExercise.imageUrl || '',
+      });
+    } else {
+      resetForm();
+    }
+  }, [editingExercise]);
 
   const resetForm = () => {
     setFormData({
@@ -95,25 +115,49 @@ export function CustomExerciseDialog({
 
     setIsLoading(true);
     try {
-      const exerciseData: Omit<Exercise, 'createdAt' | 'updatedAt'> = {
-        id: crypto.randomUUID(),
-        name: formData.name.trim(),
-        muscles: formData.muscles,
-        equipment: formData.equipment || undefined,
-        isCustom: true,
-        ownerId: user?.id,
-        notes: formData.notes.trim() || undefined,
-        instructions: formData.instructions.trim() || undefined,
-        videoUrl: formData.videoUrl.trim() || undefined,
-        gifUrl: formData.gifUrl.trim() || undefined,
-        imageUrl: formData.imageUrl.trim() || undefined,
-      };
+      if (editingExercise) {
+        // Update existing exercise
+        const updatedData: Partial<Exercise> = {};
+        
+        // For custom exercises, allow all changes
+        if (editingExercise.isCustom) {
+          updatedData.name = formData.name.trim();
+          updatedData.muscles = formData.muscles;
+          updatedData.equipment = formData.equipment || undefined;
+        }
+        
+        // For all exercises (built-in and custom), allow media and notes
+        updatedData.notes = formData.notes.trim() || undefined;
+        updatedData.instructions = formData.instructions.trim() || undefined;
+        updatedData.videoUrl = formData.videoUrl.trim() || undefined;
+        updatedData.gifUrl = formData.gifUrl.trim() || undefined;
+        updatedData.imageUrl = formData.imageUrl.trim() || undefined;
 
-      const exercise = await exerciseRepository.createExercise(exerciseData);
-      onExerciseCreated(exercise);
+        const exercise = await exerciseRepository.updateExercise(editingExercise.id, updatedData);
+        onExerciseCreated(exercise);
+      } else {
+        // Create new exercise
+        const exerciseData: Omit<Exercise, 'createdAt' | 'updatedAt'> = {
+          id: crypto.randomUUID(),
+          name: formData.name.trim(),
+          muscles: formData.muscles,
+          equipment: formData.equipment || undefined,
+          isCustom: true,
+          ownerId: user?.id,
+          notes: formData.notes.trim() || undefined,
+          instructions: formData.instructions.trim() || undefined,
+          videoUrl: formData.videoUrl.trim() || undefined,
+          gifUrl: formData.gifUrl.trim() || undefined,
+          imageUrl: formData.imageUrl.trim() || undefined,
+        };
+
+        const exercise = await exerciseRepository.createExercise(exerciseData);
+        onExerciseCreated(exercise);
+      }
+      
       handleClose();
     } catch (error) {
-      console.error('Failed to create exercise:', error);
+      console.error(`Failed to ${editingExercise ? 'update' : 'create'} exercise:`, error);
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +169,12 @@ export function CustomExerciseDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Custom Exercise</DialogTitle>
+          <DialogTitle>
+            {editingExercise 
+              ? (editingExercise.isCustom ? 'Edit Custom Exercise' : 'Add Media & Notes')
+              : 'Create Custom Exercise'
+            }
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -138,105 +187,145 @@ export function CustomExerciseDialog({
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g., Bulgarian Split Squats"
               required
+              disabled={!!editingExercise && !editingExercise.isCustom}
             />
+            {editingExercise && !editingExercise.isCustom && (
+              <p className="text-xs text-muted-foreground">
+                Built-in exercise name cannot be changed
+              </p>
+            )}
           </div>
 
           {/* Muscles */}
-          <div className="space-y-2">
-            <Label>Muscles Worked * ({formData.muscles.length})</Label>
-            
-            {/* Selected muscles */}
-            {formData.muscles.length > 0 && (
+          {(!editingExercise || editingExercise.isCustom) && (
+            <div className="space-y-2">
+              <Label>Muscles Worked * ({formData.muscles.length})</Label>
+              
+              {/* Selected muscles */}
+              {formData.muscles.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {formData.muscles.map((muscle) => (
+                    <Badge key={muscle} variant="default" className="text-xs">
+                      {muscle}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveMuscle(muscle)}
+                        className="ml-1 hover:text-red-400"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Common muscle buttons */}
+              <div className="grid grid-cols-3 gap-1">
+                {COMMON_MUSCLES.map((muscle) => (
+                  <Button
+                    key={muscle}
+                    type="button"
+                    variant={formData.muscles.includes(muscle) ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs h-8"
+                    onClick={() => 
+                      formData.muscles.includes(muscle) 
+                        ? handleRemoveMuscle(muscle)
+                        : handleAddMuscle(muscle)
+                    }
+                  >
+                    {muscle}
+                  </Button>
+                ))}
+              </div>
+
+              {/* Custom muscle input */}
+              <div className="flex gap-2">
+                <Input
+                  value={customMuscle}
+                  onChange={(e) => setCustomMuscle(e.target.value)}
+                  placeholder="Custom muscle group"
+                  className="text-sm"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddCustomMuscle();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleAddCustomMuscle}
+                  disabled={!customMuscle.trim()}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Show muscles for built-in exercises (read-only) */}
+          {editingExercise && !editingExercise.isCustom && (
+            <div className="space-y-2">
+              <Label>Muscles Worked</Label>
               <div className="flex flex-wrap gap-1">
                 {formData.muscles.map((muscle) => (
-                  <Badge key={muscle} variant="default" className="text-xs">
+                  <Badge key={muscle} variant="secondary" className="text-xs">
                     {muscle}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMuscle(muscle)}
-                      className="ml-1 hover:text-red-400"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
                   </Badge>
                 ))}
               </div>
-            )}
-
-            {/* Common muscle buttons */}
-            <div className="grid grid-cols-3 gap-1">
-              {COMMON_MUSCLES.map((muscle) => (
-                <Button
-                  key={muscle}
-                  type="button"
-                  variant={formData.muscles.includes(muscle) ? "default" : "outline"}
-                  size="sm"
-                  className="text-xs h-8"
-                  onClick={() => 
-                    formData.muscles.includes(muscle) 
-                      ? handleRemoveMuscle(muscle)
-                      : handleAddMuscle(muscle)
-                  }
-                >
-                  {muscle}
-                </Button>
-              ))}
+              <p className="text-xs text-muted-foreground">
+                Built-in exercise muscles cannot be changed
+              </p>
             </div>
-
-            {/* Custom muscle input */}
-            <div className="flex gap-2">
-              <Input
-                value={customMuscle}
-                onChange={(e) => setCustomMuscle(e.target.value)}
-                placeholder="Custom muscle group"
-                className="text-sm"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddCustomMuscle();
-                  }
-                }}
-              />
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleAddCustomMuscle}
-                disabled={!customMuscle.trim()}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          )}
 
           {/* Equipment */}
-          <div className="space-y-2">
-            <Label htmlFor="equipment">Equipment</Label>
-            <div className="grid grid-cols-3 gap-1 mb-2">
-              {COMMON_EQUIPMENT.map((equipment) => (
-                <Button
-                  key={equipment}
-                  type="button"
-                  variant={formData.equipment === equipment ? "default" : "outline"}
-                  size="sm"
-                  className="text-xs h-8"
-                  onClick={() => 
-                    setFormData({ 
-                      ...formData, 
-                      equipment: formData.equipment === equipment ? '' : equipment 
-                    })
-                  }
-                >
-                  {equipment}
-                </Button>
-              ))}
+          {(!editingExercise || editingExercise.isCustom) && (
+            <div className="space-y-2">
+              <Label htmlFor="equipment">Equipment</Label>
+              <div className="grid grid-cols-3 gap-1 mb-2">
+                {COMMON_EQUIPMENT.map((equipment) => (
+                  <Button
+                    key={equipment}
+                    type="button"
+                    variant={formData.equipment === equipment ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs h-8"
+                    onClick={() => 
+                      setFormData({ 
+                        ...formData, 
+                        equipment: formData.equipment === equipment ? '' : equipment 
+                      })
+                    }
+                  >
+                    {equipment}
+                  </Button>
+                ))}
+              </div>
+              <Input
+                id="equipment"
+                value={formData.equipment}
+                onChange={(e) => setFormData({ ...formData, equipment: e.target.value })}
+                placeholder="Or enter custom equipment"
+              />
             </div>
-            <Input
-              id="equipment"
-              value={formData.equipment}
-              onChange={(e) => setFormData({ ...formData, equipment: e.target.value })}
-              placeholder="Or enter custom equipment"
-            />
-          </div>
+          )}
+
+          {/* Show equipment for built-in exercises (read-only) */}
+          {editingExercise && !editingExercise.isCustom && formData.equipment && (
+            <div className="space-y-2">
+              <Label>Equipment</Label>
+              <Badge variant="secondary" className="text-sm">
+                {formData.equipment}
+              </Badge>
+              <p className="text-xs text-muted-foreground">
+                Built-in exercise equipment cannot be changed
+              </p>
+            </div>
+          )}
 
           {/* Notes */}
           <div className="space-y-2">
@@ -315,7 +404,10 @@ export function CustomExerciseDialog({
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
-            {isLoading ? 'Creating...' : 'Create Exercise'}
+            {isLoading 
+              ? (editingExercise ? 'Updating...' : 'Creating...') 
+              : (editingExercise ? 'Update Exercise' : 'Create Exercise')
+            }
           </Button>
         </DialogFooter>
       </DialogContent>

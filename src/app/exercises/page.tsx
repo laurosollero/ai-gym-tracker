@@ -1,0 +1,358 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useAppStore } from '@/lib/store';
+import { exerciseRepository } from '@/lib/db/repositories';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Plus, Search, Dumbbell, Edit, Trash2 } from 'lucide-react';
+import { ExerciseInfoPopover } from '@/components/exercise/exercise-info-popover';
+import { CustomExerciseDialog } from '@/components/workout/custom-exercise-dialog';
+import type { Exercise } from '@/lib/types';
+import Link from 'next/link';
+
+const MUSCLE_GROUPS = [
+  'All',
+  'Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Glutes', 
+  'Core', 'Cardio', 'Full Body', 'Olympic', 'Powerlifting'
+];
+
+const EQUIPMENT_TYPES = [
+  'All',
+  'Barbell', 'Dumbbell', 'Cable', 'Machine', 'Bodyweight', 
+  'Resistance Band', 'Kettlebell', 'Smith Machine', 'Other'
+];
+
+export default function ExercisesPage() {
+  const { user } = useAppStore();
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMuscle, setSelectedMuscle] = useState('All');
+  const [selectedEquipment, setSelectedEquipment] = useState('All');
+  const [exerciseType, setExerciseType] = useState<'all' | 'built-in' | 'custom'>('all');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+
+  // Load exercises
+  useEffect(() => {
+    const loadExercises = async () => {
+      try {
+        const allExercises = await exerciseRepository.getAllExercises();
+        setExercises(allExercises);
+        setFilteredExercises(allExercises);
+      } catch (error) {
+        console.error('Failed to load exercises:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadExercises();
+  }, []);
+
+  // Filter exercises based on search and filters
+  useEffect(() => {
+    let filtered = exercises;
+
+    // Search filter
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(exercise =>
+        exercise.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Muscle group filter
+    if (selectedMuscle !== 'All') {
+      filtered = filtered.filter(exercise =>
+        exercise.muscles.some(muscle => 
+          muscle.toLowerCase().includes(selectedMuscle.toLowerCase())
+        )
+      );
+    }
+
+    // Equipment filter
+    if (selectedEquipment !== 'All') {
+      filtered = filtered.filter(exercise =>
+        exercise.equipment?.toLowerCase().includes(selectedEquipment.toLowerCase())
+      );
+    }
+
+    // Exercise type filter
+    if (exerciseType === 'built-in') {
+      filtered = filtered.filter(exercise => !exercise.isCustom);
+    } else if (exerciseType === 'custom') {
+      filtered = filtered.filter(exercise => exercise.isCustom);
+    }
+
+    setFilteredExercises(filtered);
+  }, [exercises, searchQuery, selectedMuscle, selectedEquipment, exerciseType]);
+
+  const handleDeleteExercise = async (exerciseId: string) => {
+    const exercise = exercises.find(e => e.id === exerciseId);
+    if (!exercise?.isCustom) {
+      alert('Cannot delete built-in exercises');
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete "${exercise.name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await exerciseRepository.deleteExercise(exerciseId);
+      setExercises(prev => prev.filter(e => e.id !== exerciseId));
+    } catch (error) {
+      console.error('Failed to delete exercise:', error);
+      alert('Failed to delete exercise. Please try again.');
+    }
+  };
+
+  const handleEditExercise = (exercise: Exercise) => {
+    setEditingExercise(exercise);
+  };
+
+  const handleExerciseCreated = (newExercise: Exercise) => {
+    setExercises(prev => [newExercise, ...prev]);
+    setShowCreateDialog(false);
+  };
+
+  const handleExerciseUpdated = (updatedExercise: Exercise) => {
+    setExercises(prev => prev.map(e => 
+      e.id === updatedExercise.id ? updatedExercise : e
+    ));
+    setEditingExercise(null);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  const customExercisesCount = exercises.filter(e => e.isCustom).length;
+  const builtInExercisesCount = exercises.filter(e => !e.isCustom).length;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6">
+        {/* Header */}
+        <header className="flex items-center gap-4 mb-8">
+          <Button variant="outline" size="icon" asChild>
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <Dumbbell className="h-8 w-8" />
+              Exercise Library
+            </h1>
+            <p className="text-muted-foreground">
+              Browse and manage your exercise collection
+            </p>
+          </div>
+          <Button onClick={() => setShowCreateDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Exercise
+          </Button>
+        </header>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <div className="text-2xl font-bold">{exercises.length}</div>
+              <div className="text-sm text-muted-foreground">Total Exercises</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <div className="text-2xl font-bold">{builtInExercisesCount}</div>
+              <div className="text-sm text-muted-foreground">Built-in</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <div className="text-2xl font-bold">{customExercisesCount}</div>
+              <div className="text-sm text-muted-foreground">Custom</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Search and Filters */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Search & Filter
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-4 flex-wrap">
+              <div className="flex-1 min-w-64">
+                <Input
+                  placeholder="Search exercises..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <Select value={selectedMuscle} onValueChange={setSelectedMuscle}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Muscle Groups" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MUSCLE_GROUPS.map((muscle) => (
+                    <SelectItem key={muscle} value={muscle}>
+                      {muscle}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedEquipment} onValueChange={setSelectedEquipment}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Equipment" />
+                </SelectTrigger>
+                <SelectContent>
+                  {EQUIPMENT_TYPES.map((equipment) => (
+                    <SelectItem key={equipment} value={equipment}>
+                      {equipment}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Exercise Type Tabs */}
+        <Tabs value={exerciseType} onValueChange={(value) => setExerciseType(value as typeof exerciseType)}>
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="all">All Exercises ({exercises.length})</TabsTrigger>
+            <TabsTrigger value="built-in">Built-in ({builtInExercisesCount})</TabsTrigger>
+            <TabsTrigger value="custom">Custom ({customExercisesCount})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={exerciseType}>
+            {/* Exercise Grid */}
+            {filteredExercises.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredExercises.map((exercise) => (
+                  <Card key={exercise.id} className="group hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            {exercise.name}
+                            <ExerciseInfoPopover exercise={exercise} />
+                          </CardTitle>
+                          <CardDescription className="flex items-center gap-1 mt-1">
+                            {exercise.equipment && (
+                              <Badge variant="outline" className="text-xs">
+                                {exercise.equipment}
+                              </Badge>
+                            )}
+                            {exercise.isCustom && (
+                              <Badge variant="secondary" className="text-xs">
+                                Custom
+                              </Badge>
+                            )}
+                          </CardDescription>
+                        </div>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditExercise(exercise)}
+                            title={exercise.isCustom ? "Edit exercise" : "Add media & notes"}
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          {exercise.isCustom && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteExercise(exercise.id)}
+                              className="text-red-500 hover:text-red-700"
+                              title="Delete exercise"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground mb-1">
+                            Target Muscles
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {exercise.muscles.map((muscle) => (
+                              <Badge key={muscle} variant="secondary" className="text-xs">
+                                {muscle}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        {exercise.notes && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground mb-1">
+                              Notes
+                            </p>
+                            <p className="text-xs text-muted-foreground line-clamp-2">
+                              {exercise.notes}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="pt-12 text-center">
+                  <Dumbbell className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No exercises found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchQuery || selectedMuscle !== 'All' || selectedEquipment !== 'All'
+                      ? 'Try adjusting your search or filters'
+                      : 'Create your first custom exercise to get started'
+                    }
+                  </p>
+                  {(!searchQuery && selectedMuscle === 'All' && selectedEquipment === 'All') && (
+                    <Button onClick={() => setShowCreateDialog(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Exercise
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Create/Edit Exercise Dialog */}
+        <CustomExerciseDialog
+          open={showCreateDialog || !!editingExercise}
+          onClose={() => {
+            setShowCreateDialog(false);
+            setEditingExercise(null);
+          }}
+          onExerciseCreated={editingExercise ? handleExerciseUpdated : handleExerciseCreated}
+          editingExercise={editingExercise}
+        />
+      </div>
+    </div>
+  );
+}

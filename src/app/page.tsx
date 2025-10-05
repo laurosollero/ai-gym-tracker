@@ -160,6 +160,23 @@ export default function Home() {
               </Button>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Dumbbell className="h-5 w-5" />
+                Exercise Library
+              </CardTitle>
+              <CardDescription>
+                Browse and manage exercises
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" asChild className="w-full">
+                <Link href="/exercises">Browse Exercises</Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Dynamic Content Based on User Experience */}

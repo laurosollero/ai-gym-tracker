@@ -54,6 +54,19 @@ export const exerciseRepository = {
     return newExercise;
   },
 
+  async updateExercise(id: string, updates: Partial<Exercise>): Promise<Exercise> {
+    await db.exercises.update(id, { ...updates, updatedAt: new Date() });
+    const updatedExercise = await db.exercises.get(id);
+    if (!updatedExercise) {
+      throw new Error('Exercise not found after update');
+    }
+    return updatedExercise;
+  },
+
+  async deleteExercise(id: string): Promise<void> {
+    await db.exercises.delete(id);
+  },
+
   async getMuscleGroups(): Promise<string[]> {
     const exercises = await db.exercises.toArray();
     const muscleSet = new Set<string>();
