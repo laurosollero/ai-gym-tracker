@@ -1,17 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAppStore } from '@/lib/store';
 import { exerciseRepository } from '@/lib/db/repositories';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Plus, Search, Dumbbell, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Dumbbell, Edit, Trash2, Download, Share2 } from 'lucide-react';
 import { ExerciseInfoPopover } from '@/components/exercise/exercise-info-popover';
 import { CustomExerciseDialog } from '@/components/workout/custom-exercise-dialog';
+import { PromoteExerciseDialog } from '@/components/exercises/promote-exercise-dialog';
 import type { Exercise } from '@/lib/types';
 import Link from 'next/link';
 
@@ -28,7 +29,6 @@ const EQUIPMENT_TYPES = [
 ];
 
 export default function ExercisesPage() {
-  const { user } = useAppStore();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -129,6 +129,77 @@ export default function ExercisesPage() {
     setEditingExercise(null);
   };
 
+  const exportExercises = (exercisesToExport: Exercise[], filename: string) => {
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      totalCount: exercisesToExport.length,
+      exercises: exercisesToExport.map(exercise => {
+        // Create the exercise object with all fields
+        const exerciseData: Record<string, unknown> = {
+          id: exercise.id,
+          name: exercise.name,
+          muscles: exercise.muscles,
+          equipment: exercise.equipment,
+          instructions: exercise.instructions,
+          videoUrl: exercise.videoUrl,
+          gifUrl: exercise.gifUrl,
+          imageUrl: exercise.imageUrl,
+          notes: exercise.notes,
+          isCustom: exercise.isCustom,
+          ownerId: exercise.ownerId,
+          createdAt: exercise.createdAt,
+          updatedAt: exercise.updatedAt,
+        };
+
+        // Remove undefined values but keep null values to show they exist but are empty
+        Object.keys(exerciseData).forEach(key => {
+          if (exerciseData[key] === undefined) {
+            delete exerciseData[key];
+          }
+        });
+
+        return exerciseData;
+      }),
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportCustom = () => {
+    const customExercises = exercises.filter(e => e.isCustom);
+    if (customExercises.length === 0) {
+      alert('No custom exercises to export');
+      return;
+    }
+    exportExercises(customExercises, `custom-exercises-${new Date().toISOString().split('T')[0]}.json`);
+  };
+
+  const handleExportAll = () => {
+    if (exercises.length === 0) {
+      alert('No exercises to export');
+      return;
+    }
+    exportExercises(exercises, `all-exercises-${new Date().toISOString().split('T')[0]}.json`);
+  };
+
+  const handleExportFiltered = () => {
+    if (filteredExercises.length === 0) {
+      alert('No exercises match current filters');
+      return;
+    }
+    exportExercises(filteredExercises, `filtered-exercises-${new Date().toISOString().split('T')[0]}.json`);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -159,10 +230,20 @@ export default function ExercisesPage() {
               Browse and manage your exercise collection
             </p>
           </div>
-          <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Exercise
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleExportCustom}
+              disabled={customExercisesCount === 0}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export Custom
+            </Button>
+            <Button onClick={() => setShowCreateDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Exercise
+            </Button>
+          </div>
         </header>
 
         {/* Stats Cards */}
@@ -229,6 +310,37 @@ export default function ExercisesPage() {
                   ))}
                 </SelectContent>
               </Select>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem 
+                    onClick={handleExportCustom}
+                    disabled={customExercisesCount === 0}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Custom Exercises ({customExercisesCount})
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={handleExportAll}
+                    disabled={exercises.length === 0}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export All Exercises ({exercises.length})
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={handleExportFiltered}
+                    disabled={filteredExercises.length === 0}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Filtered Results ({filteredExercises.length})
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </CardContent>
         </Card>
@@ -277,15 +389,29 @@ export default function ExercisesPage() {
                             <Edit className="h-3 w-3" />
                           </Button>
                           {exercise.isCustom && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteExercise(exercise.id)}
-                              className="text-red-500 hover:text-red-700"
-                              title="Delete exercise"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                            <>
+                              <PromoteExerciseDialog
+                                exercise={exercise}
+                                trigger={
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    title="Promote to built-in exercise"
+                                  >
+                                    <Share2 className="h-3 w-3" />
+                                  </Button>
+                                }
+                              />
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteExercise(exercise.id)}
+                                className="text-red-500 hover:text-red-700"
+                                title="Delete exercise"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </>
                           )}
                         </div>
                       </div>
