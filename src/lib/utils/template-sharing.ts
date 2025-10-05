@@ -15,12 +15,62 @@ export interface TemplateShareData {
 }
 
 /**
- * Compress and encode template data for URL sharing
+ * Compress and encode template data for URL sharing with size optimization
  */
 export function encodeTemplateForUrl(templateData: TemplateShareData): string {
   try {
+    // Helper function to remove null/undefined values
+    const cleanObject = (obj: any): any => {
+      if (Array.isArray(obj)) {
+        return obj.map(cleanObject).filter(item => item !== null && item !== undefined);
+      }
+      if (obj && typeof obj === 'object') {
+        const cleaned: any = {};
+        for (const [key, value] of Object.entries(obj)) {
+          if (value !== null && value !== undefined && value !== '') {
+            cleaned[key] = cleanObject(value);
+          }
+        }
+        return cleaned;
+      }
+      return obj;
+    };
+
+    // Create a more compact representation
+    const compact = cleanObject({
+      n: templateData.template.name,
+      d: templateData.template.description,
+      c: templateData.template.category,
+      df: templateData.template.difficulty,
+      dur: templateData.template.estimatedDuration,
+      e: templateData.template.exercises.map(ex => ({
+        id: ex.exerciseId,
+        n: ex.exerciseName,
+        o: ex.orderIndex,
+        r: ex.restSeconds,
+        s: ex.sets.map(set => ({
+          i: set.index,
+          tr: set.targetReps,
+          tw: set.targetWeight,
+          trpe: set.targetRPE,
+          w: set.isWarmup ? 1 : undefined,
+          n: set.notes
+        }))
+      })),
+      t: templateData.template.tags,
+      ex: templateData.exercises.map(ex => ({
+        id: ex.exerciseId,
+        n: ex.exerciseName,
+        m: ex.muscles,
+        eq: ex.equipment
+      })),
+      ea: templateData.exportedAt,
+      eb: templateData.exportedBy,
+      v: templateData.version
+    });
+
     // Convert to JSON and compress using base64
-    const json = JSON.stringify(templateData);
+    const json = JSON.stringify(compact);
     const compressed = btoa(encodeURIComponent(json));
     return compressed;
   } catch (error) {
@@ -35,14 +85,55 @@ export function encodeTemplateForUrl(templateData: TemplateShareData): string {
 export function decodeTemplateFromUrl(encodedData: string): TemplateShareData {
   try {
     const decompressed = decodeURIComponent(atob(encodedData));
-    const templateData = JSON.parse(decompressed);
+    const data = JSON.parse(decompressed);
     
-    // Validate the decoded data
-    if (!templateData.template || !templateData.version) {
-      throw new Error('Invalid template data format');
+    // Check if it's the new compact format
+    if (data.n && data.v) {
+      // Convert compact format back to full format
+      return {
+        template: {
+          name: data.n,
+          description: data.d,
+          category: data.c,
+          difficulty: data.df,
+          estimatedDuration: data.dur,
+          exercises: data.e.map((ex: any) => ({
+            id: crypto.randomUUID(),
+            exerciseId: ex.id,
+            exerciseName: ex.n,
+            orderIndex: ex.o,
+            restSeconds: ex.r,
+            sets: ex.s.map((set: any) => ({
+              id: crypto.randomUUID(),
+              index: set.i,
+              targetReps: set.tr,
+              targetWeight: set.tw,
+              targetRPE: set.trpe,
+              isWarmup: set.w === 1,
+              notes: set.n
+            }))
+          })),
+          tags: data.t,
+          isBuiltIn: false,
+          createdFromSessionId: undefined
+        },
+        exercises: data.ex.map((ex: any) => ({
+          exerciseId: ex.id,
+          exerciseName: ex.n,
+          muscles: ex.m,
+          equipment: ex.eq
+        })),
+        exportedAt: data.ea,
+        exportedBy: data.eb,
+        version: data.v
+      };
+    } else {
+      // Legacy format - validate the decoded data
+      if (!data.template || !data.version) {
+        throw new Error('Invalid template data format');
+      }
+      return data;
     }
-    
-    return templateData;
   } catch (error) {
     console.error('Failed to decode template from URL:', error);
     throw new Error('Invalid sharing link');
@@ -55,7 +146,8 @@ export function decodeTemplateFromUrl(encodedData: string): TemplateShareData {
 export function generateTemplateShareUrl(templateData: TemplateShareData): string {
   const encodedData = encodeTemplateForUrl(templateData);
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  return `${baseUrl}/templates/share?data=${encodedData}`;
+  const basePath = process.env.NODE_ENV === 'production' ? '/ai-gym-tracker' : '';
+  return `${baseUrl}${basePath}/templates/share?data=${encodedData}`;
 }
 
 /**
