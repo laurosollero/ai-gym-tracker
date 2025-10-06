@@ -1,5 +1,5 @@
 // AI Gym Tracker Service Worker
-const CACHE_NAME = 'ai-gym-tracker-v2';
+const CACHE_NAME = 'ai-gym-tracker-v3';
 const BASE_PATH = '/ai-gym-tracker';
 
 // Core app routes to cache
@@ -27,7 +27,7 @@ self.addEventListener('install', (event) => {
       })
       .then(() => {
         console.log('[SW] Install complete');
-        self.skipWaiting();
+        // Don't skipWaiting automatically - let the user decide
       })
   );
 });
@@ -115,4 +115,14 @@ self.addEventListener('sync', (event) => {
 self.addEventListener('push', (event) => {
   console.log('[SW] Push received:', event);
   // Future: workout reminders, PR notifications
+});
+
+// Handle messages from the app
+self.addEventListener('message', (event) => {
+  console.log('[SW] Message received:', event.data);
+  
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('[SW] Skipping waiting...');
+    self.skipWaiting();
+  }
 });

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/components/providers/app-provider";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { UpdatePrompt } from "@/components/pwa/update-prompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,6 +72,7 @@ export default function RootLayout({
         <AppProvider>
           {children}
           <InstallPrompt />
+          <UpdatePrompt />
         </AppProvider>
         <script
           dangerouslySetInnerHTML={{
