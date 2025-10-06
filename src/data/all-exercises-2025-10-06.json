@@ -1,0 +1,704 @@
+{
+  "exportedAt": "2025-10-06T11:37:23.241Z",
+  "totalCount": 57,
+  "exercises": [
+    {
+      "id": "9602d42e-b7ee-4c87-b8ea-0be2c4e2187d",
+      "name": "Agachamento no Smith",
+      "muscles": [
+        "Quadriceps"
+      ],
+      "equipment": "Smith Machine",
+      "instructions": "1 a 2 séries de aquecimento",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:54:23.842Z",
+      "updatedAt": "2025-10-05T16:54:23.842Z"
+    },
+    {
+      "id": "barbell-rows",
+      "name": "Barbell Rows",
+      "muscles": [
+        "Back",
+        "Biceps"
+      ],
+      "equipment": "Barbell",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.835Z",
+      "updatedAt": "2025-10-05T13:12:31.835Z"
+    },
+    {
+      "id": "bench-press",
+      "name": "Bench Press",
+      "muscles": [
+        "Chest",
+        "Triceps",
+        "Shoulders"
+      ],
+      "equipment": "Barbell",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.833Z",
+      "updatedAt": "2025-10-05T13:12:31.833Z"
+    },
+    {
+      "id": "f1dd07db-e16f-47a5-9141-d93fb24174b6",
+      "name": "Bench Press (Barbell)",
+      "muscles": [
+        "chest",
+        "triceps",
+        "shoulders"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.842Z",
+      "updatedAt": "2025-10-05T13:12:31.842Z"
+    },
+    {
+      "id": "132f8151-09ab-4fb5-9603-a55528d18b46",
+      "name": "Bent Over Row (Dumbbell)",
+      "muscles": [
+        "back",
+        "biceps"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.841Z",
+      "updatedAt": "2025-10-05T13:12:31.841Z"
+    },
+    {
+      "id": "bicep-curls",
+      "name": "Bicep Curls",
+      "muscles": [
+        "Biceps"
+      ],
+      "equipment": "Dumbbells",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.838Z",
+      "updatedAt": "2025-10-05T13:12:31.838Z"
+    },
+    {
+      "id": "37b3d1e2-ca42-496b-b86f-ceea919b6d27",
+      "name": "Bicep Curls (Dumbbell)",
+      "muscles": [
+        "biceps"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.841Z",
+      "updatedAt": "2025-10-05T13:12:31.841Z"
+    },
+    {
+      "id": "4bb92a1d-af02-409a-b2bc-556fc9534064",
+      "name": "Bodyweight Squats",
+      "muscles": [
+        "quadriceps",
+        "glutes"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.841Z",
+      "updatedAt": "2025-10-05T13:12:31.841Z"
+    },
+    {
+      "id": "65388579-e281-4ca6-9b55-fd55c09ead2a",
+      "name": "Burpees",
+      "muscles": [
+        "full body"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.843Z",
+      "updatedAt": "2025-10-05T13:12:31.843Z"
+    },
+    {
+      "id": "21690e13-6ab1-4084-8d8a-b296b1ac2e12",
+      "name": "Cadeira Extensora",
+      "muscles": [
+        "Quadriceps"
+      ],
+      "equipment": "Machine",
+      "instructions": "1 a 2 séries de aquecimento. Amplitude completa de movimento. Segure firme no apoio ao lado do aparelho.",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:55:36.034Z",
+      "updatedAt": "2025-10-05T16:55:36.034Z"
+    },
+    {
+      "id": "d028570d-e995-42c9-b122-6211b50c9c18",
+      "name": "Cadeira Flexora",
+      "muscles": [
+        "Glutes",
+        "Hamstrings"
+      ],
+      "equipment": "Machine",
+      "instructions": "1 a 2 séries de aquecimento. Almofada que vai sobre o quadríceps o mais justa possível",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:54:47.136Z",
+      "updatedAt": "2025-10-05T16:54:47.136Z"
+    },
+    {
+      "id": "calf-raises",
+      "name": "Calf Raises",
+      "muscles": [
+        "Calves"
+      ],
+      "equipment": "Dumbbells",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.838Z",
+      "updatedAt": "2025-10-05T13:12:31.838Z"
+    },
+    {
+      "id": "acd6ae9f-c453-48f8-8080-1099e8358c7c",
+      "name": "Chest Press (Dumbbell)",
+      "muscles": [
+        "chest",
+        "triceps",
+        "shoulders"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.840Z",
+      "updatedAt": "2025-10-05T13:12:31.840Z"
+    },
+    {
+      "id": "close-grip-bench-press",
+      "name": "Close Grip Bench Press",
+      "muscles": [
+        "Triceps",
+        "Chest"
+      ],
+      "equipment": "Barbell",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.839Z",
+      "updatedAt": "2025-10-05T13:12:31.839Z"
+    },
+    {
+      "id": "50edb0ad-60ab-4be5-aacb-2358e03710d3",
+      "name": "Crucifixo Máquina",
+      "muscles": [
+        "Chest"
+      ],
+      "equipment": "Machine",
+      "instructions": "Alongando bem o peitoral na fase excêntrica do movimento",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:49:42.681Z",
+      "updatedAt": "2025-10-05T16:49:42.681Z"
+    },
+    {
+      "id": "crunches",
+      "name": "Crunches",
+      "muscles": [
+        "Core"
+      ],
+      "equipment": "Bodyweight",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.839Z",
+      "updatedAt": "2025-10-05T13:12:31.839Z"
+    },
+    {
+      "id": "deadlift",
+      "name": "Deadlift",
+      "muscles": [
+        "Back",
+        "Glutes",
+        "Hamstrings"
+      ],
+      "equipment": "Barbell",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.834Z",
+      "updatedAt": "2025-10-05T13:12:31.834Z"
+    },
+    {
+      "id": "e6948de3-5b56-4a67-9bb7-b9e29542fe38",
+      "name": "Desenvolvimento Máquina - Pegada Pronada",
+      "muscles": [
+        "Shoulders"
+      ],
+      "equipment": "Machine",
+      "instructions": "1 a 2 séries de Aquecimento. Se a máquina oferecer essa possibilidade, também pode usar a pegada neutra",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:49:13.123Z",
+      "updatedAt": "2025-10-05T16:49:13.123Z"
+    },
+    {
+      "id": "dumbbell-press",
+      "name": "Dumbbell Press",
+      "muscles": [
+        "Chest",
+        "Triceps",
+        "Shoulders"
+      ],
+      "equipment": "Dumbbells",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.834Z",
+      "updatedAt": "2025-10-05T13:12:31.834Z"
+    },
+    {
+      "id": "d1e0d01a-5927-42a7-83c9-b6dff67bdd7b",
+      "name": "Elevação Lateral Unilateral na Polia Média",
+      "muscles": [
+        "Shoulders"
+      ],
+      "equipment": "Cable Machine",
+      "instructions": "Polia na altura do quadril. Utilize uma tornozeleira em volta do punho. Descanso entre os membros.",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:50:05.195Z",
+      "updatedAt": "2025-10-05T16:50:05.195Z"
+    },
+    {
+      "id": "93867056-e583-40ff-a86c-028d65b8faa6",
+      "name": "Elevação Lateral com Halteres em Pé",
+      "muscles": [
+        "Shoulders"
+      ],
+      "equipment": "Dumbbells",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:57:45.264Z",
+      "updatedAt": "2025-10-05T16:57:45.264Z"
+    },
+    {
+      "id": "30f70ed4-7191-4082-94e2-5cdac69cd6ac",
+      "name": "Elevação Pélvica Máquina",
+      "muscles": [
+        "Core",
+        "Glutes"
+      ],
+      "equipment": "Machine",
+      "instructions": "1 a 2 séries de Aquecimento.",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:56:35.029Z",
+      "updatedAt": "2025-10-05T16:56:35.029Z"
+    },
+    {
+      "id": "9524fe76-7809-40d9-8c82-11fea0813244",
+      "name": "Face Pulls",
+      "muscles": [
+        "rear delts",
+        "rhomboids"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.841Z",
+      "updatedAt": "2025-10-05T13:12:31.841Z"
+    },
+    {
+      "id": "incline-bench-press",
+      "name": "Incline Bench Press",
+      "muscles": [
+        "Chest",
+        "Triceps",
+        "Shoulders"
+      ],
+      "equipment": "Barbell",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.834Z",
+      "updatedAt": "2025-10-05T13:12:31.834Z"
+    },
+    {
+      "id": "27c1cfc5-0c33-4e50-bdff-a011b904f348",
+      "name": "Jump Squats",
+      "muscles": [
+        "quadriceps",
+        "glutes"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.843Z",
+      "updatedAt": "2025-10-05T13:12:31.843Z"
+    },
+    {
+      "id": "lat-pulldowns",
+      "name": "Lat Pulldowns",
+      "muscles": [
+        "Back",
+        "Biceps"
+      ],
+      "equipment": "Cable Machine",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.836Z",
+      "updatedAt": "2025-10-05T13:12:31.836Z"
+    },
+    {
+      "id": "lateral-raises",
+      "name": "Lateral Raises",
+      "muscles": [
+        "Shoulders"
+      ],
+      "equipment": "Dumbbells",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.838Z",
+      "updatedAt": "2025-10-05T13:12:31.838Z"
+    },
+    {
+      "id": "leg-curls",
+      "name": "Leg Curls",
+      "muscles": [
+        "Hamstrings"
+      ],
+      "equipment": "Machine",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.838Z",
+      "updatedAt": "2025-10-05T13:12:31.838Z"
+    },
+    {
+      "id": "leg-press",
+      "name": "Leg Press",
+      "muscles": [
+        "Quadriceps",
+        "Glutes",
+        "Hamstrings"
+      ],
+      "equipment": "Machine",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.836Z",
+      "updatedAt": "2025-10-05T13:12:31.836Z"
+    },
+    {
+      "id": "ff7eed5a-41fa-4400-8135-ba39c48d0623",
+      "name": "Leg Press Horizontal",
+      "muscles": [
+        "Quadriceps"
+      ],
+      "equipment": "Machine",
+      "instructions": "1 a 2 séries de aquecimento",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:55:14.858Z",
+      "updatedAt": "2025-10-05T16:55:14.858Z"
+    },
+    {
+      "id": "73dce414-1bce-48dc-9226-b11d6510fdc4",
+      "name": "Levantamento Terra",
+      "muscles": [
+        "Back",
+        "Quadriceps",
+        "Core",
+        "Glutes",
+        "Calves"
+      ],
+      "equipment": "Other",
+      "instructions": "2 a 3 séries de Aquecimento",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:56:17.761Z",
+      "updatedAt": "2025-10-05T16:56:17.761Z"
+    },
+    {
+      "id": "lunges",
+      "name": "Lunges",
+      "muscles": [
+        "Quadriceps",
+        "Glutes",
+        "Hamstrings"
+      ],
+      "equipment": "Dumbbells",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.837Z",
+      "updatedAt": "2025-10-05T13:12:31.837Z"
+    },
+    {
+      "id": "86bd6196-3ba8-4874-8750-5d7db973e6ff",
+      "name": "Mesa Flexora",
+      "muscles": [
+        "Glutes",
+        "Hamstrings"
+      ],
+      "equipment": "Machine",
+      "instructions": "Ou flexora em pé (caso não tenha mesa). 1 série de aquecimento.",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:53:58.694Z",
+      "updatedAt": "2025-10-05T16:53:58.694Z"
+    },
+    {
+      "id": "1f01a06a-a120-479b-bf43-162d32a982d8",
+      "name": "Mountain Climbers",
+      "muscles": [
+        "core",
+        "shoulders"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.843Z",
+      "updatedAt": "2025-10-05T13:12:31.843Z"
+    },
+    {
+      "id": "overhead-press",
+      "name": "Overhead Press",
+      "muscles": [
+        "Shoulders",
+        "Triceps"
+      ],
+      "equipment": "Barbell",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.838Z",
+      "updatedAt": "2025-10-05T13:12:31.838Z"
+    },
+    {
+      "id": "078f4c09-5848-4029-9ea9-794f6116b5bd",
+      "name": "Overhead Press (Barbell)",
+      "muscles": [
+        "shoulders",
+        "triceps"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.842Z",
+      "updatedAt": "2025-10-05T13:12:31.842Z"
+    },
+    {
+      "id": "3cc1d1d0-3153-42aa-9868-7e2b331ada05",
+      "name": "Overhead Press (Dumbbell)",
+      "muscles": [
+        "shoulders",
+        "triceps"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.840Z",
+      "updatedAt": "2025-10-05T13:12:31.840Z"
+    },
+    {
+      "id": "8a5b53b3-ee2b-44f7-a614-cd1508312a6d",
+      "name": "Panturrilha no Leg Press Horizontal",
+      "muscles": [
+        "Calves"
+      ],
+      "equipment": "Machine",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:56:48.798Z",
+      "updatedAt": "2025-10-05T16:56:48.798Z"
+    },
+    {
+      "id": "planks",
+      "name": "Planks",
+      "muscles": [
+        "Core"
+      ],
+      "equipment": "Bodyweight",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.839Z",
+      "updatedAt": "2025-10-05T13:12:31.839Z"
+    },
+    {
+      "id": "pull-ups",
+      "name": "Pull-ups",
+      "muscles": [
+        "Back",
+        "Biceps"
+      ],
+      "equipment": "Bodyweight",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.835Z",
+      "updatedAt": "2025-10-05T13:12:31.835Z"
+    },
+    {
+      "id": "5fabd313-970d-47bd-aeb9-d46abf132937",
+      "name": "Pull-ups (Assisted)",
+      "muscles": [
+        "back",
+        "biceps"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.840Z",
+      "updatedAt": "2025-10-05T13:12:31.840Z"
+    },
+    {
+      "id": "push-ups",
+      "name": "Push-ups",
+      "muscles": [
+        "Chest",
+        "Triceps",
+        "Shoulders"
+      ],
+      "equipment": "Bodyweight",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.834Z",
+      "updatedAt": "2025-10-05T13:12:31.834Z"
+    },
+    {
+      "id": "f80cbc4d-d9c1-4a1e-bad8-c6b61680019c",
+      "name": "Puxada no Pulley - Pegada Neutra Aberta (Barra Romana)",
+      "muscles": [
+        "Back"
+      ],
+      "equipment": "Cable Machine",
+      "instructions": "Almofada que vai sobre o quadríceps o mais justa possível. Não precisa pegar TÃO aberto, um pouco mais aberto que a largura dos seus ombros está ótimo",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:52:15.419Z",
+      "updatedAt": "2025-10-05T16:52:15.419Z"
+    },
+    {
+      "id": "be17a290-3626-436e-b4c0-cae381b536f8",
+      "name": "Puxada no Pulley - Pegada Pronada Aberta",
+      "muscles": [
+        "Back"
+      ],
+      "equipment": "Cable Machine",
+      "instructions": "1 a 2 séries de Aquecimento",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:57:06.927Z",
+      "updatedAt": "2025-10-05T16:57:06.927Z"
+    },
+    {
+      "id": "rear-delt-flyes",
+      "name": "Rear Delt Flyes",
+      "muscles": [
+        "Shoulders"
+      ],
+      "equipment": "Dumbbells",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.838Z",
+      "updatedAt": "2025-10-05T13:12:31.838Z"
+    },
+    {
+      "id": "c2ad7508-e156-4c09-87d9-464b1b4288b2",
+      "name": "Remada Articulada Unilateral - Pegada Neutra",
+      "muscles": [
+        "Shoulders",
+        "Back"
+      ],
+      "equipment": "Machine",
+      "instructions": "1 a 2 séries de Aquecimento. Descanso entre membros de pelo menos 20~30 segundos",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:51:00.642Z",
+      "updatedAt": "2025-10-05T16:51:00.642Z"
+    },
+    {
+      "id": "82b968b3-6c76-437f-8e30-54d187acd28d",
+      "name": "Remada Baixa - Pegada Pronada Aberta",
+      "muscles": [
+        "Shoulders",
+        "Back"
+      ],
+      "equipment": "Cable Machine",
+      "instructions": "1 a 2 séries de Aquecimento. Não precisa pegar TÃO aberto, um pouco mais aberto que a largura dos seus ombros está ótimo",
+      "videoUrl": "https://www.youtube.com/shorts/SdhWMqUpvSI",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:51:47.861Z",
+      "updatedAt": "2025-10-05T16:51:47.861Z"
+    },
+    {
+      "id": "73a3b018-4c03-4c8e-a770-fedc30f13b80",
+      "name": "Romanian Deadlift (Dumbbell)",
+      "muscles": [
+        "hamstrings",
+        "glutes"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.842Z",
+      "updatedAt": "2025-10-05T13:12:31.842Z"
+    },
+    {
+      "id": "4c69a7d7-ceba-4cc7-978b-869597146e61",
+      "name": "Rosca Direta com Halteres Sentado",
+      "muscles": [
+        "Biceps"
+      ],
+      "equipment": "Dumbbells",
+      "instructions": "Banco inclinado a cerca de 45º ~ 60º",
+      "videoUrl": "https://www.youtube.com/shorts/iu0F7-YpF8Y",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:52:50.485Z",
+      "updatedAt": "2025-10-05T16:52:50.485Z"
+    },
+    {
+      "id": "02507747-b437-42a2-8197-50e889448941",
+      "name": "Rosca Scott Máquina",
+      "muscles": [
+        "Biceps"
+      ],
+      "equipment": "Machine",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:53:03.168Z",
+      "updatedAt": "2025-10-05T16:53:03.168Z"
+    },
+    {
+      "id": "russian-twists",
+      "name": "Russian Twists",
+      "muscles": [
+        "Core"
+      ],
+      "equipment": "Bodyweight",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.839Z",
+      "updatedAt": "2025-10-05T13:12:31.839Z"
+    },
+    {
+      "id": "squat",
+      "name": "Squat",
+      "muscles": [
+        "Quadriceps",
+        "Glutes",
+        "Hamstrings"
+      ],
+      "equipment": "Barbell",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.836Z",
+      "updatedAt": "2025-10-05T13:12:31.836Z"
+    },
+    {
+      "id": "39972877-ce45-4777-a54e-8e5aed8517fb",
+      "name": "Supino Inclinado com Halteres",
+      "muscles": [
+        "Chest"
+      ],
+      "equipment": "Dumbbells",
+      "instructions": "1 a 2 séries de Aquecimento",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:57:29.935Z",
+      "updatedAt": "2025-10-05T16:57:29.935Z"
+    },
+    {
+      "id": "8ee996f2-17f9-411e-81c9-c2ccc950ba75",
+      "name": "Supino Reto com Halteres",
+      "muscles": [
+        "Chest"
+      ],
+      "equipment": "Dumbbells",
+      "instructions": "2 a 3 séries de Aquecimento",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:48:40.153Z",
+      "updatedAt": "2025-10-05T16:48:40.153Z"
+    },
+    {
+      "id": "tricep-dips",
+      "name": "Tricep Dips",
+      "muscles": [
+        "Triceps"
+      ],
+      "equipment": "Bodyweight",
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.839Z",
+      "updatedAt": "2025-10-05T13:12:31.839Z"
+    },
+    {
+      "id": "06d6efd0-0a62-4b5f-a4c1-e2061113f2e9",
+      "name": "Tríceps na Polia (Corda)",
+      "muscles": [
+        "Triceps"
+      ],
+      "equipment": "Cable Machine",
+      "instructions": "Polia numa altura pouco acima da cabeça. Pode usar a barra reta, barra V ou corda",
+      "isCustom": true,
+      "ownerId": "3e153d38-79c9-43fb-bc6d-0ef9af975dae",
+      "createdAt": "2025-10-05T16:50:21.713Z",
+      "updatedAt": "2025-10-05T16:50:21.713Z"
+    },
+    {
+      "id": "757d211b-4ea7-4e2d-8820-31b7b80d8379",
+      "name": "Walking Lunges",
+      "muscles": [
+        "quadriceps",
+        "glutes"
+      ],
+      "isCustom": false,
+      "createdAt": "2025-10-05T13:12:31.842Z",
+      "updatedAt": "2025-10-05T13:12:31.842Z"
+    }
+  ]
+}

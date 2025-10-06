@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
 import { userRepository } from '@/lib/db/repositories';
+import { reseedExercises } from '@/lib/db/seed';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, User as UserIcon, Dumbbell, Download, Database } from 'lucide-react';
+import { ArrowLeft, Save, User as UserIcon, Dumbbell, Download, Database, RefreshCw } from 'lucide-react';
 import type { User } from '@/lib/types';
 import Link from 'next/link';
 
@@ -19,6 +20,8 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState<Partial<User>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isReseeding, setIsReseeding] = useState(false);
+  const [reseedResult, setReseedResult] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -54,6 +57,27 @@ export default function SettingsPage() {
       console.error('Failed to save settings:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleReseedExercises = async () => {
+    if (!confirm('This will replace all current exercises with the latest built-in exercise library. Your custom exercises will be removed. Are you sure?')) {
+      return;
+    }
+
+    setIsReseeding(true);
+    setReseedResult(null);
+    
+    try {
+      const result = await reseedExercises();
+      setReseedResult(`✅ Successfully updated! Cleared ${result.cleared} exercises and added ${result.seeded} new exercises.`);
+      setTimeout(() => setReseedResult(null), 5000);
+    } catch (error) {
+      console.error('Failed to reseed exercises:', error);
+      setReseedResult(`❌ Failed to update exercises. Please try again.`);
+      setTimeout(() => setReseedResult(null), 5000);
+    } finally {
+      setIsReseeding(false);
     }
   };
 
@@ -206,6 +230,29 @@ export default function SettingsPage() {
                     Export Data
                   </Link>
                 </Button>
+              </div>
+              
+              <div className="pt-3 border-t space-y-3">
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Exercise Library</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Update to the latest built-in exercise collection with standardized names and translations.
+                  </p>
+                </div>
+                <Button 
+                  onClick={handleReseedExercises}
+                  disabled={isReseeding}
+                  variant="outline" 
+                  className="w-full"
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${isReseeding ? 'animate-spin' : ''}`} />
+                  {isReseeding ? 'Updating...' : 'Update Exercise Library'}
+                </Button>
+                {reseedResult && (
+                  <p className="text-sm text-center">
+                    {reseedResult}
+                  </p>
+                )}
               </div>
               <div className="pt-3 border-t">
                 <div className="space-y-2">

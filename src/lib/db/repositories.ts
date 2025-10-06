@@ -1,4 +1,5 @@
 import { db } from './database';
+import { normalizeExercise } from '@/lib/utils/exercise-utils';
 import type { User, Exercise, WorkoutSession, SessionExercise, SetEntry, WorkoutTemplate, TemplateExercise, PersonalRecord, BodyMeasurement, WorkoutStreak, ExerciseProgress, WorkoutStats } from '@/lib/types';
 
 // User Repository
@@ -45,8 +46,10 @@ export const exerciseRepository = {
 
   async createExercise(exercise: Omit<Exercise, 'createdAt' | 'updatedAt'>): Promise<Exercise> {
     const now = new Date();
+    // Normalize muscle groups and equipment for consistency
+    const normalizedExercise = normalizeExercise(exercise);
     const newExercise = {
-      ...exercise,
+      ...normalizedExercise,
       createdAt: now,
       updatedAt: now,
     };
@@ -55,7 +58,11 @@ export const exerciseRepository = {
   },
 
   async updateExercise(id: string, updates: Partial<Exercise>): Promise<Exercise> {
-    await db.exercises.update(id, { ...updates, updatedAt: new Date() });
+    // Normalize updates if they contain muscles or equipment
+    const normalizedUpdates = updates.muscles || updates.equipment ? 
+      normalizeExercise(updates as Partial<Exercise> & { muscles: string[]; equipment?: string }) : updates;
+    
+    await db.exercises.update(id, { ...normalizedUpdates, updatedAt: new Date() });
     const updatedExercise = await db.exercises.get(id);
     if (!updatedExercise) {
       throw new Error('Exercise not found after update');

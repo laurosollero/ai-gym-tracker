@@ -34,6 +34,34 @@ export async function seedDatabase() {
   }
 }
 
+export async function reseedExercises() {
+  try {
+    console.log('Clearing existing exercises...');
+    
+    // Get all exercises and delete custom ones, then delete built-in ones
+    const allExercises = await exerciseRepository.getAllExercises();
+    
+    for (const exercise of allExercises) {
+      await exerciseRepository.deleteExercise(exercise.id);
+    }
+    
+    console.log(`Cleared ${allExercises.length} existing exercises`);
+    
+    // Reseed with new exercises
+    for (const exercise of seedExercises) {
+      await exerciseRepository.createExercise(exercise);
+    }
+    
+    console.log(`Reseeded ${seedExercises.length} exercises`);
+    console.log('Exercise reseeding completed successfully');
+    
+    return { cleared: allExercises.length, seeded: seedExercises.length };
+  } catch (error) {
+    console.error('Exercise reseeding failed:', error);
+    throw error;
+  }
+}
+
 export async function initializeDatabase() {
   try {
     await db.open();
