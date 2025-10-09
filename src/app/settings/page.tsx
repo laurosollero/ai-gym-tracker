@@ -1,18 +1,38 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppStore } from '@/lib/store';
-import { userRepository } from '@/lib/db/repositories';
-import { reseedExercises } from '@/lib/db/seed';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, User as UserIcon, Dumbbell, Download, Database, RefreshCw } from 'lucide-react';
-import type { User } from '@/lib/types';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAppStore } from "@/lib/store";
+import { userRepository } from "@/lib/db/repositories";
+import { reseedExercises } from "@/lib/db/seed";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ArrowLeft,
+  Save,
+  User as UserIcon,
+  Dumbbell,
+  Download,
+  Database,
+  RefreshCw,
+} from "lucide-react";
+import type { User } from "@/lib/types";
+import Link from "next/link";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -47,33 +67,39 @@ export default function SettingsPage() {
       };
 
       await userRepository.updateUser(user.id, updates);
-      
+
       const updatedUser = { ...user, ...updates };
       setUser(updatedUser);
-      
+
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error("Failed to save settings:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleReseedExercises = async () => {
-    if (!confirm('This will replace all current exercises with the latest built-in exercise library. Your custom exercises will be removed. Are you sure?')) {
+    if (
+      !confirm(
+        "This will replace all current exercises with the latest built-in exercise library. Your custom exercises will be removed. Are you sure?",
+      )
+    ) {
       return;
     }
 
     setIsReseeding(true);
     setReseedResult(null);
-    
+
     try {
       const result = await reseedExercises();
-      setReseedResult(`✅ Successfully updated! Cleared ${result.cleared} exercises and added ${result.seeded} new exercises.`);
+      setReseedResult(
+        `✅ Successfully updated! Cleared ${result.cleared} exercises and added ${result.seeded} new exercises.`,
+      );
       setTimeout(() => setReseedResult(null), 5000);
     } catch (error) {
-      console.error('Failed to reseed exercises:', error);
+      console.error("Failed to reseed exercises:", error);
       setReseedResult(`❌ Failed to update exercises. Please try again.`);
       setTimeout(() => setReseedResult(null), 5000);
     } finally {
@@ -81,12 +107,12 @@ export default function SettingsPage() {
     }
   };
 
-  const hasChanges = user && (
-    formData.displayName !== user.displayName ||
-    formData.email !== user.email ||
-    formData.unitSystem !== user.unitSystem ||
-    formData.defaultRestSec !== user.defaultRestSec
-  );
+  const hasChanges =
+    user &&
+    (formData.displayName !== user.displayName ||
+      formData.email !== user.email ||
+      formData.unitSystem !== user.unitSystem ||
+      formData.defaultRestSec !== user.defaultRestSec);
 
   if (!user) {
     return (
@@ -122,28 +148,30 @@ export default function SettingsPage() {
                 <UserIcon className="h-5 w-5" />
                 Profile
               </CardTitle>
-              <CardDescription>
-                Your basic profile information
-              </CardDescription>
+              <CardDescription>Your basic profile information</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="displayName">Display Name</Label>
                 <Input
                   id="displayName"
-                  value={formData.displayName || ''}
-                  onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                  value={formData.displayName || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, displayName: e.target.value })
+                  }
                   placeholder="Enter your name"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email (Optional)</Label>
                 <Input
                   id="email"
                   type="email"
-                  value={formData.email || ''}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  value={formData.email || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   placeholder="Enter your email"
                 />
               </div>
@@ -157,16 +185,14 @@ export default function SettingsPage() {
                 <Dumbbell className="h-5 w-5" />
                 Workout Preferences
               </CardTitle>
-              <CardDescription>
-                Configure your workout defaults
-              </CardDescription>
+              <CardDescription>Configure your workout defaults</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="unitSystem">Unit System</Label>
                 <Select
                   value={formData.unitSystem}
-                  onValueChange={(value: 'metric' | 'imperial') => 
+                  onValueChange={(value: "metric" | "imperial") =>
                     setFormData({ ...formData, unitSystem: value })
                   }
                 >
@@ -181,10 +207,12 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="defaultRestSec">Default Rest Time (seconds)</Label>
+                <Label htmlFor="defaultRestSec">
+                  Default Rest Time (seconds)
+                </Label>
                 <Select
-                  value={formData.defaultRestSec?.toString() || ''}
-                  onValueChange={(value) => 
+                  value={formData.defaultRestSec?.toString() || ""}
+                  onValueChange={(value) =>
                     setFormData({ ...formData, defaultRestSec: Number(value) })
                   }
                 >
@@ -222,7 +250,8 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  Download your workouts, measurements, personal records, and analytics in CSV or JSON format.
+                  Download your workouts, measurements, personal records, and
+                  analytics in CSV or JSON format.
                 </p>
                 <Button variant="outline" asChild className="w-full">
                   <Link href="/export" className="flex items-center gap-2">
@@ -231,27 +260,28 @@ export default function SettingsPage() {
                   </Link>
                 </Button>
               </div>
-              
+
               <div className="pt-3 border-t space-y-3">
                 <div>
                   <h4 className="text-sm font-medium mb-1">Exercise Library</h4>
                   <p className="text-sm text-muted-foreground">
-                    Update to the latest built-in exercise collection with standardized names and translations.
+                    Update to the latest built-in exercise collection with
+                    standardized names and translations.
                   </p>
                 </div>
-                <Button 
+                <Button
                   onClick={handleReseedExercises}
                   disabled={isReseeding}
-                  variant="outline" 
+                  variant="outline"
                   className="w-full"
                 >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${isReseeding ? 'animate-spin' : ''}`} />
-                  {isReseeding ? 'Updating...' : 'Update Exercise Library'}
+                  <RefreshCw
+                    className={`h-4 w-4 mr-2 ${isReseeding ? "animate-spin" : ""}`}
+                  />
+                  {isReseeding ? "Updating..." : "Update Exercise Library"}
                 </Button>
                 {reseedResult && (
-                  <p className="text-sm text-center">
-                    {reseedResult}
-                  </p>
+                  <p className="text-sm text-center">{reseedResult}</p>
                 )}
               </div>
               <div className="pt-3 border-t">
@@ -292,13 +322,13 @@ export default function SettingsPage() {
 
           {/* Save Button */}
           <div className="flex gap-4">
-            <Button 
+            <Button
               onClick={handleSave}
               disabled={!hasChanges || isLoading}
               className="flex-1 flex items-center gap-2"
             >
               <Save className="h-4 w-4" />
-              {isLoading ? 'Saving...' : isSaved ? 'Saved!' : 'Save Changes'}
+              {isLoading ? "Saving..." : isSaved ? "Saved!" : "Save Changes"}
             </Button>
           </div>
         </div>

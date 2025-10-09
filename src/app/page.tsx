@@ -1,26 +1,44 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useAppStore } from '@/lib/store';
-import { sessionRepository } from '@/lib/db/repositories';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dumbbell, Play, History, Settings, BookOpen, BarChart3, Ruler, Calculator, Star } from 'lucide-react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { useAppStore } from "@/lib/store";
+import { sessionRepository } from "@/lib/db/repositories";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dumbbell,
+  Play,
+  History,
+  Settings,
+  BookOpen,
+  BarChart3,
+  Ruler,
+  Calculator,
+  Star,
+} from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   const { user, isUserLoading } = useAppStore();
-  const [hasCompletedWorkouts, setHasCompletedWorkouts] = useState<boolean | null>(null);
+  const [hasCompletedWorkouts, setHasCompletedWorkouts] = useState<
+    boolean | null
+  >(null);
 
   useEffect(() => {
     const checkWorkoutHistory = async () => {
       if (!user) return;
-      
+
       try {
         const sessions = await sessionRepository.getUserSessions(user.id);
         setHasCompletedWorkouts(sessions.length > 0);
       } catch (error) {
-        console.error('Failed to check workout history:', error);
+        console.error("Failed to check workout history:", error);
         setHasCompletedWorkouts(false);
       }
     };
@@ -47,7 +65,7 @@ export default function Home() {
               Gym Tracker
             </h1>
             <p className="text-muted-foreground mt-1">
-              Welcome back, {user?.displayName || 'User'}
+              Welcome back, {user?.displayName || "User"}
             </p>
           </div>
           <Button variant="outline" size="icon" asChild>
@@ -65,9 +83,7 @@ export default function Home() {
                 <Play className="h-5 w-5" />
                 Start Workout
               </CardTitle>
-              <CardDescription>
-                Begin a new workout session
-              </CardDescription>
+              <CardDescription>Begin a new workout session</CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full">
@@ -102,9 +118,7 @@ export default function Home() {
                 <BarChart3 className="h-5 w-5" />
                 Analytics
               </CardTitle>
-              <CardDescription>
-                View progress and stats
-              </CardDescription>
+              <CardDescription>View progress and stats</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" asChild className="w-full">
@@ -119,9 +133,7 @@ export default function Home() {
                 <History className="h-5 w-5" />
                 Recent Sessions
               </CardTitle>
-              <CardDescription>
-                View your workout history
-              </CardDescription>
+              <CardDescription>View your workout history</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" asChild className="w-full">
@@ -136,9 +148,7 @@ export default function Home() {
                 <Ruler className="h-5 w-5" />
                 Measurements
               </CardTitle>
-              <CardDescription>
-                Track body measurements
-              </CardDescription>
+              <CardDescription>Track body measurements</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" asChild className="w-full">
@@ -153,9 +163,7 @@ export default function Home() {
                 <Calculator className="h-5 w-5" />
                 Plate Calculator
               </CardTitle>
-              <CardDescription>
-                Calculate plates for any weight
-              </CardDescription>
+              <CardDescription>Calculate plates for any weight</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" asChild className="w-full">
@@ -170,9 +178,7 @@ export default function Home() {
                 <Dumbbell className="h-5 w-5" />
                 Exercise Library
               </CardTitle>
-              <CardDescription>
-                Browse and manage exercises
-              </CardDescription>
+              <CardDescription>Browse and manage exercises</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" asChild className="w-full">
@@ -197,24 +203,41 @@ export default function Home() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-start gap-3">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</div>
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+                  1
+                </div>
                 <div>
-                  <p className="text-sm font-medium">Start Your First Workout</p>
-                  <p className="text-xs text-muted-foreground">Click &quot;Start New Session&quot; to begin logging exercises, sets, and reps</p>
+                  <p className="text-sm font-medium">
+                    Start Your First Workout
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Click &quot;Start New Session&quot; to begin logging
+                    exercises, sets, and reps
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</div>
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+                  2
+                </div>
                 <div>
                   <p className="text-sm font-medium">Browse Templates</p>
-                  <p className="text-xs text-muted-foreground">Explore pre-built workouts for different goals and experience levels</p>
+                  <p className="text-xs text-muted-foreground">
+                    Explore pre-built workouts for different goals and
+                    experience levels
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</div>
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+                  3
+                </div>
                 <div>
                   <p className="text-sm font-medium">Track Your Progress</p>
-                  <p className="text-xs text-muted-foreground">View detailed analytics and personal records as you grow stronger</p>
+                  <p className="text-xs text-muted-foreground">
+                    View detailed analytics and personal records as you grow
+                    stronger
+                  </p>
                 </div>
               </div>
               <div className="pt-2">
@@ -230,18 +253,27 @@ export default function Home() {
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
               <CardDescription>
-                Keep up the great work! Here are some quick ways to continue your progress
+                Keep up the great work! Here are some quick ways to continue
+                your progress
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <Button asChild variant="outline" className="h-auto flex-col gap-2 py-4">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-auto flex-col gap-2 py-4"
+                >
                   <Link href="/workout">
                     <Play className="h-4 w-4" />
                     <span className="text-xs">Quick Start</span>
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="h-auto flex-col gap-2 py-4">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-auto flex-col gap-2 py-4"
+                >
                   <Link href="/analytics">
                     <BarChart3 className="h-4 w-4" />
                     <span className="text-xs">View Progress</span>

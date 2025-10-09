@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useAppStore } from '@/lib/store';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Timer, Play, Pause, Square } from 'lucide-react';
+import { useEffect } from "react";
+import { useAppStore } from "@/lib/store";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Timer, Play, Pause, Square } from "lucide-react";
 
 export function RestTimer() {
   const { restTimer, updateRestTimer, stopRestTimer } = useAppStore();
@@ -31,26 +31,32 @@ export function RestTimer() {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const progressPercentage = 
-    ((restTimer.totalSeconds - restTimer.remainingSeconds) / restTimer.totalSeconds) * 100;
+  const progressPercentage =
+    ((restTimer.totalSeconds - restTimer.remainingSeconds) /
+      restTimer.totalSeconds) *
+    100;
 
   const isTimeUp = restTimer.remainingSeconds === 0;
 
   return (
-    <Card className={`mb-6 ${isTimeUp ? 'border-green-500 bg-green-50 dark:bg-green-950' : ''}`}>
+    <Card
+      className={`mb-6 ${isTimeUp ? "border-green-500 bg-green-50 dark:bg-green-950" : ""}`}
+    >
       <CardContent className="py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Timer className={`h-5 w-5 ${isTimeUp ? 'text-green-600' : ''}`} />
+            <Timer className={`h-5 w-5 ${isTimeUp ? "text-green-600" : ""}`} />
             <div>
-              <div className={`text-lg font-mono font-bold ${isTimeUp ? 'text-green-600' : ''}`}>
+              <div
+                className={`text-lg font-mono font-bold ${isTimeUp ? "text-green-600" : ""}`}
+              >
                 {formatTime(restTimer.remainingSeconds)}
               </div>
               <div className="text-xs text-muted-foreground">
-                {isTimeUp ? 'Rest complete!' : 'Rest time remaining'}
+                {isTimeUp ? "Rest complete!" : "Rest time remaining"}
               </div>
             </div>
           </div>
@@ -67,11 +73,7 @@ export function RestTimer() {
                 Done
               </Button>
             ) : (
-              <Button
-                onClick={stopRestTimer}
-                variant="outline"
-                size="sm"
-              >
+              <Button onClick={stopRestTimer} variant="outline" size="sm">
                 <Square className="h-4 w-4 mr-1" />
                 Stop
               </Button>
@@ -84,7 +86,7 @@ export function RestTimer() {
           <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
             <div
               className={`h-2 rounded-full transition-all duration-1000 ease-linear ${
-                isTimeUp ? 'bg-green-500' : 'bg-blue-500'
+                isTimeUp ? "bg-green-500" : "bg-blue-500"
               }`}
               style={{ width: `${progressPercentage}%` }}
             />

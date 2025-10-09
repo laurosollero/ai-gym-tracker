@@ -1,16 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { exerciseRepository } from '@/lib/db/repositories';
-import { useAppStore } from '@/lib/store';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Plus, X } from 'lucide-react';
-import type { Exercise } from '@/lib/types';
+import { useState, useEffect } from "react";
+import { exerciseRepository } from "@/lib/db/repositories";
+import { useAppStore } from "@/lib/store";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Plus, X } from "lucide-react";
+import type { Exercise } from "@/lib/types";
 
 interface CustomExerciseDialogProps {
   open: boolean;
@@ -20,13 +26,30 @@ interface CustomExerciseDialogProps {
 }
 
 const COMMON_MUSCLES = [
-  'Chest', 'Back', 'Shoulders', 'Biceps', 'Triceps', 'Forearms',
-  'Quadriceps', 'Hamstrings', 'Glutes', 'Calves', 'Core', 'Cardio'
+  "Chest",
+  "Back",
+  "Shoulders",
+  "Biceps",
+  "Triceps",
+  "Forearms",
+  "Quadriceps",
+  "Hamstrings",
+  "Glutes",
+  "Calves",
+  "Core",
+  "Cardio",
 ];
 
 const COMMON_EQUIPMENT = [
-  'Barbell', 'Dumbbells', 'Cable Machine', 'Machine', 'Bodyweight', 
-  'Resistance Bands', 'Kettlebell', 'Smith Machine', 'Other'
+  "Barbell",
+  "Dumbbells",
+  "Cable Machine",
+  "Machine",
+  "Bodyweight",
+  "Resistance Bands",
+  "Kettlebell",
+  "Smith Machine",
+  "Other",
 ];
 
 export function CustomExerciseDialog({
@@ -37,16 +60,16 @@ export function CustomExerciseDialog({
 }: CustomExerciseDialogProps) {
   const { user } = useAppStore();
   const [formData, setFormData] = useState({
-    name: '',
+    name: "",
     muscles: [] as string[],
-    equipment: '',
-    notes: '',
-    instructions: '',
-    videoUrl: '',
-    gifUrl: '',
-    imageUrl: '',
+    equipment: "",
+    notes: "",
+    instructions: "",
+    videoUrl: "",
+    gifUrl: "",
+    imageUrl: "",
   });
-  const [customMuscle, setCustomMuscle] = useState('');
+  const [customMuscle, setCustomMuscle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   // Populate form when editing
@@ -55,12 +78,12 @@ export function CustomExerciseDialog({
       setFormData({
         name: editingExercise.name,
         muscles: [...editingExercise.muscles],
-        equipment: editingExercise.equipment || '',
-        notes: editingExercise.notes || '',
-        instructions: editingExercise.instructions || '',
-        videoUrl: editingExercise.videoUrl || '',
-        gifUrl: editingExercise.gifUrl || '',
-        imageUrl: editingExercise.imageUrl || '',
+        equipment: editingExercise.equipment || "",
+        notes: editingExercise.notes || "",
+        instructions: editingExercise.instructions || "",
+        videoUrl: editingExercise.videoUrl || "",
+        gifUrl: editingExercise.gifUrl || "",
+        imageUrl: editingExercise.imageUrl || "",
       });
     } else {
       resetForm();
@@ -69,16 +92,16 @@ export function CustomExerciseDialog({
 
   const resetForm = () => {
     setFormData({
-      name: '',
+      name: "",
       muscles: [],
-      equipment: '',
-      notes: '',
-      instructions: '',
-      videoUrl: '',
-      gifUrl: '',
-      imageUrl: '',
+      equipment: "",
+      notes: "",
+      instructions: "",
+      videoUrl: "",
+      gifUrl: "",
+      imageUrl: "",
     });
-    setCustomMuscle('');
+    setCustomMuscle("");
   };
 
   const handleClose = () => {
@@ -98,14 +121,14 @@ export function CustomExerciseDialog({
   const handleRemoveMuscle = (muscle: string) => {
     setFormData({
       ...formData,
-      muscles: formData.muscles.filter(m => m !== muscle),
+      muscles: formData.muscles.filter((m) => m !== muscle),
     });
   };
 
   const handleAddCustomMuscle = () => {
     if (customMuscle.trim()) {
       handleAddMuscle(customMuscle.trim());
-      setCustomMuscle('');
+      setCustomMuscle("");
     }
   };
 
@@ -118,14 +141,14 @@ export function CustomExerciseDialog({
       if (editingExercise) {
         // Update existing exercise
         const updatedData: Partial<Exercise> = {};
-        
+
         // For custom exercises, allow all changes
         if (editingExercise.isCustom) {
           updatedData.name = formData.name.trim();
           updatedData.muscles = formData.muscles;
           updatedData.equipment = formData.equipment || undefined;
         }
-        
+
         // For all exercises (built-in and custom), allow media and notes
         updatedData.notes = formData.notes.trim() || undefined;
         updatedData.instructions = formData.instructions.trim() || undefined;
@@ -133,11 +156,14 @@ export function CustomExerciseDialog({
         updatedData.gifUrl = formData.gifUrl.trim() || undefined;
         updatedData.imageUrl = formData.imageUrl.trim() || undefined;
 
-        const exercise = await exerciseRepository.updateExercise(editingExercise.id, updatedData);
+        const exercise = await exerciseRepository.updateExercise(
+          editingExercise.id,
+          updatedData,
+        );
         onExerciseCreated(exercise);
       } else {
         // Create new exercise
-        const exerciseData: Omit<Exercise, 'createdAt' | 'updatedAt'> = {
+        const exerciseData: Omit<Exercise, "createdAt" | "updatedAt"> = {
           id: crypto.randomUUID(),
           name: formData.name.trim(),
           muscles: formData.muscles,
@@ -154,26 +180,31 @@ export function CustomExerciseDialog({
         const exercise = await exerciseRepository.createExercise(exerciseData);
         onExerciseCreated(exercise);
       }
-      
+
       handleClose();
     } catch (error) {
-      console.error(`Failed to ${editingExercise ? 'update' : 'create'} exercise:`, error);
+      console.error(
+        `Failed to ${editingExercise ? "update" : "create"} exercise:`,
+        error,
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const canSubmit = formData.name.trim() && formData.muscles.length > 0 && !isLoading;
+  const canSubmit =
+    formData.name.trim() && formData.muscles.length > 0 && !isLoading;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {editingExercise 
-              ? (editingExercise.isCustom ? 'Edit Custom Exercise' : 'Add Media & Notes')
-              : 'Create Custom Exercise'
-            }
+            {editingExercise
+              ? editingExercise.isCustom
+                ? "Edit Custom Exercise"
+                : "Add Media & Notes"
+              : "Create Custom Exercise"}
           </DialogTitle>
         </DialogHeader>
 
@@ -184,7 +215,9 @@ export function CustomExerciseDialog({
             <Input
               id="exerciseName"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               placeholder="e.g., Bulgarian Split Squats"
               required
               disabled={!!editingExercise && !editingExercise.isCustom}
@@ -200,7 +233,7 @@ export function CustomExerciseDialog({
           {(!editingExercise || editingExercise.isCustom) && (
             <div className="space-y-2">
               <Label>Muscles Worked * ({formData.muscles.length})</Label>
-              
+
               {/* Selected muscles */}
               {formData.muscles.length > 0 && (
                 <div className="flex flex-wrap gap-1">
@@ -225,11 +258,13 @@ export function CustomExerciseDialog({
                   <Button
                     key={muscle}
                     type="button"
-                    variant={formData.muscles.includes(muscle) ? "default" : "outline"}
+                    variant={
+                      formData.muscles.includes(muscle) ? "default" : "outline"
+                    }
                     size="sm"
                     className="text-xs h-8"
-                    onClick={() => 
-                      formData.muscles.includes(muscle) 
+                    onClick={() =>
+                      formData.muscles.includes(muscle)
                         ? handleRemoveMuscle(muscle)
                         : handleAddMuscle(muscle)
                     }
@@ -247,7 +282,7 @@ export function CustomExerciseDialog({
                   placeholder="Custom muscle group"
                   className="text-sm"
                   onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       handleAddCustomMuscle();
                     }
@@ -291,13 +326,16 @@ export function CustomExerciseDialog({
                   <Button
                     key={equipment}
                     type="button"
-                    variant={formData.equipment === equipment ? "default" : "outline"}
+                    variant={
+                      formData.equipment === equipment ? "default" : "outline"
+                    }
                     size="sm"
                     className="text-xs h-8"
-                    onClick={() => 
-                      setFormData({ 
-                        ...formData, 
-                        equipment: formData.equipment === equipment ? '' : equipment 
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        equipment:
+                          formData.equipment === equipment ? "" : equipment,
                       })
                     }
                   >
@@ -308,24 +346,28 @@ export function CustomExerciseDialog({
               <Input
                 id="equipment"
                 value={formData.equipment}
-                onChange={(e) => setFormData({ ...formData, equipment: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, equipment: e.target.value })
+                }
                 placeholder="Or enter custom equipment"
               />
             </div>
           )}
 
           {/* Show equipment for built-in exercises (read-only) */}
-          {editingExercise && !editingExercise.isCustom && formData.equipment && (
-            <div className="space-y-2">
-              <Label>Equipment</Label>
-              <Badge variant="secondary" className="text-sm">
-                {formData.equipment}
-              </Badge>
-              <p className="text-xs text-muted-foreground">
-                Built-in exercise equipment cannot be changed
-              </p>
-            </div>
-          )}
+          {editingExercise &&
+            !editingExercise.isCustom &&
+            formData.equipment && (
+              <div className="space-y-2">
+                <Label>Equipment</Label>
+                <Badge variant="secondary" className="text-sm">
+                  {formData.equipment}
+                </Badge>
+                <p className="text-xs text-muted-foreground">
+                  Built-in exercise equipment cannot be changed
+                </p>
+              </div>
+            )}
 
           {/* Notes */}
           <div className="space-y-2">
@@ -333,7 +375,9 @@ export function CustomExerciseDialog({
             <Textarea
               id="notes"
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
               placeholder="Setup instructions, form cues, etc."
               rows={2}
             />
@@ -341,11 +385,15 @@ export function CustomExerciseDialog({
 
           {/* Instructions */}
           <div className="space-y-2">
-            <Label htmlFor="instructions">Detailed Instructions (Optional)</Label>
+            <Label htmlFor="instructions">
+              Detailed Instructions (Optional)
+            </Label>
             <Textarea
               id="instructions"
               value={formData.instructions}
-              onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, instructions: e.target.value })
+              }
               placeholder="Step-by-step exercise instructions..."
               rows={3}
             />
@@ -356,31 +404,52 @@ export function CustomExerciseDialog({
             <Label>Exercise Media (Optional)</Label>
             <div className="space-y-2">
               <div>
-                <Label htmlFor="videoUrl" className="text-sm text-muted-foreground">Video URL</Label>
+                <Label
+                  htmlFor="videoUrl"
+                  className="text-sm text-muted-foreground"
+                >
+                  Video URL
+                </Label>
                 <Input
                   id="videoUrl"
                   value={formData.videoUrl}
-                  onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, videoUrl: e.target.value })
+                  }
                   placeholder="https://youtube.com/watch?v=..."
                   type="url"
                 />
               </div>
               <div>
-                <Label htmlFor="gifUrl" className="text-sm text-muted-foreground">GIF URL</Label>
+                <Label
+                  htmlFor="gifUrl"
+                  className="text-sm text-muted-foreground"
+                >
+                  GIF URL
+                </Label>
                 <Input
                   id="gifUrl"
                   value={formData.gifUrl}
-                  onChange={(e) => setFormData({ ...formData, gifUrl: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, gifUrl: e.target.value })
+                  }
                   placeholder="https://example.com/exercise.gif"
                   type="url"
                 />
               </div>
               <div>
-                <Label htmlFor="imageUrl" className="text-sm text-muted-foreground">Image URL</Label>
+                <Label
+                  htmlFor="imageUrl"
+                  className="text-sm text-muted-foreground"
+                >
+                  Image URL
+                </Label>
                 <Input
                   id="imageUrl"
                   value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, imageUrl: e.target.value })
+                  }
                   placeholder="https://example.com/exercise.jpg"
                   type="url"
                 />
@@ -404,10 +473,13 @@ export function CustomExerciseDialog({
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
-            {isLoading 
-              ? (editingExercise ? 'Updating...' : 'Creating...') 
-              : (editingExercise ? 'Update Exercise' : 'Create Exercise')
-            }
+            {isLoading
+              ? editingExercise
+                ? "Updating..."
+                : "Creating..."
+              : editingExercise
+                ? "Update Exercise"
+                : "Create Exercise"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -17,7 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AI Gym Tracker",
-  description: "Modern fitness tracking app with workout logging, progress analytics, and template sharing",
+  description:
+    "Modern fitness tracking app with workout logging, progress analytics, and template sharing",
   manifest: "/ai-gym-tracker/manifest.json",
   appleWebApp: {
     capable: true,
@@ -27,19 +28,29 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  keywords: ["fitness", "workout", "gym", "tracker", "exercise", "progress", "pwa"],
+  keywords: [
+    "fitness",
+    "workout",
+    "gym",
+    "tracker",
+    "exercise",
+    "progress",
+    "pwa",
+  ],
   authors: [{ name: "AI Gym Tracker" }],
   creator: "AI Gym Tracker",
   openGraph: {
     title: "AI Gym Tracker",
-    description: "Modern fitness tracking app with workout logging, progress analytics, and template sharing",
+    description:
+      "Modern fitness tracking app with workout logging, progress analytics, and template sharing",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
     title: "AI Gym Tracker",
-    description: "Modern fitness tracking app with workout logging, progress analytics, and template sharing",
+    description:
+      "Modern fitness tracking app with workout logging, progress analytics, and template sharing",
   },
 };
 

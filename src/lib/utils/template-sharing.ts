@@ -1,8 +1,8 @@
-import type { WorkoutTemplate, TemplateExercise, Exercise } from '@/lib/types';
-import { exerciseRepository } from '@/lib/db/repositories';
+import type { WorkoutTemplate, TemplateExercise, Exercise } from "@/lib/types";
+import { exerciseRepository } from "@/lib/db/repositories";
 
 export interface TemplateShareData {
-  template: Omit<WorkoutTemplate, 'id' | 'ownerId' | 'createdAt' | 'updatedAt'>;
+  template: Omit<WorkoutTemplate, "id" | "ownerId" | "createdAt" | "updatedAt">;
   exercises: Array<{
     exerciseId: string;
     exerciseName: string;
@@ -22,12 +22,14 @@ export function encodeTemplateForUrl(templateData: TemplateShareData): string {
     // Helper function to remove null/undefined values
     const cleanObject = (obj: unknown): unknown => {
       if (Array.isArray(obj)) {
-        return obj.map(cleanObject).filter(item => item !== null && item !== undefined);
+        return obj
+          .map(cleanObject)
+          .filter((item) => item !== null && item !== undefined);
       }
-      if (obj && typeof obj === 'object') {
+      if (obj && typeof obj === "object") {
         const cleaned: Record<string, unknown> = {};
         for (const [key, value] of Object.entries(obj)) {
-          if (value !== null && value !== undefined && value !== '') {
+          if (value !== null && value !== undefined && value !== "") {
             cleaned[key] = cleanObject(value);
           }
         }
@@ -43,30 +45,30 @@ export function encodeTemplateForUrl(templateData: TemplateShareData): string {
       c: templateData.template.category,
       df: templateData.template.difficulty,
       dur: templateData.template.estimatedDuration,
-      e: templateData.template.exercises.map(ex => ({
+      e: templateData.template.exercises.map((ex) => ({
         id: ex.exerciseId,
         n: ex.exerciseName,
         o: ex.orderIndex,
         r: ex.restSeconds,
-        s: ex.sets.map(set => ({
+        s: ex.sets.map((set) => ({
           i: set.index,
           tr: set.targetReps,
           tw: set.targetWeight,
           trpe: set.targetRPE,
           w: set.isWarmup ? 1 : undefined,
-          n: set.notes
-        }))
+          n: set.notes,
+        })),
       })),
       t: templateData.template.tags,
-      ex: templateData.exercises.map(ex => ({
+      ex: templateData.exercises.map((ex) => ({
         id: ex.exerciseId,
         n: ex.exerciseName,
         m: ex.muscles,
-        eq: ex.equipment
+        eq: ex.equipment,
       })),
       ea: templateData.exportedAt,
       eb: templateData.exportedBy,
-      v: templateData.version
+      v: templateData.version,
     });
 
     // Convert to JSON and compress using base64
@@ -74,8 +76,8 @@ export function encodeTemplateForUrl(templateData: TemplateShareData): string {
     const compressed = btoa(encodeURIComponent(json));
     return compressed;
   } catch (error) {
-    console.error('Failed to encode template for URL:', error);
-    throw new Error('Failed to encode template for sharing');
+    console.error("Failed to encode template for URL:", error);
+    throw new Error("Failed to encode template for sharing");
   }
 }
 
@@ -86,7 +88,7 @@ export function decodeTemplateFromUrl(encodedData: string): TemplateShareData {
   try {
     const decompressed = decodeURIComponent(atob(encodedData));
     const data = JSON.parse(decompressed);
-    
+
     // Check if it's the new compact format
     if (data.n && data.v) {
       // Convert compact format back to full format
@@ -97,56 +99,76 @@ export function decodeTemplateFromUrl(encodedData: string): TemplateShareData {
           category: data.c,
           difficulty: data.df,
           estimatedDuration: data.dur,
-          exercises: data.e.map((ex: {id: string, n: string, o: number, r: number, s: Array<{i: number, tr?: number, tw?: number, trpe?: number, w?: number, n?: string}>}) => ({
-            id: crypto.randomUUID(),
-            exerciseId: ex.id,
-            exerciseName: ex.n,
-            orderIndex: ex.o,
-            restSeconds: ex.r,
-            sets: ex.s.map((set) => ({
+          exercises: data.e.map(
+            (ex: {
+              id: string;
+              n: string;
+              o: number;
+              r: number;
+              s: Array<{
+                i: number;
+                tr?: number;
+                tw?: number;
+                trpe?: number;
+                w?: number;
+                n?: string;
+              }>;
+            }) => ({
               id: crypto.randomUUID(),
-              index: set.i,
-              targetReps: set.tr,
-              targetWeight: set.tw,
-              targetRPE: set.trpe,
-              isWarmup: set.w === 1,
-              notes: set.n
-            }))
-          })),
+              exerciseId: ex.id,
+              exerciseName: ex.n,
+              orderIndex: ex.o,
+              restSeconds: ex.r,
+              sets: ex.s.map((set) => ({
+                id: crypto.randomUUID(),
+                index: set.i,
+                targetReps: set.tr,
+                targetWeight: set.tw,
+                targetRPE: set.trpe,
+                isWarmup: set.w === 1,
+                notes: set.n,
+              })),
+            }),
+          ),
           tags: data.t,
           isBuiltIn: false,
-          createdFromSessionId: undefined
+          createdFromSessionId: undefined,
         },
-        exercises: data.ex.map((ex: {id: string, n: string, m: string[], eq?: string}) => ({
-          exerciseId: ex.id,
-          exerciseName: ex.n,
-          muscles: ex.m,
-          equipment: ex.eq
-        })),
+        exercises: data.ex.map(
+          (ex: { id: string; n: string; m: string[]; eq?: string }) => ({
+            exerciseId: ex.id,
+            exerciseName: ex.n,
+            muscles: ex.m,
+            equipment: ex.eq,
+          }),
+        ),
         exportedAt: data.ea,
         exportedBy: data.eb,
-        version: data.v
+        version: data.v,
       };
     } else {
       // Legacy format - validate the decoded data
       if (!data.template || !data.version) {
-        throw new Error('Invalid template data format');
+        throw new Error("Invalid template data format");
       }
       return data;
     }
   } catch (error) {
-    console.error('Failed to decode template from URL:', error);
-    throw new Error('Invalid sharing link');
+    console.error("Failed to decode template from URL:", error);
+    throw new Error("Invalid sharing link");
   }
 }
 
 /**
  * Generate a shareable URL for a template
  */
-export function generateTemplateShareUrl(templateData: TemplateShareData): string {
+export function generateTemplateShareUrl(
+  templateData: TemplateShareData,
+): string {
   const encodedData = encodeTemplateForUrl(templateData);
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const basePath = process.env.NODE_ENV === 'production' ? '/ai-gym-tracker' : '';
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+  const basePath =
+    process.env.NODE_ENV === "production" ? "/ai-gym-tracker" : "";
   return `${baseUrl}${basePath}/templates/share?data=${encodedData}`;
 }
 
@@ -155,7 +177,7 @@ export function generateTemplateShareUrl(templateData: TemplateShareData): strin
  */
 export async function prepareTemplateForSharing(
   template: WorkoutTemplate,
-  exportedBy: string
+  exportedBy: string,
 ): Promise<TemplateShareData> {
   // Get exercise details for all exercises in the template
   const exerciseDetails: Array<{
@@ -167,7 +189,9 @@ export async function prepareTemplateForSharing(
 
   for (const templateExercise of template.exercises) {
     try {
-      const exercise = await exerciseRepository.getExerciseById(templateExercise.exerciseId);
+      const exercise = await exerciseRepository.getExerciseById(
+        templateExercise.exerciseId,
+      );
       if (exercise) {
         exerciseDetails.push({
           exerciseId: exercise.id,
@@ -185,7 +209,10 @@ export async function prepareTemplateForSharing(
         });
       }
     } catch (error) {
-      console.warn(`Failed to load exercise ${templateExercise.exerciseId}:`, error);
+      console.warn(
+        `Failed to load exercise ${templateExercise.exerciseId}:`,
+        error,
+      );
       exerciseDetails.push({
         exerciseId: templateExercise.exerciseId,
         exerciseName: templateExercise.exerciseName,
@@ -210,7 +237,7 @@ export async function prepareTemplateForSharing(
     exercises: exerciseDetails,
     exportedAt: new Date().toISOString(),
     exportedBy,
-    version: '1.0.0',
+    version: "1.0.0",
   };
 }
 
@@ -219,75 +246,90 @@ export async function prepareTemplateForSharing(
  */
 export async function importTemplateFromShareData(
   shareData: TemplateShareData,
-  userId: string
+  userId: string,
 ): Promise<WorkoutTemplate> {
   // Import the template using the same logic as file import
-  const { exerciseRepository, templateRepository } = await import('@/lib/db/repositories');
-  
+  const { exerciseRepository, templateRepository } = await import(
+    "@/lib/db/repositories"
+  );
+
   // Create exercises that don't exist
   const exerciseMap = new Map<string, string>(); // old ID -> new ID
-  
+
   for (const exportedExercise of shareData.exercises || []) {
     try {
       // Try to find existing exercise by name
-      const searchResults = await exerciseRepository.searchExercises(exportedExercise.exerciseName);
-      const existingExercise = searchResults.find(ex => 
-        ex.name.toLowerCase() === exportedExercise.exerciseName.toLowerCase()
+      const searchResults = await exerciseRepository.searchExercises(
+        exportedExercise.exerciseName,
       );
-      
+      const existingExercise = searchResults.find(
+        (ex) =>
+          ex.name.toLowerCase() === exportedExercise.exerciseName.toLowerCase(),
+      );
+
       if (existingExercise) {
         exerciseMap.set(exportedExercise.exerciseId, existingExercise.id);
       } else {
         // Create new exercise
-        const newExercise: Omit<Exercise, 'createdAt' | 'updatedAt'> = {
+        const newExercise: Omit<Exercise, "createdAt" | "updatedAt"> = {
           id: crypto.randomUUID(),
           name: exportedExercise.exerciseName,
           muscles: exportedExercise.muscles || [],
           equipment: exportedExercise.equipment,
           isCustom: true,
           ownerId: userId,
-          notes: 'Imported with shared template',
+          notes: "Imported with shared template",
         };
-        
-        const createdExercise = await exerciseRepository.createExercise(newExercise);
+
+        const createdExercise =
+          await exerciseRepository.createExercise(newExercise);
         exerciseMap.set(exportedExercise.exerciseId, createdExercise.id);
       }
     } catch (error) {
-      console.warn(`Failed to process exercise ${exportedExercise.exerciseName}:`, error);
+      console.warn(
+        `Failed to process exercise ${exportedExercise.exerciseName}:`,
+        error,
+      );
     }
   }
 
   // Update exercise references in template
-  const updatedExercises: TemplateExercise[] = shareData.template.exercises.map((exercise: TemplateExercise) => ({
-    ...exercise,
-    id: crypto.randomUUID(),
-    exerciseId: exerciseMap.get(exercise.exerciseId) || exercise.exerciseId,
-    sets: exercise.sets.map((set) => ({
-      ...set,
+  const updatedExercises: TemplateExercise[] = shareData.template.exercises.map(
+    (exercise: TemplateExercise) => ({
+      ...exercise,
       id: crypto.randomUUID(),
-    })),
-  }));
+      exerciseId: exerciseMap.get(exercise.exerciseId) || exercise.exerciseId,
+      sets: exercise.sets.map((set) => ({
+        ...set,
+        id: crypto.randomUUID(),
+      })),
+    }),
+  );
 
   // Create template with unique name
   let templateName = shareData.template.name;
   const allTemplates = await templateRepository.getAllTemplates();
-  const existingTemplate = allTemplates.find(t => t.name === templateName && t.ownerId === userId);
-  
+  const existingTemplate = allTemplates.find(
+    (t) => t.name === templateName && t.ownerId === userId,
+  );
+
   if (existingTemplate) {
     templateName = `${templateName} (Shared)`;
     let counter = 1;
-    while (allTemplates.find(t => t.name === templateName && t.ownerId === userId)) {
+    while (
+      allTemplates.find((t) => t.name === templateName && t.ownerId === userId)
+    ) {
       templateName = `${shareData.template.name} (Shared ${counter})`;
       counter++;
     }
   }
 
-  const newTemplate: Omit<WorkoutTemplate, 'createdAt' | 'updatedAt'> = {
+  const newTemplate: Omit<WorkoutTemplate, "createdAt" | "updatedAt"> = {
     id: crypto.randomUUID(),
     name: templateName,
-    description: shareData.template.description || 'Shared template',
-    category: shareData.template.category || 'custom',
-    difficulty: shareData.template.difficulty || 'intermediate',
+    description: shareData.template.description || "Shared template",
+    category: shareData.template.category || "custom",
+    difficulty: shareData.template.difficulty || "intermediate",
     estimatedDuration: shareData.template.estimatedDuration || 60,
     exercises: updatedExercises,
     tags: shareData.template.tags || [],

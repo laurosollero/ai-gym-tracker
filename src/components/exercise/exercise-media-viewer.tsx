@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Play, Image, FileText, ExternalLink } from 'lucide-react';
-import type { Exercise } from '@/lib/types';
+import { useEffect, useMemo, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Play, Image, FileText, ExternalLink } from "lucide-react";
+import type { Exercise } from "@/lib/types";
 
 interface ExerciseMediaViewerProps {
   exercise: Exercise;
@@ -17,11 +17,12 @@ const ensureSafeMediaUrl = (raw?: string | null): string | null => {
   if (!trimmed) return null;
 
   try {
-    const base = typeof window !== 'undefined' && window.location
-      ? window.location.origin
-      : 'http://localhost';
+    const base =
+      typeof window !== "undefined" && window.location
+        ? window.location.origin
+        : "http://localhost";
     const url = new URL(trimmed, base);
-    if (!['http:', 'https:'].includes(url.protocol)) {
+    if (!["http:", "https:"].includes(url.protocol)) {
       return null;
     }
     return url.href;
@@ -38,7 +39,12 @@ const renderMediaFallback = (message: string, link?: string) => (
     <p className="text-sm text-muted-foreground text-center">{message}</p>
     {link && (
       <Button asChild variant="outline" size="sm">
-        <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2"
+        >
           <ExternalLink className="h-4 w-4" />
           Open in new tab
         </a>
@@ -47,8 +53,13 @@ const renderMediaFallback = (message: string, link?: string) => (
   </div>
 );
 
-export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewerProps) {
-  const [activeTab, setActiveTab] = useState<'instructions' | 'video' | 'gif' | 'image'>('instructions');
+export function ExerciseMediaViewer({
+  exercise,
+  className,
+}: ExerciseMediaViewerProps) {
+  const [activeTab, setActiveTab] = useState<
+    "instructions" | "video" | "gif" | "image"
+  >("instructions");
   const [gifError, setGifError] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -57,17 +68,39 @@ export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewer
   const gifUrl = ensureSafeMediaUrl(exercise.gifUrl);
   const imageUrl = ensureSafeMediaUrl(exercise.imageUrl);
 
-  const tabs = useMemo(() => (
-    [
-      { id: 'instructions' as const, label: 'Instructions', icon: FileText, available: Boolean(instructions) },
-      { id: 'video' as const, label: 'Video', icon: Play, available: Boolean(videoUrl) },
-      { id: 'gif' as const, label: 'GIF', icon: Image, available: Boolean(gifUrl) },
-      { id: 'image' as const, label: 'Image', icon: Image, available: Boolean(imageUrl) },
-    ].filter(tab => tab.available)
-  ), [instructions, videoUrl, gifUrl, imageUrl]);
+  const tabs = useMemo(
+    () =>
+      [
+        {
+          id: "instructions" as const,
+          label: "Instructions",
+          icon: FileText,
+          available: Boolean(instructions),
+        },
+        {
+          id: "video" as const,
+          label: "Video",
+          icon: Play,
+          available: Boolean(videoUrl),
+        },
+        {
+          id: "gif" as const,
+          label: "GIF",
+          icon: Image,
+          available: Boolean(gifUrl),
+        },
+        {
+          id: "image" as const,
+          label: "Image",
+          icon: Image,
+          available: Boolean(imageUrl),
+        },
+      ].filter((tab) => tab.available),
+    [instructions, videoUrl, gifUrl, imageUrl],
+  );
 
   useEffect(() => {
-    if (tabs.length > 0 && !tabs.find(tab => tab.id === activeTab)) {
+    if (tabs.length > 0 && !tabs.find((tab) => tab.id === activeTab)) {
       setActiveTab(tabs[0].id);
     }
   }, [tabs, activeTab]);
@@ -78,7 +111,9 @@ export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewer
   }
 
   const renderVideoEmbed = (url: string) => {
-    const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    const youtubeMatch = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+    );
     if (youtubeMatch) {
       const videoId = youtubeMatch[1];
       return (
@@ -101,7 +136,12 @@ export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewer
           Video demonstration available
         </p>
         <Button asChild variant="outline">
-          <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2"
+          >
             <ExternalLink className="h-4 w-4" />
             Watch Video
           </a>
@@ -119,7 +159,7 @@ export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewer
             {tabs.map((tab) => (
               <Button
                 key={tab.id}
-                variant={activeTab === tab.id ? 'default' : 'outline'}
+                variant={activeTab === tab.id ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveTab(tab.id)}
                 className="flex items-center gap-1"
@@ -132,7 +172,7 @@ export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewer
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {activeTab === 'instructions' && instructions && (
+        {activeTab === "instructions" && instructions && (
           <div className="prose prose-sm max-w-none">
             <div className="whitespace-pre-wrap text-sm leading-relaxed">
               {instructions}
@@ -140,40 +180,38 @@ export function ExerciseMediaViewer({ exercise, className }: ExerciseMediaViewer
           </div>
         )}
 
-        {activeTab === 'video' && videoUrl && (
-          <div>
-            {renderVideoEmbed(videoUrl)}
-          </div>
+        {activeTab === "video" && videoUrl && (
+          <div>{renderVideoEmbed(videoUrl)}</div>
         )}
 
-        {activeTab === 'gif' && gifUrl && (
+        {activeTab === "gif" && gifUrl && (
           <div className="text-center">
             {!gifError ? (
               <img
                 src={gifUrl}
                 alt={`${exercise.name} demonstration`}
                 className="max-w-full h-auto rounded-lg mx-auto"
-                style={{ maxHeight: '400px' }}
+                style={{ maxHeight: "400px" }}
                 onError={() => setGifError(true)}
               />
             ) : (
-              renderMediaFallback('Failed to load GIF', gifUrl)
+              renderMediaFallback("Failed to load GIF", gifUrl)
             )}
           </div>
         )}
 
-        {activeTab === 'image' && imageUrl && (
+        {activeTab === "image" && imageUrl && (
           <div className="text-center">
             {!imageError ? (
               <img
                 src={imageUrl}
                 alt={`${exercise.name} form reference`}
                 className="max-w-full h-auto rounded-lg mx-auto"
-                style={{ maxHeight: '400px' }}
+                style={{ maxHeight: "400px" }}
                 onError={() => setImageError(true)}
               />
             ) : (
-              renderMediaFallback('Failed to load image', imageUrl)
+              renderMediaFallback("Failed to load image", imageUrl)
             )}
           </div>
         )}

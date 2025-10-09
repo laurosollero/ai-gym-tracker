@@ -1,15 +1,23 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { exerciseRepository, sessionExerciseRepository } from '@/lib/db/repositories';
-import { useAppStore } from '@/lib/store';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { CustomExerciseDialog } from './custom-exercise-dialog';
-import { Search, Dumbbell, Plus } from 'lucide-react';
-import type { Exercise } from '@/lib/types';
+import { useState, useEffect } from "react";
+import {
+  exerciseRepository,
+  sessionExerciseRepository,
+} from "@/lib/db/repositories";
+import { useAppStore } from "@/lib/store";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { CustomExerciseDialog } from "./custom-exercise-dialog";
+import { Search, Dumbbell, Plus } from "lucide-react";
+import type { Exercise } from "@/lib/types";
 
 interface ExerciseSelectorProps {
   open: boolean;
@@ -26,7 +34,7 @@ export function ExerciseSelector({
 }: ExerciseSelectorProps) {
   const { currentSession, setCurrentSession } = useAppStore();
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [showCustomDialog, setShowCustomDialog] = useState(false);
@@ -38,7 +46,7 @@ export function ExerciseSelector({
         setExercises(allExercises);
         setFilteredExercises(allExercises);
       } catch (error) {
-        console.error('Failed to load exercises:', error);
+        console.error("Failed to load exercises:", error);
       }
     };
 
@@ -51,11 +59,12 @@ export function ExerciseSelector({
     if (!searchQuery.trim()) {
       setFilteredExercises(exercises);
     } else {
-      const filtered = exercises.filter(exercise =>
-        exercise.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        exercise.muscles.some(muscle => 
-          muscle.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+      const filtered = exercises.filter(
+        (exercise) =>
+          exercise.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          exercise.muscles.some((muscle) =>
+            muscle.toLowerCase().includes(searchQuery.toLowerCase()),
+          ),
       );
       setFilteredExercises(filtered);
     }
@@ -67,13 +76,14 @@ export function ExerciseSelector({
     setIsLoading(true);
     try {
       const orderIndex = currentSession.exercises.length;
-      
-      const sessionExercise = await sessionExerciseRepository.addExerciseToSession(
-        sessionId,
-        exercise.id,
-        exercise.name,
-        orderIndex
-      );
+
+      const sessionExercise =
+        await sessionExerciseRepository.addExerciseToSession(
+          sessionId,
+          exercise.id,
+          exercise.name,
+          orderIndex,
+        );
 
       // Update current session in store
       const updatedSession = {
@@ -85,26 +95,29 @@ export function ExerciseSelector({
       onSelectExercise(exercise.id, exercise.name);
       onClose();
     } catch (error) {
-      console.error('Failed to add exercise to session:', error);
+      console.error("Failed to add exercise to session:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCustomExerciseCreated = (exercise: Exercise) => {
-    setExercises(prev => [...prev, exercise]);
-    setFilteredExercises(prev => [...prev, exercise]);
+    setExercises((prev) => [...prev, exercise]);
+    setFilteredExercises((prev) => [...prev, exercise]);
     handleSelectExercise(exercise);
   };
 
-  const groupedExercises = filteredExercises.reduce((groups, exercise) => {
-    const primaryMuscle = exercise.muscles[0] || 'Other';
-    if (!groups[primaryMuscle]) {
-      groups[primaryMuscle] = [];
-    }
-    groups[primaryMuscle].push(exercise);
-    return groups;
-  }, {} as Record<string, Exercise[]>);
+  const groupedExercises = filteredExercises.reduce(
+    (groups, exercise) => {
+      const primaryMuscle = exercise.muscles[0] || "Other";
+      if (!groups[primaryMuscle]) {
+        groups[primaryMuscle] = [];
+      }
+      groups[primaryMuscle].push(exercise);
+      return groups;
+    },
+    {} as Record<string, Exercise[]>,
+  );
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -157,7 +170,11 @@ export function ExerciseSelector({
                       <div className="font-medium">{exercise.name}</div>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {exercise.muscles.map((muscle) => (
-                          <Badge key={muscle} variant="secondary" className="text-xs">
+                          <Badge
+                            key={muscle}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             {muscle}
                           </Badge>
                         ))}
@@ -177,15 +194,17 @@ export function ExerciseSelector({
           {filteredExercises.length === 0 && (
             <div className="text-center py-8">
               <p className="text-muted-foreground mb-3">
-                {searchQuery ? 'No exercises found matching your search.' : 'No exercises available.'}
+                {searchQuery
+                  ? "No exercises found matching your search."
+                  : "No exercises available."}
               </p>
               {searchQuery && (
                 <p className="text-sm text-muted-foreground mb-4">
                   Try adjusting your search or create a custom exercise below.
                 </p>
               )}
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setShowCustomDialog(true)}
               >

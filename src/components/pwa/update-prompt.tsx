@@ -1,26 +1,30 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { RefreshCw, X } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { RefreshCw, X } from "lucide-react";
 
 export function UpdatePrompt() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const [registration, setRegistration] =
+    useState<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       // Check for existing registration
       navigator.serviceWorker.ready.then((reg) => {
         setRegistration(reg);
-        
+
         // Listen for updates
-        reg.addEventListener('updatefound', () => {
+        reg.addEventListener("updatefound", () => {
           const newWorker = reg.installing;
           if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
                 // New service worker installed and ready
                 setUpdateAvailable(true);
               }
@@ -30,7 +34,7 @@ export function UpdatePrompt() {
       });
 
       // Listen for waiting service worker
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
         // Service worker updated, reload to get new content
         if (updateAvailable) {
           window.location.reload();
@@ -42,7 +46,7 @@ export function UpdatePrompt() {
   const handleUpdate = () => {
     if (registration?.waiting) {
       // Tell the waiting service worker to take control
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      registration.waiting.postMessage({ type: "SKIP_WAITING" });
       setUpdateAvailable(false);
     }
   };
@@ -64,7 +68,8 @@ export function UpdatePrompt() {
               Update Available
             </h3>
             <p className="text-sm text-blue-700 dark:text-blue-200">
-              A new version of the app is ready. Reload to get the latest features.
+              A new version of the app is ready. Reload to get the latest
+              features.
             </p>
           </div>
           <div className="flex gap-2 ml-4">

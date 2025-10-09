@@ -1,11 +1,17 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Info, Play, Image, FileText, ExternalLink } from 'lucide-react';
-import type { Exercise } from '@/lib/types';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Info, Play, Image, FileText, ExternalLink } from "lucide-react";
+import type { Exercise } from "@/lib/types";
 
 interface ExerciseInfoPopoverProps {
   exercise: Exercise;
@@ -18,11 +24,12 @@ const ensureSafeMediaUrl = (raw?: string | null): string | null => {
   if (!trimmed) return null;
 
   try {
-    const base = typeof window !== 'undefined' && window.location
-      ? window.location.origin
-      : 'http://localhost';
+    const base =
+      typeof window !== "undefined" && window.location
+        ? window.location.origin
+        : "http://localhost";
     const url = new URL(trimmed, base);
-    if (!['http:', 'https:'].includes(url.protocol)) {
+    if (!["http:", "https:"].includes(url.protocol)) {
       return null;
     }
     return url.href;
@@ -48,7 +55,10 @@ const renderMediaFallback = (message: string, link?: string) => (
   </div>
 );
 
-export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfoPopoverProps) {
+export function ExerciseInfoPopover({
+  exercise,
+  triggerClassName,
+}: ExerciseInfoPopoverProps) {
   const [open, setOpen] = useState(false);
   const [gifError, setGifError] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -64,7 +74,9 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
   }
 
   const renderVideoEmbed = (url: string) => {
-    const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    const youtubeMatch = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+    );
     if (youtubeMatch) {
       const videoId = youtubeMatch[1];
       return (
@@ -82,7 +94,12 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
 
     return (
       <Button asChild variant="outline" size="sm">
-        <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1"
+        >
           <ExternalLink className="h-3 w-3" />
           Watch Video
         </a>
@@ -93,11 +110,7 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={triggerClassName}
-        >
+        <Button variant="ghost" size="sm" className={triggerClassName}>
           <Info className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -118,7 +131,9 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
 
           {exercise.notes && (
             <div>
-              <p className="text-xs font-medium text-muted-foreground mb-1">Notes</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">
+                Notes
+              </p>
               <p className="text-xs leading-relaxed">{exercise.notes}</p>
             </div>
           )}
@@ -127,7 +142,9 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
             <div>
               <div className="flex items-center gap-1 mb-1">
                 <FileText className="h-3 w-3" />
-                <p className="text-xs font-medium text-muted-foreground">Instructions</p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  Instructions
+                </p>
               </div>
               <p className="text-xs leading-relaxed whitespace-pre-wrap">
                 {instructions}
@@ -139,7 +156,9 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <Play className="h-3 w-3" />
-                <p className="text-xs font-medium text-muted-foreground">Video</p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  Video
+                </p>
               </div>
               {renderVideoEmbed(videoUrl)}
             </div>
@@ -149,7 +168,9 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <Image className="h-3 w-3" />
-                <p className="text-xs font-medium text-muted-foreground">Animation</p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  Animation
+                </p>
               </div>
               {!gifError ? (
                 <img
@@ -159,7 +180,7 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
                   onError={() => setGifError(true)}
                 />
               ) : (
-                renderMediaFallback('Failed to load GIF', gifUrl)
+                renderMediaFallback("Failed to load GIF", gifUrl)
               )}
             </div>
           )}
@@ -168,7 +189,9 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <Image className="h-3 w-3" />
-                <p className="text-xs font-medium text-muted-foreground">Reference</p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  Reference
+                </p>
               </div>
               {!imageError ? (
                 <img
@@ -178,7 +201,7 @@ export function ExerciseInfoPopover({ exercise, triggerClassName }: ExerciseInfo
                   onError={() => setImageError(true)}
                 />
               ) : (
-                renderMediaFallback('Failed to load image', imageUrl)
+                renderMediaFallback("Failed to load image", imageUrl)
               )}
             </div>
           )}

@@ -1,21 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Download, X, Smartphone } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Download, X, Smartphone } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
   readonly userChoice: Promise<{
-    outcome: 'accepted' | 'dismissed';
+    outcome: "accepted" | "dismissed";
     platform: string;
   }>;
   prompt(): Promise<void>;
 }
 
 export function InstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -26,33 +27,33 @@ export function InstallPrompt() {
     setIsIOS(iOS);
 
     // Check if already installed (standalone mode)
-    const standalone = window.matchMedia('(display-mode: standalone)').matches;
+    const standalone = window.matchMedia("(display-mode: standalone)").matches;
     setIsStandalone(standalone);
 
     // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      
+
       // Don't show prompt if already installed or user dismissed it recently
-      const dismissed = localStorage.getItem('pwa-install-dismissed');
+      const dismissed = localStorage.getItem("pwa-install-dismissed");
       const dismissedTime = dismissed ? parseInt(dismissed) : 0;
       const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      
+
       if (!standalone && dismissedTime < oneWeekAgo) {
         setShowPrompt(true);
       }
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     // Show iOS install instructions after a delay if not installed
     if (iOS && !standalone) {
       const timer = setTimeout(() => {
-        const dismissed = localStorage.getItem('ios-install-dismissed');
+        const dismissed = localStorage.getItem("ios-install-dismissed");
         const dismissedTime = dismissed ? parseInt(dismissed) : 0;
         const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-        
+
         if (dismissedTime < oneWeekAgo) {
           setShowPrompt(true);
         }
@@ -62,7 +63,10 @@ export function InstallPrompt() {
     }
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
     };
   }, []);
 
@@ -72,24 +76,24 @@ export function InstallPrompt() {
     try {
       await deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      
-      if (outcome === 'accepted') {
-        console.log('PWA installed');
+
+      if (outcome === "accepted") {
+        console.log("PWA installed");
       }
-      
+
       setDeferredPrompt(null);
       setShowPrompt(false);
     } catch (error) {
-      console.error('Install failed:', error);
+      console.error("Install failed:", error);
     }
   };
 
   const handleDismiss = () => {
     setShowPrompt(false);
     if (isIOS) {
-      localStorage.setItem('ios-install-dismissed', Date.now().toString());
+      localStorage.setItem("ios-install-dismissed", Date.now().toString());
     } else {
-      localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+      localStorage.setItem("pwa-install-dismissed", Date.now().toString());
     }
   };
 
@@ -108,18 +112,17 @@ export function InstallPrompt() {
                 <Smartphone className="h-5 w-5 text-primary" />
               </div>
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm mb-1">
                 Install AI Gym Tracker
               </h3>
               <p className="text-xs text-muted-foreground mb-3">
-                {isIOS 
+                {isIOS
                   ? "Add to your home screen for quick access and offline use"
-                  : "Install as an app for better performance and offline access"
-                }
+                  : "Install as an app for better performance and offline access"}
               </p>
-              
+
               {isIOS ? (
                 <div className="text-xs text-muted-foreground mb-3">
                   <p>1. Tap the Share button in Safari</p>
@@ -127,7 +130,7 @@ export function InstallPrompt() {
                   <p>3. Tap &quot;Add&quot; to install</p>
                 </div>
               ) : null}
-              
+
               <div className="flex gap-2">
                 {!isIOS && deferredPrompt && (
                   <Button
@@ -139,16 +142,12 @@ export function InstallPrompt() {
                     Install
                   </Button>
                 )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleDismiss}
-                >
+                <Button size="sm" variant="outline" onClick={handleDismiss}>
                   Later
                 </Button>
               </div>
             </div>
-            
+
             <Button
               size="sm"
               variant="ghost"

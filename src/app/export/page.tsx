@@ -1,24 +1,42 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useAppStore } from '@/lib/store';
-import { 
-  sessionRepository, 
-  personalRecordRepository, 
-  bodyMeasurementRepository, 
-  workoutStreakRepository, 
+import { useState } from "react";
+import { useAppStore } from "@/lib/store";
+import {
+  sessionRepository,
+  personalRecordRepository,
+  bodyMeasurementRepository,
+  workoutStreakRepository,
   exerciseRepository,
-  templateRepository 
-} from '@/lib/db/repositories';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Download, FileText, Database } from 'lucide-react';
-import Link from 'next/link';
+  templateRepository,
+} from "@/lib/db/repositories";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowLeft, Download, FileText, Database } from "lucide-react";
+import Link from "next/link";
 
-type ExportFormat = 'csv' | 'json';
-type DataType = 'workouts' | 'exercises' | 'measurements' | 'records' | 'streaks' | 'templates';
+type ExportFormat = "csv" | "json";
+type DataType =
+  | "workouts"
+  | "exercises"
+  | "measurements"
+  | "records"
+  | "streaks"
+  | "templates";
 
 interface ExportOptions {
   format: ExportFormat;
@@ -30,33 +48,61 @@ export default function ExportPage() {
   const { user } = useAppStore();
   const [isExporting, setIsExporting] = useState(false);
   const [exportOptions, setExportOptions] = useState<ExportOptions>({
-    format: 'csv',
-    dataTypes: ['workouts'],
+    format: "csv",
+    dataTypes: ["workouts"],
     includeDetails: true,
   });
 
   const dataTypeOptions = [
-    { value: 'workouts' as DataType, label: 'Workout Sessions', description: 'All workout sessions with exercises and sets' },
-    { value: 'exercises' as DataType, label: 'Exercises', description: 'Exercise database with muscle groups and equipment' },
-    { value: 'measurements' as DataType, label: 'Body Measurements', description: 'Weight, body fat, and body measurements' },
-    { value: 'records' as DataType, label: 'Personal Records', description: 'PRs for max weight, reps, volume, and 1RM estimates' },
-    { value: 'streaks' as DataType, label: 'Workout Streaks', description: 'Workout consistency streaks and patterns' },
-    { value: 'templates' as DataType, label: 'Workout Templates', description: 'Saved workout templates and routines' },
+    {
+      value: "workouts" as DataType,
+      label: "Workout Sessions",
+      description: "All workout sessions with exercises and sets",
+    },
+    {
+      value: "exercises" as DataType,
+      label: "Exercises",
+      description: "Exercise database with muscle groups and equipment",
+    },
+    {
+      value: "measurements" as DataType,
+      label: "Body Measurements",
+      description: "Weight, body fat, and body measurements",
+    },
+    {
+      value: "records" as DataType,
+      label: "Personal Records",
+      description: "PRs for max weight, reps, volume, and 1RM estimates",
+    },
+    {
+      value: "streaks" as DataType,
+      label: "Workout Streaks",
+      description: "Workout consistency streaks and patterns",
+    },
+    {
+      value: "templates" as DataType,
+      label: "Workout Templates",
+      description: "Saved workout templates and routines",
+    },
   ];
 
   const handleDataTypeChange = (dataType: DataType, checked: boolean) => {
-    setExportOptions(prev => ({
+    setExportOptions((prev) => ({
       ...prev,
-      dataTypes: checked 
+      dataTypes: checked
         ? [...prev.dataTypes, dataType]
-        : prev.dataTypes.filter(type => type !== dataType)
+        : prev.dataTypes.filter((type) => type !== dataType),
     }));
   };
 
-  const downloadFile = (content: string, filename: string, contentType: string) => {
+  const downloadFile = (
+    content: string,
+    filename: string,
+    contentType: string,
+  ) => {
     const blob = new Blob([content], { type: contentType });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
@@ -65,71 +111,85 @@ export default function ExportPage() {
     URL.revokeObjectURL(url);
   };
 
-  const convertToCSV = (data: Record<string, unknown>[], headers: string[]): string => {
-    const csvHeaders = headers.join(',');
-    const csvRows = data.map(row => 
-      headers.map(header => {
-        const value = row[header];
-        if (value === null || value === undefined) return '';
-        if (typeof value === 'string' && value.includes(',')) {
-          return `"${value.replace(/"/g, '""')}"`;
-        }
-        return String(value);
-      }).join(',')
+  const convertToCSV = (
+    data: Record<string, unknown>[],
+    headers: string[],
+  ): string => {
+    const csvHeaders = headers.join(",");
+    const csvRows = data.map((row) =>
+      headers
+        .map((header) => {
+          const value = row[header];
+          if (value === null || value === undefined) return "";
+          if (typeof value === "string" && value.includes(",")) {
+            return `"${value.replace(/"/g, '""')}"`;
+          }
+          return String(value);
+        })
+        .join(","),
     );
-    return [csvHeaders, ...csvRows].join('\n');
+    return [csvHeaders, ...csvRows].join("\n");
   };
 
   const formatDate = (date: Date | string): string => {
-    const d = typeof date === 'string' ? new Date(date) : date;
-    return d.toISOString().split('T')[0];
+    const d = typeof date === "string" ? new Date(date) : date;
+    return d.toISOString().split("T")[0];
   };
 
   const exportData = async () => {
     if (!user) return;
 
     setIsExporting(true);
-    
+
     try {
       const exportData: Record<string, unknown> = {};
-      const timestamp = new Date().toISOString().split('T')[0];
+      const timestamp = new Date().toISOString().split("T")[0];
 
       // Export workouts
-      if (exportOptions.dataTypes.includes('workouts')) {
+      if (exportOptions.dataTypes.includes("workouts")) {
         const sessions = await sessionRepository.getUserSessions(user.id);
-        if (exportOptions.format === 'csv') {
-          const workoutData = sessions.map(session => ({
+        if (exportOptions.format === "csv") {
+          const workoutData = sessions.map((session) => ({
             date: session.date,
-            startedAt: session.startedAt ? session.startedAt.toISOString() : '',
-            endedAt: session.endedAt ? session.endedAt.toISOString() : '',
-            duration: session.startedAt && session.endedAt 
-              ? Math.round((session.endedAt.getTime() - session.startedAt.getTime()) / (1000 * 60))
-              : '',
+            startedAt: session.startedAt ? session.startedAt.toISOString() : "",
+            endedAt: session.endedAt ? session.endedAt.toISOString() : "",
+            duration:
+              session.startedAt && session.endedAt
+                ? Math.round(
+                    (session.endedAt.getTime() - session.startedAt.getTime()) /
+                      (1000 * 60),
+                  )
+                : "",
             exerciseCount: session.exercises.length,
-            totalSets: session.exercises.reduce((sum, ex) => sum + ex.sets.length, 0),
-            notes: session.notes || '',
+            totalSets: session.exercises.reduce(
+              (sum, ex) => sum + ex.sets.length,
+              0,
+            ),
+            notes: session.notes || "",
           }));
-          
+
           if (exportOptions.includeDetails) {
             // Include detailed exercise and set data
-            const detailedData = sessions.flatMap(session =>
-              session.exercises.flatMap(exercise =>
-                exercise.sets.map(set => ({
+            const detailedData = sessions.flatMap((session) =>
+              session.exercises.flatMap((exercise) =>
+                exercise.sets.map((set) => ({
                   sessionDate: session.date,
                   exerciseName: exercise.nameAtTime,
                   setIndex: set.index,
-                  reps: set.reps || '',
-                  weight: set.weight || '',
-                  isWarmup: set.isWarmup ? 'Yes' : 'No',
-                  restSec: set.restSec || '',
-                  completedAt: set.completedAt ? set.completedAt.toISOString() : '',
-                  notes: set.notes || '',
-                }))
-              )
+                  reps: set.reps || "",
+                  weight: set.weight || "",
+                  isWarmup: set.isWarmup ? "Yes" : "No",
+                  restSec: set.restSec || "",
+                  completedAt: set.completedAt
+                    ? set.completedAt.toISOString()
+                    : "",
+                  notes: set.notes || "",
+                })),
+              ),
             );
             exportData.workoutSets = detailedData;
           }
-          
+
           exportData.workouts = workoutData;
         } else {
           exportData.workouts = sessions;
@@ -137,75 +197,78 @@ export default function ExportPage() {
       }
 
       // Export exercises
-      if (exportOptions.dataTypes.includes('exercises')) {
+      if (exportOptions.dataTypes.includes("exercises")) {
         const exercises = await exerciseRepository.getAllExercises();
-        exportData.exercises = exercises.map(ex => ({
+        exportData.exercises = exercises.map((ex) => ({
           name: ex.name,
-          muscles: Array.isArray(ex.muscles) ? ex.muscles.join('; ') : ex.muscles,
-          equipment: ex.equipment || '',
-          isCustom: ex.isCustom ? 'Yes' : 'No',
-          notes: ex.notes || '',
+          muscles: Array.isArray(ex.muscles)
+            ? ex.muscles.join("; ")
+            : ex.muscles,
+          equipment: ex.equipment || "",
+          isCustom: ex.isCustom ? "Yes" : "No",
+          notes: ex.notes || "",
         }));
       }
 
       // Export measurements
-      if (exportOptions.dataTypes.includes('measurements')) {
-        const measurements = await bodyMeasurementRepository.getUserMeasurements(user.id);
-        exportData.measurements = measurements.map(m => ({
+      if (exportOptions.dataTypes.includes("measurements")) {
+        const measurements =
+          await bodyMeasurementRepository.getUserMeasurements(user.id);
+        exportData.measurements = measurements.map((m) => ({
           date: m.date,
           measurementType: m.measurementType,
           value: m.value,
           unit: m.unit,
-          notes: m.notes || '',
+          notes: m.notes || "",
         }));
       }
 
       // Export personal records
-      if (exportOptions.dataTypes.includes('records')) {
+      if (exportOptions.dataTypes.includes("records")) {
         const records = await personalRecordRepository.getUserRecords(user.id);
-        exportData.personalRecords = records.map(pr => ({
+        exportData.personalRecords = records.map((pr) => ({
           exerciseName: pr.exerciseName,
           recordType: pr.recordType,
           value: pr.value,
-          weight: pr.weight || '',
-          reps: pr.reps || '',
+          weight: pr.weight || "",
+          reps: pr.reps || "",
           achievedAt: formatDate(pr.achievedAt),
         }));
       }
 
       // Export streaks
-      if (exportOptions.dataTypes.includes('streaks')) {
+      if (exportOptions.dataTypes.includes("streaks")) {
         const streaks = await workoutStreakRepository.getUserStreaks(user.id);
-        exportData.streaks = streaks.map(streak => ({
+        exportData.streaks = streaks.map((streak) => ({
           startDate: streak.startDate,
-          endDate: streak.endDate || '',
+          endDate: streak.endDate || "",
           workoutCount: streak.workoutCount,
-          isCurrent: streak.isCurrent ? 'Yes' : 'No',
+          isCurrent: streak.isCurrent ? "Yes" : "No",
         }));
       }
 
       // Export templates
-      if (exportOptions.dataTypes.includes('templates')) {
+      if (exportOptions.dataTypes.includes("templates")) {
         const templates = await templateRepository.getUserTemplates(user.id);
-        if (exportOptions.format === 'csv') {
-          const templateData = templates.map(template => ({
+        if (exportOptions.format === "csv") {
+          const templateData = templates.map((template) => ({
             name: template.name,
             exerciseCount: template.exercises.length,
-            isBuiltIn: template.isBuiltIn ? 'Yes' : 'No',
-            description: template.description || '',
+            isBuiltIn: template.isBuiltIn ? "Yes" : "No",
+            description: template.description || "",
           }));
           exportData.templates = templateData;
-          
+
           if (exportOptions.includeDetails) {
-            const templateExercises = templates.flatMap(template =>
-              template.exercises.map(ex => ({
+            const templateExercises = templates.flatMap((template) =>
+              template.exercises.map((ex) => ({
                 templateName: template.name,
                 exerciseName: ex.exerciseName,
                 orderIndex: ex.orderIndex,
                 setsCount: ex.sets.length,
-                restSeconds: ex.restSeconds || '',
-                notes: ex.notes || '',
-              }))
+                restSeconds: ex.restSeconds || "",
+                notes: ex.notes || "",
+              })),
             );
             exportData.templateExercises = templateExercises;
           }
@@ -215,26 +278,33 @@ export default function ExportPage() {
       }
 
       // Generate and download files
-      if (exportOptions.format === 'csv') {
+      if (exportOptions.format === "csv") {
         // Create separate CSV files for each data type
         Object.entries(exportData).forEach(([key, data]) => {
           if (Array.isArray(data) && data.length > 0) {
             const headers = Object.keys(data[0]);
             const csv = convertToCSV(data, headers);
-            downloadFile(csv, `gym-tracker-${key}-${timestamp}.csv`, 'text/csv');
+            downloadFile(
+              csv,
+              `gym-tracker-${key}-${timestamp}.csv`,
+              "text/csv",
+            );
           }
         });
       } else {
         // Single JSON file with all data
         const json = JSON.stringify(exportData, null, 2);
-        downloadFile(json, `gym-tracker-export-${timestamp}.json`, 'application/json');
+        downloadFile(
+          json,
+          `gym-tracker-export-${timestamp}.json`,
+          "application/json",
+        );
       }
 
       // Show success message (you could add a toast notification here)
-      console.log('Export completed successfully');
-
+      console.log("Export completed successfully");
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error("Export failed:", error);
       // Show error message (you could add a toast notification here)
     } finally {
       setIsExporting(false);
@@ -253,7 +323,9 @@ export default function ExportPage() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Export Data</h1>
-            <p className="text-muted-foreground">Download your fitness data and progress</p>
+            <p className="text-muted-foreground">
+              Download your fitness data and progress
+            </p>
           </div>
         </header>
 
@@ -264,13 +336,15 @@ export default function ExportPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Export Format</CardTitle>
-                <CardDescription>Choose how you want your data formatted</CardDescription>
+                <CardDescription>
+                  Choose how you want your data formatted
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Select
                   value={exportOptions.format}
-                  onValueChange={(value: ExportFormat) => 
-                    setExportOptions(prev => ({ ...prev, format: value }))
+                  onValueChange={(value: ExportFormat) =>
+                    setExportOptions((prev) => ({ ...prev, format: value }))
                   }
                 >
                   <SelectTrigger>
@@ -292,15 +366,22 @@ export default function ExportPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Data to Export</CardTitle>
-                <CardDescription>Select which types of data to include in your export</CardDescription>
+                <CardDescription>
+                  Select which types of data to include in your export
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {dataTypeOptions.map((option) => (
-                  <div key={option.value} className="flex items-start space-x-3">
+                  <div
+                    key={option.value}
+                    className="flex items-start space-x-3"
+                  >
                     <Checkbox
                       id={option.value}
                       checked={exportOptions.dataTypes.includes(option.value)}
-                      onCheckedChange={(checked) => handleDataTypeChange(option.value, checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        handleDataTypeChange(option.value, checked as boolean)
+                      }
                     />
                     <div className="grid gap-1.5 leading-none">
                       <label
@@ -322,15 +403,20 @@ export default function ExportPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Export Options</CardTitle>
-                <CardDescription>Additional settings for your export</CardDescription>
+                <CardDescription>
+                  Additional settings for your export
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="includeDetails"
                     checked={exportOptions.includeDetails}
-                    onCheckedChange={(checked) => 
-                      setExportOptions(prev => ({ ...prev, includeDetails: checked as boolean }))
+                    onCheckedChange={(checked) =>
+                      setExportOptions((prev) => ({
+                        ...prev,
+                        includeDetails: checked as boolean,
+                      }))
                     }
                   />
                   <label
@@ -360,28 +446,31 @@ export default function ExportPage() {
                     {exportOptions.format.toUpperCase()}
                   </div>
                 </div>
-                
+
                 <div>
                   <div className="text-sm font-medium">Data Types:</div>
                   <div className="text-sm text-muted-foreground">
-                    {exportOptions.dataTypes.length > 0 
-                      ? exportOptions.dataTypes.map(type => 
-                          dataTypeOptions.find(opt => opt.value === type)?.label
-                        ).join(', ')
-                      : 'None selected'
-                    }
+                    {exportOptions.dataTypes.length > 0
+                      ? exportOptions.dataTypes
+                          .map(
+                            (type) =>
+                              dataTypeOptions.find((opt) => opt.value === type)
+                                ?.label,
+                          )
+                          .join(", ")
+                      : "None selected"}
                   </div>
                 </div>
 
                 <div>
                   <div className="text-sm font-medium">Details:</div>
                   <div className="text-sm text-muted-foreground">
-                    {exportOptions.includeDetails ? 'Included' : 'Summary only'}
+                    {exportOptions.includeDetails ? "Included" : "Summary only"}
                   </div>
                 </div>
 
-                <Button 
-                  onClick={exportData} 
+                <Button
+                  onClick={exportData}
                   disabled={isExporting || exportOptions.dataTypes.length === 0}
                   className="w-full"
                 >
@@ -409,10 +498,12 @@ export default function ExportPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  Your data is exported directly from your local database. No data is sent to external servers.
+                  Your data is exported directly from your local database. No
+                  data is sent to external servers.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Exported files contain your personal fitness data. Keep them secure and only share with trusted parties.
+                  Exported files contain your personal fitness data. Keep them
+                  secure and only share with trusted parties.
                 </p>
               </CardContent>
             </Card>

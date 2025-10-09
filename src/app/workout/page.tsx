@@ -1,98 +1,130 @@
-'use client';
+"use client";
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAppStore } from '@/lib/store';
-import { sessionRepository, sessionExerciseRepository, templateRepository, exerciseRepository } from '@/lib/db/repositories';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { ExerciseSelector } from '@/components/workout/exercise-selector';
-import { SessionExerciseCard } from '@/components/workout/session-exercise-card';
-import { RestTimer } from '@/components/workout/rest-timer';
-import { ArrowLeft, Plus, Save, FileText, BookOpen } from 'lucide-react';
-import type { WorkoutSession, WorkoutTemplate, Exercise } from '@/lib/types';
-import Link from 'next/link';
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAppStore } from "@/lib/store";
+import {
+  sessionRepository,
+  sessionExerciseRepository,
+  templateRepository,
+  exerciseRepository,
+} from "@/lib/db/repositories";
+import { recoverCurrentSession } from "@/lib/session-recovery";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { ExerciseSelector } from "@/components/workout/exercise-selector";
+import { SessionExerciseCard } from "@/components/workout/session-exercise-card";
+import { RestTimer } from "@/components/workout/rest-timer";
+import { SessionRecoveryNotification } from "@/components/workout/session-recovery-notification";
+import { ArrowLeft, Plus, Save, FileText, BookOpen } from "lucide-react";
+import type { WorkoutSession, WorkoutTemplate, Exercise } from "@/lib/types";
+import Link from "next/link";
 
 function WorkoutPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, currentSession, setCurrentSession, setSessionActive } = useAppStore();
+  const { user, currentSession, setCurrentSession, setSessionActive } =
+    useAppStore();
   const [isLoading, setIsLoading] = useState(false);
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
-  const [sessionNotes, setSessionNotes] = useState('');
+  const [sessionNotes, setSessionNotes] = useState("");
   const [template, setTemplate] = useState<WorkoutTemplate | null>(null);
   const [exercises, setExercises] = useState<Map<string, Exercise>>(new Map());
-  
-  const templateId = searchParams?.get('template');
+  const [recoveredSessionId, setRecoveredSessionId] = useState<string | null>(
+    null,
+  );
+
+  const templateId = searchParams?.get("template");
 
   // Load template if specified
   useEffect(() => {
     const loadTemplate = async () => {
       if (!templateId) return;
-      
+
       try {
-        const loadedTemplate = await templateRepository.getTemplateById(templateId);
+        const loadedTemplate =
+          await templateRepository.getTemplateById(templateId);
         setTemplate(loadedTemplate || null);
       } catch (error) {
-        console.error('Failed to load template:', error);
+        console.error("Failed to load template:", error);
       }
     };
 
     loadTemplate();
   }, [templateId]);
 
-  // Initialize session if none exists
+  // Initialize session if none exists or recover existing session
   useEffect(() => {
     const initSession = async () => {
-      if (!user || currentSession) return;
+      if (!user) return;
 
       setIsLoading(true);
       try {
-        const newSession: Omit<WorkoutSession, 'createdAt' | 'updatedAt'> = {
+        // First, try to recover an existing session
+        const recoveredSession = await recoverCurrentSession();
+
+        if (recoveredSession) {
+          console.log("Recovered existing session:", recoveredSession.id);
+          setSessionNotes(recoveredSession.notes || "");
+          setRecoveredSessionId(recoveredSession.id);
+          return;
+        }
+
+        // If no session to recover and we already have a current session, don't create a new one
+        if (currentSession) return;
+
+        // Create a new session
+        const newSession: Omit<WorkoutSession, "createdAt" | "updatedAt"> = {
           id: crypto.randomUUID(),
           userId: user.id,
-          date: new Date().toISOString().split('T')[0],
+          date: new Date().toISOString().split("T")[0],
           startedAt: new Date(),
           exercises: [],
         };
 
         const session = await sessionRepository.createSession(newSession);
-        
+
         // If we have a template, add its exercises to the session
         if (template) {
           for (const templateExercise of template.exercises) {
-            const sessionExercise = await sessionExerciseRepository.addExerciseToSession(
-              session.id,
-              templateExercise.exerciseId,
-              templateExercise.exerciseName,
-              templateExercise.orderIndex
-            );
+            const sessionExercise =
+              await sessionExerciseRepository.addExerciseToSession(
+                session.id,
+                templateExercise.exerciseId,
+                templateExercise.exerciseName,
+                templateExercise.orderIndex,
+              );
 
             // Add template sets as incomplete sets
             for (const templateSet of templateExercise.sets) {
-              await sessionExerciseRepository.addSetToExercise(sessionExercise.id, {
-                index: templateSet.index,
-                reps: templateSet.targetReps,
-                weight: templateSet.targetWeight,
-                rpe: templateSet.targetRPE,
-                isWarmup: templateSet.isWarmup,
-                notes: templateSet.notes,
-                restSec: templateExercise.restSeconds,
-              });
+              await sessionExerciseRepository.addSetToExercise(
+                sessionExercise.id,
+                {
+                  index: templateSet.index,
+                  reps: templateSet.targetReps,
+                  weight: templateSet.targetWeight,
+                  rpe: templateSet.targetRPE,
+                  isWarmup: templateSet.isWarmup,
+                  notes: templateSet.notes,
+                  restSec: templateExercise.restSeconds,
+                },
+              );
             }
           }
-          
+
           // Reload session with exercises
-          const updatedSession = await sessionRepository.getSessionById(session.id);
+          const updatedSession = await sessionRepository.getSessionById(
+            session.id,
+          );
           setCurrentSession(updatedSession || session);
         } else {
           setCurrentSession(session);
         }
-        
+
         setSessionActive(true);
       } catch (error) {
-        console.error('Failed to create session:', error);
+        console.error("Failed to create session:", error);
       } finally {
         setIsLoading(false);
       }
@@ -102,7 +134,14 @@ function WorkoutPageContent() {
     if (templateId ? template !== null : true) {
       initSession();
     }
-  }, [user, currentSession, setCurrentSession, setSessionActive, template, templateId]);
+  }, [
+    user,
+    currentSession,
+    setCurrentSession,
+    setSessionActive,
+    template,
+    templateId,
+  ]);
 
   // Load exercise data for the session
   useEffect(() => {
@@ -111,17 +150,19 @@ function WorkoutPageContent() {
 
       try {
         const exerciseMap = new Map<string, Exercise>();
-        
+
         for (const sessionExercise of currentSession.exercises) {
-          const exercise = await exerciseRepository.getExerciseById(sessionExercise.exerciseId);
+          const exercise = await exerciseRepository.getExerciseById(
+            sessionExercise.exerciseId,
+          );
           if (exercise) {
             exerciseMap.set(sessionExercise.exerciseId, exercise);
           }
         }
-        
+
         setExercises(exerciseMap);
       } catch (error) {
-        console.error('Failed to load exercises:', error);
+        console.error("Failed to load exercises:", error);
       }
     };
 
@@ -143,7 +184,7 @@ function WorkoutPageContent() {
       setSessionActive(false);
       router.push(`/workout-review?id=${currentSession.id}`);
     } catch (error) {
-      console.error('Failed to finish session:', error);
+      console.error("Failed to finish session:", error);
     } finally {
       setIsLoading(false);
     }
@@ -178,7 +219,7 @@ function WorkoutPageContent() {
     );
   }
 
-  const sessionDuration = currentSession.startedAt 
+  const sessionDuration = currentSession.startedAt
     ? Math.floor((Date.now() - currentSession.startedAt.getTime()) / 1000 / 60)
     : 0;
 
@@ -196,7 +237,9 @@ function WorkoutPageContent() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl font-bold">Workout Session</h1>
-                {template && <BookOpen className="h-5 w-5 text-muted-foreground" />}
+                {template && (
+                  <BookOpen className="h-5 w-5 text-muted-foreground" />
+                )}
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">
@@ -210,8 +253,8 @@ function WorkoutPageContent() {
               </div>
             </div>
           </div>
-          <Button 
-            onClick={handleFinishWorkout} 
+          <Button
+            onClick={handleFinishWorkout}
             disabled={isLoading || currentSession.exercises.length === 0}
             className="flex items-center gap-2"
           >
@@ -222,6 +265,12 @@ function WorkoutPageContent() {
 
         {/* Rest Timer */}
         <RestTimer />
+
+        {/* Session Recovery Notification */}
+        <SessionRecoveryNotification
+          sessionId={recoveredSessionId}
+          onDismiss={() => setRecoveredSessionId(null)}
+        />
 
         {/* Exercises */}
         <div className="space-y-4 mb-6">
@@ -282,11 +331,13 @@ function WorkoutPageContent() {
 
 export default function WorkoutPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      }
+    >
       <WorkoutPageContent />
     </Suspense>
   );

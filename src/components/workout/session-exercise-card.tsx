@@ -1,16 +1,24 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { sessionExerciseRepository, personalRecordRepository } from '@/lib/db/repositories';
-import { useAppStore } from '@/lib/store';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Plus, Check, Trophy } from 'lucide-react';
-import { ExerciseInfoPopover } from '@/components/exercise/exercise-info-popover';
-import type { SessionExercise, SetEntry, PersonalRecord, Exercise } from '@/lib/types';
-import { formatWeight } from '@/lib/utils/calculations';
+import { useState } from "react";
+import {
+  sessionExerciseRepository,
+  personalRecordRepository,
+} from "@/lib/db/repositories";
+import { useAppStore } from "@/lib/store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Check, Trophy } from "lucide-react";
+import { ExerciseInfoPopover } from "@/components/exercise/exercise-info-popover";
+import type {
+  SessionExercise,
+  SetEntry,
+  PersonalRecord,
+  Exercise,
+} from "@/lib/types";
+import { formatWeight } from "@/lib/utils/calculations";
 
 interface SessionExerciseCardProps {
   sessionExercise: SessionExercise;
@@ -24,20 +32,23 @@ export function SessionExerciseCard({
   sessionId,
   exercise,
 }: SessionExerciseCardProps) {
-  const { user, currentSession, setCurrentSession, startRestTimer } = useAppStore();
+  const { user, currentSession, setCurrentSession, startRestTimer } =
+    useAppStore();
   const [newSet, setNewSet] = useState<Partial<SetEntry>>({
     reps: undefined,
     weight: undefined,
   });
   const [isAddingSet, setIsAddingSet] = useState(false);
-  const [newPersonalRecords, setNewPersonalRecords] = useState<PersonalRecord[]>([]);
+  const [newPersonalRecords, setNewPersonalRecords] = useState<
+    PersonalRecord[]
+  >([]);
 
   const handleAddSet = async () => {
     if (!newSet.reps || !newSet.weight) return;
 
     setIsAddingSet(true);
     try {
-      const setData: Omit<SetEntry, 'id'> = {
+      const setData: Omit<SetEntry, "id"> = {
         index: sessionExercise.sets.length,
         reps: newSet.reps,
         weight: newSet.weight,
@@ -45,11 +56,14 @@ export function SessionExerciseCard({
         completedAt: new Date(),
       };
 
-      await sessionExerciseRepository.addSetToExercise(sessionExercise.id, setData);
+      await sessionExerciseRepository.addSetToExercise(
+        sessionExercise.id,
+        setData,
+      );
 
       // Update local state
       if (currentSession) {
-        const updatedExercises = currentSession.exercises.map(ex =>
+        const updatedExercises = currentSession.exercises.map((ex) =>
           ex.id === sessionExercise.id
             ? {
                 ...ex,
@@ -61,7 +75,7 @@ export function SessionExerciseCard({
                   },
                 ],
               }
-            : ex
+            : ex,
         );
 
         setCurrentSession({
@@ -78,7 +92,7 @@ export function SessionExerciseCard({
       // Reset form
       setNewSet({ reps: undefined, weight: undefined });
     } catch (error) {
-      console.error('Failed to add set:', error);
+      console.error("Failed to add set:", error);
     } finally {
       setIsAddingSet(false);
     }
@@ -91,8 +105,8 @@ export function SessionExerciseCard({
       });
 
       // Find the completed set for PR checking
-      const completedSet = sessionExercise.sets.find(set => set.id === setId);
-      
+      const completedSet = sessionExercise.sets.find((set) => set.id === setId);
+
       // Check for new personal records
       if (completedSet && completedSet.weight && completedSet.reps && user) {
         const newPRs = await personalRecordRepository.checkForNewRecord(
@@ -104,31 +118,31 @@ export function SessionExerciseCard({
             reps: completedSet.reps,
             sessionId: sessionId,
             setId: setId,
-          }
+          },
         );
-        
+
         if (newPRs.length > 0) {
-          setNewPersonalRecords(prev => [...prev, ...newPRs]);
+          setNewPersonalRecords((prev) => [...prev, ...newPRs]);
           // Auto-clear PR notifications after 5 seconds
           setTimeout(() => {
-            setNewPersonalRecords(prev => prev.filter(pr => !newPRs.includes(pr)));
+            setNewPersonalRecords((prev) =>
+              prev.filter((pr) => !newPRs.includes(pr)),
+            );
           }, 5000);
         }
       }
 
       // Update local state
       if (currentSession) {
-        const updatedExercises = currentSession.exercises.map(ex =>
+        const updatedExercises = currentSession.exercises.map((ex) =>
           ex.id === sessionExercise.id
             ? {
                 ...ex,
-                sets: ex.sets.map(set =>
-                  set.id === setId
-                    ? { ...set, completedAt: new Date() }
-                    : set
+                sets: ex.sets.map((set) =>
+                  set.id === setId ? { ...set, completedAt: new Date() } : set,
                 ),
               }
-            : ex
+            : ex,
         );
 
         setCurrentSession({
@@ -142,21 +156,25 @@ export function SessionExerciseCard({
         startRestTimer(user.defaultRestSec);
       }
     } catch (error) {
-      console.error('Failed to complete set:', error);
+      console.error("Failed to complete set:", error);
     }
   };
 
-  const completedSets = sessionExercise.sets.filter(set => set.completedAt).length;
+  const completedSets = sessionExercise.sets.filter(
+    (set) => set.completedAt,
+  ).length;
   const totalVolume = sessionExercise.sets
-    .filter(set => set.reps && set.weight && set.completedAt)
-    .reduce((sum, set) => sum + (set.reps! * set.weight!), 0);
+    .filter((set) => set.reps && set.weight && set.completedAt)
+    .reduce((sum, set) => sum + set.reps! * set.weight!, 0);
 
   return (
     <Card>
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-lg">{sessionExercise.nameAtTime}</CardTitle>
+            <CardTitle className="text-lg">
+              {sessionExercise.nameAtTime}
+            </CardTitle>
             {exercise && <ExerciseInfoPopover exercise={exercise} />}
           </div>
           <div className="flex gap-2">
@@ -165,7 +183,7 @@ export function SessionExerciseCard({
             </Badge>
             {totalVolume > 0 && (
               <Badge variant="outline">
-                {formatWeight(totalVolume, user?.unitSystem || 'metric')} vol
+                {formatWeight(totalVolume, user?.unitSystem || "metric")} vol
               </Badge>
             )}
           </div>
@@ -182,11 +200,15 @@ export function SessionExerciseCard({
             >
               <Trophy className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
               <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                New {pr.recordType.replace('_', ' ').toUpperCase()} PR! 
-                {pr.recordType === 'max_weight' && ` ${formatWeight(pr.value, user?.unitSystem || 'metric')} x ${pr.reps}`}
-                {pr.recordType === 'max_reps' && ` ${pr.value} reps at ${formatWeight(pr.weight!, user?.unitSystem || 'metric')}`}
-                {pr.recordType === 'max_volume' && ` ${formatWeight(pr.value, user?.unitSystem || 'metric')} volume`}
-                {pr.recordType === 'best_estimated_1rm' && ` ${formatWeight(pr.value, user?.unitSystem || 'metric')} 1RM`}
+                New {pr.recordType.replace("_", " ").toUpperCase()} PR!
+                {pr.recordType === "max_weight" &&
+                  ` ${formatWeight(pr.value, user?.unitSystem || "metric")} x ${pr.reps}`}
+                {pr.recordType === "max_reps" &&
+                  ` ${pr.value} reps at ${formatWeight(pr.weight!, user?.unitSystem || "metric")}`}
+                {pr.recordType === "max_volume" &&
+                  ` ${formatWeight(pr.value, user?.unitSystem || "metric")} volume`}
+                {pr.recordType === "best_estimated_1rm" &&
+                  ` ${formatWeight(pr.value, user?.unitSystem || "metric")} 1RM`}
               </span>
             </div>
           ))}
@@ -202,17 +224,18 @@ export function SessionExerciseCard({
               <div
                 key={set.id}
                 className={`flex items-center justify-between p-3 rounded-lg border ${
-                  set.completedAt ? 'bg-muted/50' : 'bg-background'
+                  set.completedAt ? "bg-muted/50" : "bg-background"
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <span className="w-6 text-sm font-medium">{setIndex + 1}</span>
-                  <span className="text-sm">
-                    {set.weight && formatWeight(set.weight, user?.unitSystem || 'metric')}
+                  <span className="w-6 text-sm font-medium">
+                    {setIndex + 1}
                   </span>
                   <span className="text-sm">
-                    {set.reps} reps
+                    {set.weight &&
+                      formatWeight(set.weight, user?.unitSystem || "metric")}
                   </span>
+                  <span className="text-sm">{set.reps} reps</span>
                   {set.rpe && (
                     <Badge variant="outline" className="text-xs">
                       RPE {set.rpe}
@@ -249,9 +272,12 @@ export function SessionExerciseCard({
               <Input
                 type="number"
                 placeholder="Weight"
-                value={newSet.weight || ''}
+                value={newSet.weight || ""}
                 onChange={(e) =>
-                  setNewSet({ ...newSet, weight: Number(e.target.value) || undefined })
+                  setNewSet({
+                    ...newSet,
+                    weight: Number(e.target.value) || undefined,
+                  })
                 }
                 min="0"
                 step="0.25"
@@ -261,9 +287,12 @@ export function SessionExerciseCard({
               <Input
                 type="number"
                 placeholder="Reps"
-                value={newSet.reps || ''}
+                value={newSet.reps || ""}
                 onChange={(e) =>
-                  setNewSet({ ...newSet, reps: Number(e.target.value) || undefined })
+                  setNewSet({
+                    ...newSet,
+                    reps: Number(e.target.value) || undefined,
+                  })
                 }
                 min="0"
                 step="1"

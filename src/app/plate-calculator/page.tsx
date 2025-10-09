@@ -1,14 +1,26 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useAppStore } from '@/lib/store';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Calculator, Info } from 'lucide-react';
-import Link from 'next/link';
+import { useState, useEffect, useCallback } from "react";
+import { useAppStore } from "@/lib/store";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowLeft, Calculator, Info } from "lucide-react";
+import Link from "next/link";
 
 interface PlateConfig {
   weight: number;
@@ -23,36 +35,36 @@ interface BarConfig {
 
 // Standard plate configurations
 const METRIC_PLATES: PlateConfig[] = [
-  { weight: 25, color: '#ef4444', count: 4 }, // Red - 25kg
-  { weight: 20, color: '#3b82f6', count: 4 }, // Blue - 20kg
-  { weight: 15, color: '#eab308', count: 4 }, // Yellow - 15kg
-  { weight: 10, color: '#22c55e', count: 4 }, // Green - 10kg
-  { weight: 5, color: '#ffffff', count: 4 },  // White - 5kg
-  { weight: 2.5, color: '#ef4444', count: 4 }, // Red - 2.5kg
-  { weight: 1.25, color: '#6b7280', count: 4 }, // Gray - 1.25kg
+  { weight: 25, color: "#ef4444", count: 4 }, // Red - 25kg
+  { weight: 20, color: "#3b82f6", count: 4 }, // Blue - 20kg
+  { weight: 15, color: "#eab308", count: 4 }, // Yellow - 15kg
+  { weight: 10, color: "#22c55e", count: 4 }, // Green - 10kg
+  { weight: 5, color: "#ffffff", count: 4 }, // White - 5kg
+  { weight: 2.5, color: "#ef4444", count: 4 }, // Red - 2.5kg
+  { weight: 1.25, color: "#6b7280", count: 4 }, // Gray - 1.25kg
 ];
 
 const IMPERIAL_PLATES: PlateConfig[] = [
-  { weight: 45, color: '#ef4444', count: 4 }, // Red - 45lbs
-  { weight: 35, color: '#3b82f6', count: 4 }, // Blue - 35lbs
-  { weight: 25, color: '#eab308', count: 4 }, // Yellow - 25lbs
-  { weight: 10, color: '#22c55e', count: 4 }, // Green - 10lbs
-  { weight: 5, color: '#ffffff', count: 4 },  // White - 5lbs
-  { weight: 2.5, color: '#ef4444', count: 4 }, // Red - 2.5lbs
+  { weight: 45, color: "#ef4444", count: 4 }, // Red - 45lbs
+  { weight: 35, color: "#3b82f6", count: 4 }, // Blue - 35lbs
+  { weight: 25, color: "#eab308", count: 4 }, // Yellow - 25lbs
+  { weight: 10, color: "#22c55e", count: 4 }, // Green - 10lbs
+  { weight: 5, color: "#ffffff", count: 4 }, // White - 5lbs
+  { weight: 2.5, color: "#ef4444", count: 4 }, // Red - 2.5lbs
 ];
 
 const METRIC_BARS: BarConfig[] = [
-  { weight: 20, name: 'Olympic Barbell (20kg)' },
-  { weight: 15, name: 'Women\'s Barbell (15kg)' },
-  { weight: 10, name: 'Training Bar (10kg)' },
-  { weight: 0, name: 'Dumbbells / No Bar' },
+  { weight: 20, name: "Olympic Barbell (20kg)" },
+  { weight: 15, name: "Women's Barbell (15kg)" },
+  { weight: 10, name: "Training Bar (10kg)" },
+  { weight: 0, name: "Dumbbells / No Bar" },
 ];
 
 const IMPERIAL_BARS: BarConfig[] = [
-  { weight: 45, name: 'Olympic Barbell (45lbs)' },
-  { weight: 35, name: 'Women\'s Barbell (35lbs)' },
-  { weight: 25, name: 'Training Bar (25lbs)' },
-  { weight: 0, name: 'Dumbbells / No Bar' },
+  { weight: 45, name: "Olympic Barbell (45lbs)" },
+  { weight: 35, name: "Women's Barbell (35lbs)" },
+  { weight: 25, name: "Training Bar (25lbs)" },
+  { weight: 0, name: "Dumbbells / No Bar" },
 ];
 
 interface PlateCalculation {
@@ -62,16 +74,16 @@ interface PlateCalculation {
 
 export default function PlateCalculatorPage() {
   const { user } = useAppStore();
-  const [targetWeight, setTargetWeight] = useState<string>('');
+  const [targetWeight, setTargetWeight] = useState<string>("");
   const [barWeight, setBarWeight] = useState<number>(20); // Default to Olympic bar
   const [calculation, setCalculation] = useState<PlateCalculation[]>([]);
   const [totalWeight, setTotalWeight] = useState<number>(0);
   const [isValid, setIsValid] = useState<boolean>(true);
 
-  const isMetric = user?.unitSystem === 'metric';
+  const isMetric = user?.unitSystem === "metric";
   const plates = isMetric ? METRIC_PLATES : IMPERIAL_PLATES;
   const bars = isMetric ? METRIC_BARS : IMPERIAL_BARS;
-  const unit = isMetric ? 'kg' : 'lbs';
+  const unit = isMetric ? "kg" : "lbs";
 
   // Set default bar weight when unit system changes
   useEffect(() => {
@@ -84,7 +96,7 @@ export default function PlateCalculatorPage() {
 
   const calculatePlates = (target: number, bar: number): PlateCalculation[] => {
     const weightPerSide = (target - bar) / 2;
-    
+
     if (weightPerSide <= 0) {
       return [];
     }
@@ -99,13 +111,13 @@ export default function PlateCalculatorPage() {
       if (remainingWeight >= plate.weight && plate.count > 0) {
         const neededCount = Math.min(
           Math.floor(remainingWeight / plate.weight),
-          plate.count
+          plate.count,
         );
-        
+
         if (neededCount > 0) {
           result.push({
             plate: { ...plate },
-            count: neededCount
+            count: neededCount,
           });
           remainingWeight -= neededCount * plate.weight;
         }
@@ -117,7 +129,7 @@ export default function PlateCalculatorPage() {
 
   const handleCalculate = useCallback(() => {
     const target = parseFloat(targetWeight);
-    
+
     if (isNaN(target) || target <= 0) {
       setIsValid(false);
       setCalculation([]);
@@ -133,8 +145,10 @@ export default function PlateCalculatorPage() {
     }
 
     const result = calculatePlates(target, barWeight);
-    const calculatedWeight = barWeight + result.reduce((sum, item) => sum + (item.plate.weight * item.count * 2), 0);
-    
+    const calculatedWeight =
+      barWeight +
+      result.reduce((sum, item) => sum + item.plate.weight * item.count * 2, 0);
+
     setCalculation(result);
     setTotalWeight(calculatedWeight);
     setIsValid(Math.abs(calculatedWeight - target) < 0.01);
@@ -150,7 +164,11 @@ export default function PlateCalculatorPage() {
     }
   }, [targetWeight, barWeight, handleCalculate]);
 
-  const PlateVisualization = ({ plates: plateCalc }: { plates: PlateCalculation[] }) => {
+  const PlateVisualization = ({
+    plates: plateCalc,
+  }: {
+    plates: PlateCalculation[];
+  }) => {
     if (plateCalc.length === 0) return null;
 
     return (
@@ -170,10 +188,10 @@ export default function PlateCalculatorPage() {
             </div>
           ))}
         </div>
-        
+
         {/* Barbell */}
         <div className="w-16 h-2 bg-gray-600 rounded"></div>
-        
+
         {/* Right side plates */}
         <div className="flex space-x-1">
           {plateCalc.map((item, index) => (
@@ -205,7 +223,9 @@ export default function PlateCalculatorPage() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Plate Calculator</h1>
-            <p className="text-muted-foreground">Calculate which plates to load for any weight</p>
+            <p className="text-muted-foreground">
+              Calculate which plates to load for any weight
+            </p>
           </div>
         </header>
 
@@ -224,9 +244,7 @@ export default function PlateCalculatorPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="targetWeight">
-                    Target Weight ({unit})
-                  </Label>
+                  <Label htmlFor="targetWeight">Target Weight ({unit})</Label>
                   <Input
                     id="targetWeight"
                     type="number"
@@ -248,7 +266,10 @@ export default function PlateCalculatorPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {bars.map((bar) => (
-                        <SelectItem key={bar.weight} value={bar.weight.toString()}>
+                        <SelectItem
+                          key={bar.weight}
+                          value={bar.weight.toString()}
+                        >
                           {bar.name}
                         </SelectItem>
                       ))}
@@ -264,15 +285,14 @@ export default function PlateCalculatorPage() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  {isValid ? 'Plate Loading' : 'Cannot Load Exact Weight'}
+                  {isValid ? "Plate Loading" : "Cannot Load Exact Weight"}
                 </CardTitle>
                 <CardDescription>
-                  {isValid 
-                    ? `Total weight: ${totalWeight}${unit}` 
+                  {isValid
+                    ? `Total weight: ${totalWeight}${unit}`
                     : targetWeight && parseFloat(targetWeight) < barWeight
                       ? `Target weight (${targetWeight}${unit}) is less than bar weight (${barWeight}${unit})`
-                      : `Closest possible: ${totalWeight}${unit}`
-                  }
+                      : `Closest possible: ${totalWeight}${unit}`}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -280,7 +300,7 @@ export default function PlateCalculatorPage() {
                   <div className="space-y-4">
                     {/* Visual representation */}
                     <PlateVisualization plates={calculation} />
-                    
+
                     {/* Plate breakdown */}
                     <div className="space-y-2">
                       <h4 className="font-medium">Plates per side:</h4>
@@ -294,16 +314,21 @@ export default function PlateCalculatorPage() {
                               className="w-4 h-4 rounded border"
                               style={{ backgroundColor: item.plate.color }}
                             />
-                            <span>{item.plate.weight}{unit}</span>
+                            <span>
+                              {item.plate.weight}
+                              {unit}
+                            </span>
                           </div>
                           <span className="font-medium">
-                            {item.count} plate{item.count !== 1 ? 's' : ''}
+                            {item.count} plate{item.count !== 1 ? "s" : ""}
                           </span>
                         </div>
                       ))}
                     </div>
                   </div>
-                ) : calculation.length === 0 && targetWeight && parseFloat(targetWeight) >= barWeight ? (
+                ) : calculation.length === 0 &&
+                  targetWeight &&
+                  parseFloat(targetWeight) >= barWeight ? (
                   <div className="text-center py-8">
                     <p className="text-muted-foreground">
                       Just the barbell - no plates needed!
@@ -331,13 +356,15 @@ export default function PlateCalculatorPage() {
                       style={{ backgroundColor: plate.color }}
                     />
                     <span className="text-sm">
-                      {plate.weight}{unit}
+                      {plate.weight}
+                      {unit}
                     </span>
                   </div>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-3">
-                Based on standard Olympic weightlifting plate colors and availability
+                Based on standard Olympic weightlifting plate colors and
+                availability
               </p>
             </CardContent>
           </Card>

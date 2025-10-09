@@ -1,35 +1,73 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { templateRepository } from '@/lib/db/repositories';
-import { useAppStore } from '@/lib/store';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowLeft, Search, BookOpen, Clock, Dumbbell, Play, Star, Settings, Edit, Share2, Copy, Check, QrCode } from 'lucide-react';
-import { formatDuration } from '@/lib/utils/calculations';
-import { prepareTemplateForSharing, generateTemplateShareUrl } from '@/lib/utils/template-sharing';
-import type { WorkoutTemplate } from '@/lib/types';
-import Link from 'next/link';
-import QRCode from 'qrcode';
+import { useState, useEffect } from "react";
+import { templateRepository } from "@/lib/db/repositories";
+import { useAppStore } from "@/lib/store";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  ArrowLeft,
+  Search,
+  BookOpen,
+  Clock,
+  Dumbbell,
+  Play,
+  Star,
+  Settings,
+  Edit,
+  Share2,
+  Copy,
+  Check,
+  QrCode,
+} from "lucide-react";
+import { formatDuration } from "@/lib/utils/calculations";
+import {
+  prepareTemplateForSharing,
+  generateTemplateShareUrl,
+} from "@/lib/utils/template-sharing";
+import type { WorkoutTemplate } from "@/lib/types";
+import Link from "next/link";
+import QRCode from "qrcode";
 
 export default function TemplatesPage() {
   const { user } = useAppStore();
   const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
-  const [filteredTemplates, setFilteredTemplates] = useState<WorkoutTemplate[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
+  const [filteredTemplates, setFilteredTemplates] = useState<WorkoutTemplate[]>(
+    [],
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
-  const [sharingTemplate, setSharingTemplate] = useState<WorkoutTemplate | null>(null);
-  const [shareUrl, setShareUrl] = useState<string>('');
+  const [sharingTemplate, setSharingTemplate] =
+    useState<WorkoutTemplate | null>(null);
+  const [shareUrl, setShareUrl] = useState<string>("");
   const [isGeneratingShareUrl, setIsGeneratingShareUrl] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
-  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
   const [showQrCode, setShowQrCode] = useState(false);
 
   useEffect(() => {
@@ -39,7 +77,7 @@ export default function TemplatesPage() {
         setTemplates(allTemplates);
         setFilteredTemplates(allTemplates);
       } catch (error) {
-        console.error('Failed to load templates:', error);
+        console.error("Failed to load templates:", error);
       } finally {
         setIsLoading(false);
       }
@@ -54,21 +92,26 @@ export default function TemplatesPage() {
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(template =>
-        template.name.toLowerCase().includes(query) ||
-        template.description?.toLowerCase().includes(query) ||
-        template.tags.some(tag => tag.toLowerCase().includes(query))
+      filtered = filtered.filter(
+        (template) =>
+          template.name.toLowerCase().includes(query) ||
+          template.description?.toLowerCase().includes(query) ||
+          template.tags.some((tag) => tag.toLowerCase().includes(query)),
       );
     }
 
     // Filter by category
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(template => template.category === selectedCategory);
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter(
+        (template) => template.category === selectedCategory,
+      );
     }
 
     // Filter by difficulty
-    if (selectedDifficulty !== 'all') {
-      filtered = filtered.filter(template => template.difficulty === selectedDifficulty);
+    if (selectedDifficulty !== "all") {
+      filtered = filtered.filter(
+        (template) => template.difficulty === selectedDifficulty,
+      );
     }
 
     setFilteredTemplates(filtered);
@@ -81,32 +124,35 @@ export default function TemplatesPage() {
 
   const handleShareTemplate = async (template: WorkoutTemplate) => {
     if (!user) return;
-    
+
     setSharingTemplate(template);
     setShareDialogOpen(true);
     setIsGeneratingShareUrl(true);
-    setShareUrl('');
-    setQrCodeDataUrl('');
+    setShareUrl("");
+    setQrCodeDataUrl("");
     setCopySuccess(false);
     setShowQrCode(false);
 
     try {
-      const shareData = await prepareTemplateForSharing(template, user.displayName);
+      const shareData = await prepareTemplateForSharing(
+        template,
+        user.displayName,
+      );
       const url = generateTemplateShareUrl(shareData);
       setShareUrl(url);
-      
+
       // Generate QR code
       const qrCode = await QRCode.toDataURL(url, {
         width: 256,
         margin: 2,
         color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
+          dark: "#000000",
+          light: "#FFFFFF",
+        },
       });
       setQrCodeDataUrl(qrCode);
     } catch (error) {
-      console.error('Failed to generate share URL:', error);
+      console.error("Failed to generate share URL:", error);
     } finally {
       setIsGeneratingShareUrl(false);
     }
@@ -114,18 +160,18 @@ export default function TemplatesPage() {
 
   const handleCopyShareUrl = async () => {
     if (!shareUrl) return;
-    
+
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (error) {
-      console.error('Failed to copy URL:', error);
+      console.error("Failed to copy URL:", error);
     }
   };
 
-  const userTemplates = filteredTemplates.filter(t => !t.isBuiltIn);
-  const builtInTemplates = filteredTemplates.filter(t => t.isBuiltIn);
+  const userTemplates = filteredTemplates.filter((t) => !t.isBuiltIn);
+  const builtInTemplates = filteredTemplates.filter((t) => t.isBuiltIn);
 
   if (isLoading) {
     return (
@@ -155,13 +201,19 @@ export default function TemplatesPage() {
           </div>
           <div className="flex gap-2">
             <Button asChild>
-              <Link href="/templates/create" className="flex items-center gap-2">
+              <Link
+                href="/templates/create"
+                className="flex items-center gap-2"
+              >
                 <BookOpen className="h-4 w-4" />
                 Create Template
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/template-manager" className="flex items-center gap-2">
+              <Link
+                href="/template-manager"
+                className="flex items-center gap-2"
+              >
                 <Settings className="h-4 w-4" />
                 Import/Export
               </Link>
@@ -184,7 +236,10 @@ export default function TemplatesPage() {
 
           {/* Category and Difficulty Filters */}
           <div className="grid grid-cols-2 gap-4">
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
@@ -200,7 +255,10 @@ export default function TemplatesPage() {
               </SelectContent>
             </Select>
 
-            <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+            <Select
+              value={selectedDifficulty}
+              onValueChange={setSelectedDifficulty}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="All Difficulties" />
               </SelectTrigger>
@@ -217,7 +275,8 @@ export default function TemplatesPage() {
         {/* Results Summary */}
         <div className="mb-6">
           <p className="text-sm text-muted-foreground">
-            {filteredTemplates.length} template{filteredTemplates.length !== 1 ? 's' : ''} found
+            {filteredTemplates.length} template
+            {filteredTemplates.length !== 1 ? "s" : ""} found
           </p>
         </div>
 
@@ -268,12 +327,15 @@ export default function TemplatesPage() {
             <Card>
               <CardContent className="pt-6 text-center">
                 <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">No templates found</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  No templates found
+                </h3>
                 <p className="text-muted-foreground mb-6">
-                  {searchQuery || selectedCategory !== 'all' || selectedDifficulty !== 'all'
-                    ? 'Try adjusting your filters to see more templates'
-                    : 'Templates help you quickly start structured workouts. Create one by completing a workout and saving it as a template.'
-                  }
+                  {searchQuery ||
+                  selectedCategory !== "all" ||
+                  selectedDifficulty !== "all"
+                    ? "Try adjusting your filters to see more templates"
+                    : "Templates help you quickly start structured workouts. Create one by completing a workout and saving it as a template."}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button asChild>
@@ -297,7 +359,7 @@ export default function TemplatesPage() {
                 Share &quot;{sharingTemplate?.name}&quot; with others
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               {isGeneratingShareUrl ? (
                 <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
@@ -354,14 +416,17 @@ export default function TemplatesPage() {
                           </Button>
                         </div>
                         {copySuccess && (
-                          <p className="text-xs text-green-600 mt-2">Link copied to clipboard!</p>
+                          <p className="text-xs text-green-600 mt-2">
+                            Link copied to clipboard!
+                          </p>
                         )}
                       </div>
-                      
+
                       <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                         <p className="text-sm">
-                          <strong>How to share:</strong> Send this link via text, email, or messaging apps. 
-                          Recipients can click it to preview and import the template.
+                          <strong>How to share:</strong> Send this link via
+                          text, email, or messaging apps. Recipients can click
+                          it to preview and import the template.
                         </p>
                       </div>
                     </div>
@@ -372,19 +437,20 @@ export default function TemplatesPage() {
                         <p className="text-sm font-medium mb-3">QR Code</p>
                         {qrCodeDataUrl && (
                           <div className="flex justify-center">
-                            <img 
-                              src={qrCodeDataUrl} 
+                            <img
+                              src={qrCodeDataUrl}
                               alt="Template QR Code"
                               className="w-48 h-48 border border-border rounded-lg"
                             />
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                         <p className="text-sm">
-                          <strong>How to use:</strong> Have someone scan this QR code with their phone camera 
-                          or QR scanner app to instantly open the template sharing page.
+                          <strong>How to use:</strong> Have someone scan this QR
+                          code with their phone camera or QR scanner app to
+                          instantly open the template sharing page.
                         </p>
                       </div>
                     </div>
@@ -412,23 +478,33 @@ interface TemplateCardProps {
 }
 
 function TemplateCard({ template, onStart, onShare }: TemplateCardProps) {
-  const getDifficultyColor = (difficulty: WorkoutTemplate['difficulty']) => {
+  const getDifficultyColor = (difficulty: WorkoutTemplate["difficulty"]) => {
     switch (difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'advanced': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case "beginner":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "intermediate":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "advanced":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
     }
   };
 
-  const getCategoryColor = (category: WorkoutTemplate['category']) => {
+  const getCategoryColor = (category: WorkoutTemplate["category"]) => {
     switch (category) {
-      case 'strength': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'hypertrophy': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-      case 'powerlifting': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      case 'bodybuilding': return 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200';
-      case 'endurance': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case "strength":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+      case "hypertrophy":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200";
+      case "powerlifting":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
+      case "bodybuilding":
+        return "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200";
+      case "endurance":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
     }
   };
 
@@ -439,7 +515,9 @@ function TemplateCard({ template, onStart, onShare }: TemplateCardProps) {
           <div className="flex-1">
             <CardTitle className="text-lg flex items-center gap-2">
               {template.name}
-              {template.isBuiltIn && <Star className="h-4 w-4 text-yellow-500" />}
+              {template.isBuiltIn && (
+                <Star className="h-4 w-4 text-yellow-500" />
+              )}
             </CardTitle>
             {template.description && (
               <CardDescription className="mt-1">
@@ -449,7 +527,11 @@ function TemplateCard({ template, onStart, onShare }: TemplateCardProps) {
           </div>
           <div className="flex gap-2">
             {onShare && (
-              <Button variant="outline" size="sm" onClick={() => onShare(template)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onShare(template)}
+              >
                 <Share2 className="h-4 w-4" />
               </Button>
             )}
@@ -506,8 +588,12 @@ function TemplateCard({ template, onStart, onShare }: TemplateCardProps) {
         <div className="text-sm">
           <span className="font-medium">Exercises: </span>
           <span className="text-muted-foreground">
-            {template.exercises.slice(0, 3).map(ex => ex.exerciseName).join(', ')}
-            {template.exercises.length > 3 && ` +${template.exercises.length - 3} more`}
+            {template.exercises
+              .slice(0, 3)
+              .map((ex) => ex.exerciseName)
+              .join(", ")}
+            {template.exercises.length > 3 &&
+              ` +${template.exercises.length - 3} more`}
           </span>
         </div>
       </CardContent>

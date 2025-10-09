@@ -1,41 +1,85 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { exerciseRepository } from '@/lib/db/repositories';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Plus, Search, Dumbbell, Edit, Trash2, Download, Share2 } from 'lucide-react';
-import { ExerciseInfoPopover } from '@/components/exercise/exercise-info-popover';
-import { CustomExerciseDialog } from '@/components/workout/custom-exercise-dialog';
-import { PromoteExerciseDialog } from '@/components/exercises/promote-exercise-dialog';
-import type { Exercise } from '@/lib/types';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { exerciseRepository } from "@/lib/db/repositories";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ArrowLeft,
+  Plus,
+  Search,
+  Dumbbell,
+  Edit,
+  Trash2,
+  Download,
+  Share2,
+} from "lucide-react";
+import { ExerciseInfoPopover } from "@/components/exercise/exercise-info-popover";
+import { CustomExerciseDialog } from "@/components/workout/custom-exercise-dialog";
+import { PromoteExerciseDialog } from "@/components/exercises/promote-exercise-dialog";
+import type { Exercise } from "@/lib/types";
+import Link from "next/link";
 
 const MUSCLE_GROUPS = [
-  'All',
-  'Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Glutes', 
-  'Core', 'Cardio', 'Full Body', 'Olympic', 'Powerlifting'
+  "All",
+  "Chest",
+  "Back",
+  "Shoulders",
+  "Arms",
+  "Legs",
+  "Glutes",
+  "Core",
+  "Cardio",
+  "Full Body",
+  "Olympic",
+  "Powerlifting",
 ];
 
 const EQUIPMENT_TYPES = [
-  'All',
-  'Barbell', 'Dumbbell', 'Cable', 'Machine', 'Bodyweight', 
-  'Resistance Band', 'Kettlebell', 'Smith Machine', 'Other'
+  "All",
+  "Barbell",
+  "Dumbbell",
+  "Cable",
+  "Machine",
+  "Bodyweight",
+  "Resistance Band",
+  "Kettlebell",
+  "Smith Machine",
+  "Other",
 ];
 
 export default function ExercisesPage() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedMuscle, setSelectedMuscle] = useState('All');
-  const [selectedEquipment, setSelectedEquipment] = useState('All');
-  const [exerciseType, setExerciseType] = useState<'all' | 'built-in' | 'custom'>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMuscle, setSelectedMuscle] = useState("All");
+  const [selectedEquipment, setSelectedEquipment] = useState("All");
+  const [exerciseType, setExerciseType] = useState<
+    "all" | "built-in" | "custom"
+  >("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
 
@@ -47,7 +91,7 @@ export default function ExercisesPage() {
         setExercises(allExercises);
         setFilteredExercises(allExercises);
       } catch (error) {
-        console.error('Failed to load exercises:', error);
+        console.error("Failed to load exercises:", error);
       } finally {
         setIsLoading(false);
       }
@@ -62,54 +106,60 @@ export default function ExercisesPage() {
 
     // Search filter
     if (searchQuery.trim()) {
-      filtered = filtered.filter(exercise =>
-        exercise.name.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter((exercise) =>
+        exercise.name.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
     // Muscle group filter
-    if (selectedMuscle !== 'All') {
-      filtered = filtered.filter(exercise =>
-        exercise.muscles.some(muscle => 
-          muscle.toLowerCase().includes(selectedMuscle.toLowerCase())
-        )
+    if (selectedMuscle !== "All") {
+      filtered = filtered.filter((exercise) =>
+        exercise.muscles.some((muscle) =>
+          muscle.toLowerCase().includes(selectedMuscle.toLowerCase()),
+        ),
       );
     }
 
     // Equipment filter
-    if (selectedEquipment !== 'All') {
-      filtered = filtered.filter(exercise =>
-        exercise.equipment?.toLowerCase().includes(selectedEquipment.toLowerCase())
+    if (selectedEquipment !== "All") {
+      filtered = filtered.filter((exercise) =>
+        exercise.equipment
+          ?.toLowerCase()
+          .includes(selectedEquipment.toLowerCase()),
       );
     }
 
     // Exercise type filter
-    if (exerciseType === 'built-in') {
-      filtered = filtered.filter(exercise => !exercise.isCustom);
-    } else if (exerciseType === 'custom') {
-      filtered = filtered.filter(exercise => exercise.isCustom);
+    if (exerciseType === "built-in") {
+      filtered = filtered.filter((exercise) => !exercise.isCustom);
+    } else if (exerciseType === "custom") {
+      filtered = filtered.filter((exercise) => exercise.isCustom);
     }
 
     setFilteredExercises(filtered);
   }, [exercises, searchQuery, selectedMuscle, selectedEquipment, exerciseType]);
 
   const handleDeleteExercise = async (exerciseId: string) => {
-    const exercise = exercises.find(e => e.id === exerciseId);
+    const exercise = exercises.find((e) => e.id === exerciseId);
     if (!exercise?.isCustom) {
-      alert('Cannot delete built-in exercises');
+      alert("Cannot delete built-in exercises");
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete "${exercise.name}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${exercise.name}"? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
     try {
       await exerciseRepository.deleteExercise(exerciseId);
-      setExercises(prev => prev.filter(e => e.id !== exerciseId));
+      setExercises((prev) => prev.filter((e) => e.id !== exerciseId));
     } catch (error) {
-      console.error('Failed to delete exercise:', error);
-      alert('Failed to delete exercise. Please try again.');
+      console.error("Failed to delete exercise:", error);
+      alert("Failed to delete exercise. Please try again.");
     }
   };
 
@@ -118,14 +168,14 @@ export default function ExercisesPage() {
   };
 
   const handleExerciseCreated = (newExercise: Exercise) => {
-    setExercises(prev => [newExercise, ...prev]);
+    setExercises((prev) => [newExercise, ...prev]);
     setShowCreateDialog(false);
   };
 
   const handleExerciseUpdated = (updatedExercise: Exercise) => {
-    setExercises(prev => prev.map(e => 
-      e.id === updatedExercise.id ? updatedExercise : e
-    ));
+    setExercises((prev) =>
+      prev.map((e) => (e.id === updatedExercise.id ? updatedExercise : e)),
+    );
     setEditingExercise(null);
   };
 
@@ -133,7 +183,7 @@ export default function ExercisesPage() {
     const exportData = {
       exportedAt: new Date().toISOString(),
       totalCount: exercisesToExport.length,
-      exercises: exercisesToExport.map(exercise => {
+      exercises: exercisesToExport.map((exercise) => {
         // Create the exercise object with all fields
         const exerciseData: Record<string, unknown> = {
           id: exercise.id,
@@ -152,7 +202,7 @@ export default function ExercisesPage() {
         };
 
         // Remove undefined values but keep null values to show they exist but are empty
-        Object.keys(exerciseData).forEach(key => {
+        Object.keys(exerciseData).forEach((key) => {
           if (exerciseData[key] === undefined) {
             delete exerciseData[key];
           }
@@ -163,10 +213,10 @@ export default function ExercisesPage() {
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: 'application/json',
+      type: "application/json",
     });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
@@ -176,28 +226,37 @@ export default function ExercisesPage() {
   };
 
   const handleExportCustom = () => {
-    const customExercises = exercises.filter(e => e.isCustom);
+    const customExercises = exercises.filter((e) => e.isCustom);
     if (customExercises.length === 0) {
-      alert('No custom exercises to export');
+      alert("No custom exercises to export");
       return;
     }
-    exportExercises(customExercises, `custom-exercises-${new Date().toISOString().split('T')[0]}.json`);
+    exportExercises(
+      customExercises,
+      `custom-exercises-${new Date().toISOString().split("T")[0]}.json`,
+    );
   };
 
   const handleExportAll = () => {
     if (exercises.length === 0) {
-      alert('No exercises to export');
+      alert("No exercises to export");
       return;
     }
-    exportExercises(exercises, `all-exercises-${new Date().toISOString().split('T')[0]}.json`);
+    exportExercises(
+      exercises,
+      `all-exercises-${new Date().toISOString().split("T")[0]}.json`,
+    );
   };
 
   const handleExportFiltered = () => {
     if (filteredExercises.length === 0) {
-      alert('No exercises match current filters');
+      alert("No exercises match current filters");
       return;
     }
-    exportExercises(filteredExercises, `filtered-exercises-${new Date().toISOString().split('T')[0]}.json`);
+    exportExercises(
+      filteredExercises,
+      `filtered-exercises-${new Date().toISOString().split("T")[0]}.json`,
+    );
   };
 
   if (isLoading) {
@@ -208,8 +267,8 @@ export default function ExercisesPage() {
     );
   }
 
-  const customExercisesCount = exercises.filter(e => e.isCustom).length;
-  const builtInExercisesCount = exercises.filter(e => !e.isCustom).length;
+  const customExercisesCount = exercises.filter((e) => e.isCustom).length;
+  const builtInExercisesCount = exercises.filter((e) => !e.isCustom).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -231,8 +290,8 @@ export default function ExercisesPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleExportCustom}
               disabled={customExercisesCount === 0}
             >
@@ -251,7 +310,9 @@ export default function ExercisesPage() {
           <Card>
             <CardContent className="pt-6 text-center">
               <div className="text-2xl font-bold">{exercises.length}</div>
-              <div className="text-sm text-muted-foreground">Total Exercises</div>
+              <div className="text-sm text-muted-foreground">
+                Total Exercises
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -298,7 +359,10 @@ export default function ExercisesPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={selectedEquipment} onValueChange={setSelectedEquipment}>
+              <Select
+                value={selectedEquipment}
+                onValueChange={setSelectedEquipment}
+              >
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Equipment" />
                 </SelectTrigger>
@@ -318,21 +382,21 @@ export default function ExercisesPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={handleExportCustom}
                     disabled={customExercisesCount === 0}
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Export Custom Exercises ({customExercisesCount})
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={handleExportAll}
                     disabled={exercises.length === 0}
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Export All Exercises ({exercises.length})
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={handleExportFiltered}
                     disabled={filteredExercises.length === 0}
                   >
@@ -346,11 +410,22 @@ export default function ExercisesPage() {
         </Card>
 
         {/* Exercise Type Tabs */}
-        <Tabs value={exerciseType} onValueChange={(value) => setExerciseType(value as typeof exerciseType)}>
+        <Tabs
+          value={exerciseType}
+          onValueChange={(value) =>
+            setExerciseType(value as typeof exerciseType)
+          }
+        >
           <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="all">All Exercises ({exercises.length})</TabsTrigger>
-            <TabsTrigger value="built-in">Built-in ({builtInExercisesCount})</TabsTrigger>
-            <TabsTrigger value="custom">Custom ({customExercisesCount})</TabsTrigger>
+            <TabsTrigger value="all">
+              All Exercises ({exercises.length})
+            </TabsTrigger>
+            <TabsTrigger value="built-in">
+              Built-in ({builtInExercisesCount})
+            </TabsTrigger>
+            <TabsTrigger value="custom">
+              Custom ({customExercisesCount})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value={exerciseType}>
@@ -358,7 +433,10 @@ export default function ExercisesPage() {
             {filteredExercises.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredExercises.map((exercise) => (
-                  <Card key={exercise.id} className="group hover:shadow-md transition-shadow">
+                  <Card
+                    key={exercise.id}
+                    className="group hover:shadow-md transition-shadow"
+                  >
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -384,7 +462,11 @@ export default function ExercisesPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEditExercise(exercise)}
-                            title={exercise.isCustom ? "Edit exercise" : "Add media & notes"}
+                            title={
+                              exercise.isCustom
+                                ? "Edit exercise"
+                                : "Add media & notes"
+                            }
                           >
                             <Edit className="h-3 w-3" />
                           </Button>
@@ -405,7 +487,9 @@ export default function ExercisesPage() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleDeleteExercise(exercise.id)}
+                                onClick={() =>
+                                  handleDeleteExercise(exercise.id)
+                                }
                                 className="text-red-500 hover:text-red-700"
                                 title="Delete exercise"
                               >
@@ -424,7 +508,11 @@ export default function ExercisesPage() {
                           </p>
                           <div className="flex flex-wrap gap-1">
                             {exercise.muscles.map((muscle) => (
-                              <Badge key={muscle} variant="secondary" className="text-xs">
+                              <Badge
+                                key={muscle}
+                                variant="secondary"
+                                className="text-xs"
+                              >
                                 {muscle}
                               </Badge>
                             ))}
@@ -449,19 +537,24 @@ export default function ExercisesPage() {
               <Card>
                 <CardContent className="pt-12 text-center">
                   <Dumbbell className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">No exercises found</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    No exercises found
+                  </h3>
                   <p className="text-muted-foreground mb-4">
-                    {searchQuery || selectedMuscle !== 'All' || selectedEquipment !== 'All'
-                      ? 'Try adjusting your search or filters'
-                      : 'Create your first custom exercise to get started'
-                    }
+                    {searchQuery ||
+                    selectedMuscle !== "All" ||
+                    selectedEquipment !== "All"
+                      ? "Try adjusting your search or filters"
+                      : "Create your first custom exercise to get started"}
                   </p>
-                  {(!searchQuery && selectedMuscle === 'All' && selectedEquipment === 'All') && (
-                    <Button onClick={() => setShowCreateDialog(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Exercise
-                    </Button>
-                  )}
+                  {!searchQuery &&
+                    selectedMuscle === "All" &&
+                    selectedEquipment === "All" && (
+                      <Button onClick={() => setShowCreateDialog(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Exercise
+                      </Button>
+                    )}
                 </CardContent>
               </Card>
             )}
@@ -475,7 +568,9 @@ export default function ExercisesPage() {
             setShowCreateDialog(false);
             setEditingExercise(null);
           }}
-          onExerciseCreated={editingExercise ? handleExerciseUpdated : handleExerciseCreated}
+          onExerciseCreated={
+            editingExercise ? handleExerciseUpdated : handleExerciseCreated
+          }
           editingExercise={editingExercise}
         />
       </div>

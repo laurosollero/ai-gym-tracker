@@ -1,21 +1,30 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Share2, CheckCircle } from 'lucide-react';
-import type { Exercise } from '@/lib/types';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Share2, CheckCircle } from "lucide-react";
+import type { Exercise } from "@/lib/types";
 
 interface PromoteExerciseDialogProps {
   exercise: Exercise;
   trigger?: React.ReactNode;
 }
 
-export function PromoteExerciseDialog({ exercise, trigger }: PromoteExerciseDialogProps) {
+export function PromoteExerciseDialog({
+  exercise,
+  trigger,
+}: PromoteExerciseDialogProps) {
   const [open, setOpen] = useState(false);
-  const [reasoning, setReasoning] = useState('');
+  const [reasoning, setReasoning] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const generatePromotionData = () => {
@@ -33,27 +42,27 @@ export function PromoteExerciseDialog({ exercise, trigger }: PromoteExerciseDial
       },
       reasoning,
       submittedAt: new Date().toISOString(),
-      submittedBy: 'User', // Could be actual user when auth is implemented
+      submittedBy: "User", // Could be actual user when auth is implemented
     };
   };
 
   const handlePromote = () => {
     const promotionData = generatePromotionData();
-    
+
     // For now, copy to clipboard for manual submission
     navigator.clipboard.writeText(JSON.stringify(promotionData, null, 2));
     setSubmitted(true);
-    
+
     // Future: Could POST to an API endpoint for automatic processing
-    console.log('Exercise promotion request:', promotionData);
+    console.log("Exercise promotion request:", promotionData);
   };
 
   const copyGitHubIssueTemplate = () => {
     const template = `## Exercise Promotion Request
 
 **Exercise Name:** ${exercise.name}
-**Muscles:** ${exercise.muscles.join(', ')}
-**Equipment:** ${exercise.equipment || 'Bodyweight'}
+**Muscles:** ${exercise.muscles.join(", ")}
+**Equipment:** ${exercise.equipment || "Bodyweight"}
 
 **Why this should be a built-in exercise:**
 ${reasoning}
@@ -64,12 +73,12 @@ ${JSON.stringify(generatePromotionData().exercise, null, 2)}
 \`\`\`
 
 **Instructions:**
-${exercise.instructions || 'No instructions provided'}
+${exercise.instructions || "No instructions provided"}
 
 **Media:**
-- Video: ${exercise.videoUrl || 'None'}
-- GIF: ${exercise.gifUrl || 'None'}
-- Image: ${exercise.imageUrl || 'None'}
+- Video: ${exercise.videoUrl || "None"}
+- GIF: ${exercise.gifUrl || "None"}
+- Image: ${exercise.imageUrl || "None"}
 `;
 
     navigator.clipboard.writeText(template);
@@ -81,7 +90,11 @@ ${exercise.instructions || 'No instructions provided'}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           {trigger || (
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
               <Share2 className="h-3 w-3" />
               Promote to Built-in
             </Button>
@@ -116,7 +129,11 @@ ${exercise.instructions || 'No instructions provided'}
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
             <Share2 className="h-3 w-3" />
             Promote to Built-in
           </Button>
@@ -157,14 +174,14 @@ ${exercise.instructions || 'No instructions provided'}
           </div>
 
           <div className="flex gap-2">
-            <Button 
+            <Button
               onClick={copyGitHubIssueTemplate}
               disabled={!reasoning.trim()}
               className="flex-1"
             >
               Copy GitHub Issue
             </Button>
-            <Button 
+            <Button
               onClick={handlePromote}
               disabled={!reasoning.trim()}
               variant="outline"
@@ -175,8 +192,9 @@ ${exercise.instructions || 'No instructions provided'}
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Your promotion request will be reviewed by the development team. 
-            Popular and well-documented exercises are more likely to be accepted.
+            Your promotion request will be reviewed by the development team.
+            Popular and well-documented exercises are more likely to be
+            accepted.
           </p>
         </div>
       </DialogContent>

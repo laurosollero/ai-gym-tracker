@@ -1,13 +1,17 @@
-import type { SetEntry, SessionSummary, WorkoutSession } from '@/lib/types';
+import type { SetEntry, SessionSummary, WorkoutSession } from "@/lib/types";
 
-export function calculateOneRepMax(weight: number, reps: number, formula: 'epley' | 'brzycki' = 'epley'): number {
+export function calculateOneRepMax(
+  weight: number,
+  reps: number,
+  formula: "epley" | "brzycki" = "epley",
+): number {
   if (reps === 1) return weight;
-  
+
   switch (formula) {
-    case 'epley':
+    case "epley":
       return weight * (1 + reps / 30);
-    case 'brzycki':
-      return weight * 36 / (37 - reps);
+    case "brzycki":
+      return (weight * 36) / (37 - reps);
     default:
       return weight * (1 + reps / 30);
   }
@@ -24,14 +28,16 @@ export function calculateSetVolume(set: SetEntry): number {
   return 0;
 }
 
-export function calculateSessionSummary(session: WorkoutSession): SessionSummary {
+export function calculateSessionSummary(
+  session: WorkoutSession,
+): SessionSummary {
   let totalSets = 0;
   let totalReps = 0;
   let totalWeight = 0;
   let totalVolume = 0;
-  
-  session.exercises.forEach(exercise => {
-    exercise.sets.forEach(set => {
+
+  session.exercises.forEach((exercise) => {
+    exercise.sets.forEach((set) => {
       if (!set.isWarmup) {
         totalSets++;
         if (set.reps) totalReps += set.reps;
@@ -40,11 +46,15 @@ export function calculateSessionSummary(session: WorkoutSession): SessionSummary
       }
     });
   });
-  
-  const duration = session.startedAt && session.endedAt 
-    ? Math.round((session.endedAt.getTime() - session.startedAt.getTime()) / (1000 * 60))
-    : 0;
-  
+
+  const duration =
+    session.startedAt && session.endedAt
+      ? Math.round(
+          (session.endedAt.getTime() - session.startedAt.getTime()) /
+            (1000 * 60),
+        )
+      : 0;
+
   return {
     totalSets,
     totalReps,
@@ -55,13 +65,19 @@ export function calculateSessionSummary(session: WorkoutSession): SessionSummary
   };
 }
 
-export function formatWeight(weight: number, unit: 'metric' | 'imperial'): string {
-  const suffix = unit === 'metric' ? 'kg' : 'lbs';
+export function formatWeight(
+  weight: number,
+  unit: "metric" | "imperial",
+): string {
+  const suffix = unit === "metric" ? "kg" : "lbs";
   return `${weight} ${suffix}`;
 }
 
-export function formatHeight(height: number, unit: 'metric' | 'imperial'): string {
-  const suffix = unit === 'metric' ? 'cm' : 'in';
+export function formatHeight(
+  height: number,
+  unit: "metric" | "imperial",
+): string {
+  const suffix = unit === "metric" ? "cm" : "in";
   return `${height} ${suffix}`;
 }
 
@@ -74,16 +90,20 @@ export function formatDuration(minutes: number): string {
   return `${hours}h ${remainingMinutes}m`;
 }
 
-export function convertWeight(weight: number, from: 'metric' | 'imperial', to: 'metric' | 'imperial'): number {
+export function convertWeight(
+  weight: number,
+  from: "metric" | "imperial",
+  to: "metric" | "imperial",
+): number {
   if (from === to) return weight;
-  
-  if (from === 'metric' && to === 'imperial') {
+
+  if (from === "metric" && to === "imperial") {
     return Math.round(weight * 2.20462 * 100) / 100; // kg to lbs
   }
-  
-  if (from === 'imperial' && to === 'metric') {
+
+  if (from === "imperial" && to === "metric") {
     return Math.round(weight * 0.453592 * 100) / 100; // lbs to kg
   }
-  
+
   return weight;
 }

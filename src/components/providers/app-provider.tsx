@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { initializeDatabase } from '@/lib/db/seed';
-import { seedBuiltInTemplates } from '@/lib/db/seed-templates';
-import { userRepository } from '@/lib/db/repositories';
-import { useAppStore } from '@/lib/store';
+import { useEffect } from "react";
+import { initializeDatabase } from "@/lib/db/seed";
+import { seedBuiltInTemplates } from "@/lib/db/seed-templates";
+import { userRepository } from "@/lib/db/repositories";
+import { useAppStore } from "@/lib/store";
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setUserLoading } = useAppStore();
@@ -17,7 +17,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const user = await userRepository.getCurrentUser();
         setUser(user || null);
       } catch (error) {
-        console.error('Failed to initialize app:', error);
+        console.error("Failed to initialize app:", error);
       } finally {
         setUserLoading(false);
       }

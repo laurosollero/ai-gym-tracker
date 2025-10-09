@@ -1,17 +1,28 @@
-'use client';
+"use client";
 
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { sessionRepository } from '@/lib/db/repositories';
-import { useAppStore } from '@/lib/store';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { SaveTemplateDialog } from '@/components/templates/save-template-dialog';
-import { CheckCircle2, Clock, Dumbbell, Home, History, BookmarkPlus } from 'lucide-react';
-import { calculateSessionSummary, formatWeight, formatDuration } from '@/lib/utils/calculations';
-import type { WorkoutSession, SessionSummary } from '@/lib/types';
-import Link from 'next/link';
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { sessionRepository } from "@/lib/db/repositories";
+import { useAppStore } from "@/lib/store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { SaveTemplateDialog } from "@/components/templates/save-template-dialog";
+import {
+  CheckCircle2,
+  Clock,
+  Dumbbell,
+  Home,
+  History,
+  BookmarkPlus,
+} from "lucide-react";
+import {
+  calculateSessionSummary,
+  formatWeight,
+  formatDuration,
+} from "@/lib/utils/calculations";
+import type { WorkoutSession, SessionSummary } from "@/lib/types";
+import Link from "next/link";
 
 function SessionReviewContent() {
   const searchParams = useSearchParams();
@@ -24,20 +35,20 @@ function SessionReviewContent() {
   useEffect(() => {
     const loadSession = async () => {
       try {
-        const sessionId = searchParams?.get('id');
+        const sessionId = searchParams?.get("id");
         if (!sessionId) {
           setIsLoading(false);
           return;
         }
-        
+
         const loadedSession = await sessionRepository.getSessionById(sessionId);
-        
+
         if (loadedSession) {
           setSession(loadedSession);
           setSummary(calculateSessionSummary(loadedSession));
         }
       } catch (error) {
-        console.error('Failed to load session:', error);
+        console.error("Failed to load session:", error);
       } finally {
         setIsLoading(false);
       }
@@ -83,11 +94,11 @@ function SessionReviewContent() {
           </div>
           <h1 className="text-3xl font-bold mb-2">Workout Complete!</h1>
           <p className="text-muted-foreground">
-            {new Date(session.date).toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+            {new Date(session.date).toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </p>
         </header>
@@ -114,7 +125,9 @@ function SessionReviewContent() {
 
           <Card>
             <CardContent className="pt-6 text-center">
-              <div className="text-2xl font-bold text-purple-500">{summary.totalSets}</div>
+              <div className="text-2xl font-bold text-purple-500">
+                {summary.totalSets}
+              </div>
               <div className="text-xs text-muted-foreground">Total Sets</div>
             </CardContent>
           </Card>
@@ -122,7 +135,10 @@ function SessionReviewContent() {
           <Card>
             <CardContent className="pt-6 text-center">
               <div className="text-2xl font-bold text-orange-500">
-                {formatWeight(summary.totalVolume, user?.unitSystem || 'metric')}
+                {formatWeight(
+                  summary.totalVolume,
+                  user?.unitSystem || "metric",
+                )}
               </div>
               <div className="text-xs text-muted-foreground">Volume</div>
             </CardContent>
@@ -136,22 +152,26 @@ function SessionReviewContent() {
           </CardHeader>
           <CardContent className="space-y-4">
             {session.exercises.map((exercise) => {
-              const completedSets = exercise.sets.filter(set => set.completedAt).length;
+              const completedSets = exercise.sets.filter(
+                (set) => set.completedAt,
+              ).length;
               const exerciseVolume = exercise.sets
-                .filter(set => set.reps && set.weight && set.completedAt)
-                .reduce((sum, set) => sum + (set.reps! * set.weight!), 0);
+                .filter((set) => set.reps && set.weight && set.completedAt)
+                .reduce((sum, set) => sum + set.reps! * set.weight!, 0);
 
               return (
                 <div key={exercise.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold">{exercise.nameAtTime}</h3>
                     <div className="flex gap-2">
-                      <Badge variant="secondary">
-                        {completedSets} sets
-                      </Badge>
+                      <Badge variant="secondary">{completedSets} sets</Badge>
                       {exerciseVolume > 0 && (
                         <Badge variant="outline">
-                          {formatWeight(exerciseVolume, user?.unitSystem || 'metric')} vol
+                          {formatWeight(
+                            exerciseVolume,
+                            user?.unitSystem || "metric",
+                          )}{" "}
+                          vol
                         </Badge>
                       )}
                     </div>
@@ -159,14 +179,21 @@ function SessionReviewContent() {
 
                   <div className="grid gap-2">
                     {exercise.sets
-                      .filter(set => set.completedAt)
+                      .filter((set) => set.completedAt)
                       .map((set, setIndex) => (
-                        <div key={set.id} className="flex items-center gap-4 text-sm">
+                        <div
+                          key={set.id}
+                          className="flex items-center gap-4 text-sm"
+                        >
                           <span className="w-12 text-muted-foreground">
                             Set {setIndex + 1}
                           </span>
                           <span className="font-medium">
-                            {set.weight && formatWeight(set.weight, user?.unitSystem || 'metric')}
+                            {set.weight &&
+                              formatWeight(
+                                set.weight,
+                                user?.unitSystem || "metric",
+                              )}
                           </span>
                           <span>×</span>
                           <span>{set.reps} reps</span>
@@ -220,7 +247,7 @@ function SessionReviewContent() {
             onClose={() => setShowSaveTemplate(false)}
             session={session}
             onTemplateSaved={() => {
-              console.log('Template saved successfully!');
+              console.log("Template saved successfully!");
             }}
           />
         )}
@@ -231,11 +258,13 @@ function SessionReviewContent() {
 
 export default function SessionReviewPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      }
+    >
       <SessionReviewContent />
     </Suspense>
   );

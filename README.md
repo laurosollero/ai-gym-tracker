@@ -11,12 +11,14 @@ Install as a PWA on your mobile device for the best experience!
 ## ✨ Features
 
 ### 🏃‍♂️ Core Workout Tracking
+
 - **Exercise Library**: 20+ built-in exercises + custom exercise creation
 - **Workout Sessions**: Log sets with weight, reps, rest times, and RPE
 - **Rest Timer**: Automatic rest timing with visual progress
 - **Session History**: Complete workout history with detailed analytics
 
-### 📊 Progress Analytics  
+### 📊 Progress Analytics
+
 - **Personal Records**: Automatic PR detection and tracking
 - **Progress Charts**: Visual progress tracking per exercise
 - **Volume Analysis**: Weekly and monthly volume trends
@@ -24,6 +26,7 @@ Install as a PWA on your mobile device for the best experience!
 - **Body Measurements**: Track weight, body fat, and custom metrics
 
 ### 📋 Template System
+
 - **Template Builder**: Create workout templates from scratch (Coach Mode)
 - **Template Library**: Browse and organize workout templates
 - **Template Sharing**: Share templates via URLs and QR codes
@@ -31,6 +34,7 @@ Install as a PWA on your mobile device for the best experience!
 - **Auto-Import**: Seamless template import from shared links
 
 ### 🛠️ Advanced Tools
+
 - **Plate Calculator**: Visual barbell loading calculator
 - **Exercise Media**: YouTube videos, GIFs, and instruction support
 - **PWA Installation**: Install as a native app on any device
@@ -50,23 +54,27 @@ Install as a PWA on your mobile device for the best experience!
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn
 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/laurosollero/ai-gym-tracker.git
    cd ai-gym-tracker
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Start development server**
+
    ```bash
    npm run dev
    ```
@@ -94,6 +102,7 @@ The app can be installed as a Progressive Web App:
 ## 🎯 Usage
 
 ### Quick Start Workout
+
 1. Open the app and tap "Start Workout"
 2. Add exercises using the exercise selector
 3. Log your sets with weight and reps
@@ -101,12 +110,14 @@ The app can be installed as a Progressive Web App:
 5. Finish and review your session
 
 ### Template Sharing
+
 1. Create or edit a template
 2. Use the share button to generate a URL/QR code
 3. Share with others for instant template import
 4. Recipients can preview and import with one tap
 
 ### Coach Mode
+
 1. Navigate to "Templates" → "Create Template"
 2. Build detailed workout programs without performing them
 3. Set target weights, reps, RPE, and rest times
