@@ -61,6 +61,7 @@ export default function AnalyticsPage() {
   >([]);
   const [allStreaks, setAllStreaks] = useState<WorkoutStreak[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("exercise-progress");
 
   useEffect(() => {
     const loadAnalytics = async () => {
@@ -144,8 +145,8 @@ export default function AnalyticsPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Analytics</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 No workout data available yet
               </p>
             </div>
@@ -200,8 +201,8 @@ export default function AnalyticsPage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Analytics</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Track your fitness progress and achievements
             </p>
           </div>
@@ -260,19 +261,34 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Charts */}
-        <Tabs defaultValue="exercise-progress" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="exercise-progress">
-              Exercise Progress
-            </TabsTrigger>
-            <TabsTrigger value="workout-streaks">Workout Streaks</TabsTrigger>
-            <TabsTrigger value="favorite-exercises">
-              Favorite Exercises
-            </TabsTrigger>
-            <TabsTrigger value="recent-prs">Recent PRs</TabsTrigger>
-          </TabsList>
+        <div className="space-y-6">
+          {/* Mobile: Dropdown selector */}
+          <div className="sm:hidden">
+            <Select value={activeTab} onValueChange={setActiveTab}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select chart type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="exercise-progress">Exercise Progress</SelectItem>
+                <SelectItem value="workout-streaks">Workout Streaks</SelectItem>
+                <SelectItem value="favorite-exercises">Favorite Exercises</SelectItem>
+                <SelectItem value="recent-prs">Recent PRs</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <TabsContent value="exercise-progress" className="space-y-4">
+          {/* Desktop: Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="hidden sm:block">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="exercise-progress">Exercise Progress</TabsTrigger>
+              <TabsTrigger value="workout-streaks">Workout Streaks</TabsTrigger>
+              <TabsTrigger value="favorite-exercises">Favorite Exercises</TabsTrigger>
+              <TabsTrigger value="recent-prs">Recent PRs</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {/* Content based on active tab */}
+          {activeTab === "exercise-progress" && (
             <Card>
               <CardHeader>
                 <CardTitle>Exercise Progress</CardTitle>
@@ -340,9 +356,9 @@ export default function AnalyticsPage() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+          )}
 
-          <TabsContent value="workout-streaks" className="space-y-4">
+          {activeTab === "workout-streaks" && (
             <Card>
               <CardHeader>
                 <CardTitle>Workout Streaks</CardTitle>
@@ -427,9 +443,9 @@ export default function AnalyticsPage() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+          )}
 
-          <TabsContent value="favorite-exercises" className="space-y-4">
+          {activeTab === "favorite-exercises" && (
             <Card>
               <CardHeader>
                 <CardTitle>Favorite Exercises</CardTitle>
@@ -439,36 +455,52 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 {favoriteExercisesData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={favoriteExercisesData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        label={(props: any) =>
-                          `${props.name} ${(props.percent * 100).toFixed(0)}%`
-                        }
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {favoriteExercisesData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        formatter={(value, name, props) => [
-                          value,
-                          props.payload.fullName,
-                        ]}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <div className="space-y-4">
+                    {/* Pie Chart - No labels to prevent cutoff */}
+                    <ResponsiveContainer width="100%" height={250}>
+                      <PieChart>
+                        <Pie
+                          data={favoriteExercisesData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {favoriteExercisesData.map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value, name, props) => [
+                            `${value} times`,
+                            props.payload.fullName,
+                          ]}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+
+                    {/* Compact Legend */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {favoriteExercisesData.map((exercise, index) => {
+                        const total = favoriteExercisesData.reduce((sum, ex) => sum + ex.value, 0);
+                        const percentage = ((exercise.value / total) * 100).toFixed(0);
+                        return (
+                          <div key={exercise.fullName} className="flex items-center gap-2 text-sm">
+                            <div 
+                              className="w-3 h-3 rounded-full flex-shrink-0" 
+                              style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                            />
+                            <span className="flex-1 min-w-0 truncate">{exercise.fullName}</span>
+                            <span className="text-muted-foreground whitespace-nowrap">{exercise.value} ({percentage}%)</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ) : (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground">
@@ -478,9 +510,9 @@ export default function AnalyticsPage() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+          )}
 
-          <TabsContent value="recent-prs" className="space-y-4">
+          {activeTab === "recent-prs" && (
             <Card>
               <CardHeader>
                 <CardTitle>Recent Personal Records</CardTitle>
@@ -536,8 +568,8 @@ export default function AnalyticsPage() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </div>
     </div>
   );

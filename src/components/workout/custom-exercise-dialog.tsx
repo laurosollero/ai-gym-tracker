@@ -197,9 +197,9 @@ export function CustomExerciseDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">
             {editingExercise
               ? editingExercise.isCustom
                 ? "Edit Custom Exercise"
@@ -208,10 +208,10 @@ export function CustomExerciseDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           {/* Exercise Name */}
-          <div className="space-y-2">
-            <Label htmlFor="exerciseName">Exercise Name *</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="exerciseName" className="text-sm font-medium">Exercise Name *</Label>
             <Input
               id="exerciseName"
               value={formData.name}
@@ -221,6 +221,7 @@ export function CustomExerciseDialog({
               placeholder="e.g., Bulgarian Split Squats"
               required
               disabled={!!editingExercise && !editingExercise.isCustom}
+              className="text-sm"
             />
             {editingExercise && !editingExercise.isCustom && (
               <p className="text-xs text-muted-foreground">
@@ -232,13 +233,13 @@ export function CustomExerciseDialog({
           {/* Muscles */}
           {(!editingExercise || editingExercise.isCustom) && (
             <div className="space-y-2">
-              <Label>Muscles Worked * ({formData.muscles.length})</Label>
+              <Label className="text-sm font-medium">Muscles Worked * ({formData.muscles.length})</Label>
 
               {/* Selected muscles */}
               {formData.muscles.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {formData.muscles.map((muscle) => (
-                    <Badge key={muscle} variant="default" className="text-xs">
+                    <Badge key={muscle} variant="default" className="text-xs h-6">
                       {muscle}
                       <button
                         type="button"
@@ -253,7 +254,7 @@ export function CustomExerciseDialog({
               )}
 
               {/* Common muscle buttons */}
-              <div className="grid grid-cols-3 gap-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                 {COMMON_MUSCLES.map((muscle) => (
                   <Button
                     key={muscle}
@@ -262,7 +263,7 @@ export function CustomExerciseDialog({
                       formData.muscles.includes(muscle) ? "default" : "outline"
                     }
                     size="sm"
-                    className="text-xs h-8"
+                    className="text-xs h-7 px-2"
                     onClick={() =>
                       formData.muscles.includes(muscle)
                         ? handleRemoveMuscle(muscle)
@@ -279,8 +280,8 @@ export function CustomExerciseDialog({
                 <Input
                   value={customMuscle}
                   onChange={(e) => setCustomMuscle(e.target.value)}
-                  placeholder="Custom muscle group"
-                  className="text-sm"
+                  placeholder="Custom muscle"
+                  className="text-sm h-8"
                   onKeyPress={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -293,8 +294,9 @@ export function CustomExerciseDialog({
                   size="sm"
                   onClick={handleAddCustomMuscle}
                   disabled={!customMuscle.trim()}
+                  className="h-8 px-2"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-3 w-3" />
                 </Button>
               </div>
             </div>
@@ -302,11 +304,11 @@ export function CustomExerciseDialog({
 
           {/* Show muscles for built-in exercises (read-only) */}
           {editingExercise && !editingExercise.isCustom && (
-            <div className="space-y-2">
-              <Label>Muscles Worked</Label>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Muscles Worked</Label>
               <div className="flex flex-wrap gap-1">
                 {formData.muscles.map((muscle) => (
-                  <Badge key={muscle} variant="secondary" className="text-xs">
+                  <Badge key={muscle} variant="secondary" className="text-xs h-6">
                     {muscle}
                   </Badge>
                 ))}
@@ -320,8 +322,8 @@ export function CustomExerciseDialog({
           {/* Equipment */}
           {(!editingExercise || editingExercise.isCustom) && (
             <div className="space-y-2">
-              <Label htmlFor="equipment">Equipment</Label>
-              <div className="grid grid-cols-3 gap-1 mb-2">
+              <Label htmlFor="equipment" className="text-sm font-medium">Equipment</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 mb-2">
                 {COMMON_EQUIPMENT.map((equipment) => (
                   <Button
                     key={equipment}
@@ -330,7 +332,7 @@ export function CustomExerciseDialog({
                       formData.equipment === equipment ? "default" : "outline"
                     }
                     size="sm"
-                    className="text-xs h-8"
+                    className="text-xs h-7 px-2"
                     onClick={() =>
                       setFormData({
                         ...formData,
@@ -350,6 +352,7 @@ export function CustomExerciseDialog({
                   setFormData({ ...formData, equipment: e.target.value })
                 }
                 placeholder="Or enter custom equipment"
+                className="text-sm h-8"
               />
             </div>
           )}
@@ -358,9 +361,9 @@ export function CustomExerciseDialog({
           {editingExercise &&
             !editingExercise.isCustom &&
             formData.equipment && (
-              <div className="space-y-2">
-                <Label>Equipment</Label>
-                <Badge variant="secondary" className="text-sm">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Equipment</Label>
+                <Badge variant="secondary" className="text-sm h-6">
                   {formData.equipment}
                 </Badge>
                 <p className="text-xs text-muted-foreground">
@@ -370,8 +373,8 @@ export function CustomExerciseDialog({
             )}
 
           {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="notes" className="text-sm font-medium">Notes (Optional)</Label>
             <Textarea
               id="notes"
               value={formData.notes}
@@ -380,12 +383,13 @@ export function CustomExerciseDialog({
               }
               placeholder="Setup instructions, form cues, etc."
               rows={2}
+              className="text-sm resize-none"
             />
           </div>
 
           {/* Instructions */}
-          <div className="space-y-2">
-            <Label htmlFor="instructions">
+          <div className="space-y-1.5">
+            <Label htmlFor="instructions" className="text-sm font-medium">
               Detailed Instructions (Optional)
             </Label>
             <Textarea
@@ -395,82 +399,63 @@ export function CustomExerciseDialog({
                 setFormData({ ...formData, instructions: e.target.value })
               }
               placeholder="Step-by-step exercise instructions..."
-              rows={3}
+              rows={2}
+              className="text-sm resize-none"
             />
           </div>
 
-          {/* Media URLs */}
-          <div className="space-y-3">
-            <Label>Exercise Media (Optional)</Label>
-            <div className="space-y-2">
-              <div>
-                <Label
-                  htmlFor="videoUrl"
-                  className="text-sm text-muted-foreground"
-                >
-                  Video URL
-                </Label>
-                <Input
-                  id="videoUrl"
-                  value={formData.videoUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, videoUrl: e.target.value })
-                  }
-                  placeholder="https://youtube.com/watch?v=..."
-                  type="url"
-                />
-              </div>
-              <div>
-                <Label
-                  htmlFor="gifUrl"
-                  className="text-sm text-muted-foreground"
-                >
-                  GIF URL
-                </Label>
-                <Input
-                  id="gifUrl"
-                  value={formData.gifUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, gifUrl: e.target.value })
-                  }
-                  placeholder="https://example.com/exercise.gif"
-                  type="url"
-                />
-              </div>
-              <div>
-                <Label
-                  htmlFor="imageUrl"
-                  className="text-sm text-muted-foreground"
-                >
-                  Image URL
-                </Label>
-                <Input
-                  id="imageUrl"
-                  value={formData.imageUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, imageUrl: e.target.value })
-                  }
-                  placeholder="https://example.com/exercise.jpg"
-                  type="url"
-                />
-              </div>
+          {/* Media URLs - Collapsible on mobile */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Exercise Media (Optional)</Label>
+            <div className="space-y-1.5">
+              <Input
+                id="videoUrl"
+                value={formData.videoUrl}
+                onChange={(e) =>
+                  setFormData({ ...formData, videoUrl: e.target.value })
+                }
+                placeholder="Video URL (YouTube, etc.)"
+                type="url"
+                className="text-sm h-8"
+              />
+              <Input
+                id="gifUrl"
+                value={formData.gifUrl}
+                onChange={(e) =>
+                  setFormData({ ...formData, gifUrl: e.target.value })
+                }
+                placeholder="GIF URL"
+                type="url"
+                className="text-sm h-8"
+              />
+              <Input
+                id="imageUrl"
+                value={formData.imageUrl}
+                onChange={(e) =>
+                  setFormData({ ...formData, imageUrl: e.target.value })
+                }
+                placeholder="Image URL"
+                type="url"
+                className="text-sm h-8"
+              />
             </div>
           </div>
         </form>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={handleClose}
             disabled={isLoading}
+            className="w-full sm:w-auto order-2 sm:order-1"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto order-1 sm:order-2"
           >
             <Plus className="h-4 w-4" />
             {isLoading

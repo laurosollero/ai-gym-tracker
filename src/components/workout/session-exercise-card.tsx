@@ -170,14 +170,14 @@ export function SessionExerciseCard({
   return (
     <Card>
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-lg">
+            <CardTitle className="text-lg leading-tight">
               {sessionExercise.nameAtTime}
             </CardTitle>
             {exercise && <ExerciseInfoPopover exercise={exercise} />}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Badge variant="secondary">
               {completedSets}/{sessionExercise.sets.length} sets
             </Badge>
@@ -223,39 +223,40 @@ export function SessionExerciseCard({
             {sessionExercise.sets.map((set, setIndex) => (
               <div
                 key={set.id}
-                className={`flex items-center justify-between p-3 rounded-lg border ${
+                className={`relative flex items-center justify-between p-3 rounded-lg border ${
                   set.completedAt ? "bg-muted/50" : "bg-background"
                 }`}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 flex-1 mr-12">
                   <span className="w-6 text-sm font-medium">
                     {setIndex + 1}
                   </span>
-                  <span className="text-sm">
+                  <span className="text-sm font-medium">
                     {set.weight &&
                       formatWeight(set.weight, user?.unitSystem || "metric")}
                   </span>
                   <span className="text-sm">{set.reps} reps</span>
-                  {set.rpe && (
-                    <Badge variant="outline" className="text-xs">
-                      RPE {set.rpe}
-                    </Badge>
-                  )}
                 </div>
-                <div className="flex items-center gap-2">
+                
+                {set.rpe && (
+                  <Badge variant="outline" className="absolute top-1 right-1 text-xs">
+                    RPE {set.rpe}
+                  </Badge>
+                )}
+                
+                <div className="flex items-center">
                   {set.completedAt ? (
-                    <Badge variant="default" className="text-xs">
-                      <Check className="h-3 w-3 mr-1" />
-                      Done
-                    </Badge>
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900">
+                      <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    </div>
                   ) : (
                     <Button
                       size="sm"
                       onClick={() => handleCompleteSet(set.id)}
-                      className="flex items-center gap-1"
+                      className="flex items-center justify-center w-8 h-8 p-0"
+                      variant="outline"
                     >
-                      <Check className="h-3 w-3" />
-                      Complete
+                      <Check className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
@@ -267,7 +268,7 @@ export function SessionExerciseCard({
         {/* Add New Set */}
         <div className="space-y-3">
           <h4 className="text-sm font-medium text-muted-foreground">Add Set</h4>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1">
               <Input
                 type="number"
@@ -281,6 +282,7 @@ export function SessionExerciseCard({
                 }
                 min="0"
                 step="0.25"
+                className="text-center text-lg py-3"
               />
             </div>
             <div className="flex-1">
@@ -296,15 +298,17 @@ export function SessionExerciseCard({
                 }
                 min="0"
                 step="1"
+                className="text-center text-lg py-3"
               />
             </div>
             <Button
               onClick={handleAddSet}
               disabled={!newSet.reps || !newSet.weight || isAddingSet}
-              className="flex items-center gap-1"
+              className="flex items-center justify-center gap-1 py-3 text-lg sm:px-4"
+              size="lg"
             >
               <Plus className="h-4 w-4" />
-              Add
+              Add Set
             </Button>
           </div>
         </div>

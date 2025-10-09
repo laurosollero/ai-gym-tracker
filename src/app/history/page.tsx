@@ -59,8 +59,8 @@ export default function HistoryPage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Workout History</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold">Workout History</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               {sessions.length} workout{sessions.length !== 1 ? "s" : ""}{" "}
               completed
             </p>
@@ -100,8 +100,8 @@ export default function HistoryPage() {
                   className="hover:shadow-md transition-shadow"
                 >
                   <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <CardTitle className="text-lg flex items-center gap-2 leading-tight">
                         <Calendar className="h-5 w-5" />
                         {sessionDate.toLocaleDateString("en-US", {
                           weekday: "long",
@@ -109,7 +109,7 @@ export default function HistoryPage() {
                           day: "numeric",
                         })}
                       </CardTitle>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Badge variant="secondary">
                           {summary.exerciseCount} exercise
                           {summary.exerciseCount !== 1 ? "s" : ""}
@@ -123,7 +123,7 @@ export default function HistoryPage() {
 
                   <CardContent className="space-y-4">
                     {/* Summary Stats */}
-                    <div className="flex gap-6 text-sm">
+                    <div className="flex flex-wrap gap-4 sm:gap-6 text-sm">
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4 text-blue-500" />
                         <span>{formatDuration(summary.duration)}</span>
@@ -150,12 +150,12 @@ export default function HistoryPage() {
                         return (
                           <div
                             key={exercise.id}
-                            className="flex items-center justify-between text-sm"
+                            className="flex items-center justify-between text-sm gap-2"
                           >
-                            <span className="font-medium">
+                            <span className="font-medium flex-1 min-w-0 truncate">
                               {exercise.nameAtTime}
                             </span>
-                            <span className="text-muted-foreground">
+                            <span className="text-muted-foreground whitespace-nowrap">
                               {completedSets} set
                               {completedSets !== 1 ? "s" : ""}
                             </span>
@@ -166,8 +166,8 @@ export default function HistoryPage() {
 
                     {/* View Details Button */}
                     <div className="pt-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/workout-review?id=${session.id}`}>
+                      <Button variant="outline" size="sm" asChild className="w-full sm:w-auto">
+                        <Link href={`/workout-review?id=${session.id}`} className="flex items-center justify-center">
                           View Details
                         </Link>
                       </Button>

@@ -309,30 +309,32 @@ function CreateTemplatePageContent() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
-        <header className="flex items-center gap-4 mb-8">
-          <Button variant="outline" size="icon" asChild>
-            <Link href="/templates">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold">
-              {editingTemplate
-                ? "Edit Workout Template"
-                : "Create Workout Template"}
-            </h1>
-            <p className="text-muted-foreground">
-              {editingTemplate
-                ? "Modify your existing template"
-                : "Design a workout without performing it"}
-            </p>
+        <header className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="icon" asChild>
+              <Link href="/templates">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                {editingTemplate
+                  ? "Edit Workout Template"
+                  : "Create Workout Template"}
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                {editingTemplate
+                  ? "Modify your existing template"
+                  : "Design a workout without performing it"}
+              </p>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" disabled>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" disabled className="w-full sm:w-auto">
               <Eye className="h-4 w-4 mr-2" />
               Preview
             </Button>
-            <Button onClick={handleSaveTemplate} disabled={!canSave}>
+            <Button onClick={handleSaveTemplate} disabled={!canSave} className="w-full sm:w-auto" size="lg">
               <Save className="h-4 w-4 mr-2" />
               {isLoading
                 ? editingTemplate

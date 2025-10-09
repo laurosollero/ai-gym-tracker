@@ -67,6 +67,7 @@ export default function MeasurementsPage() {
     useState<BodyMeasurementType>("weight");
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingMeasurement, setIsAddingMeasurement] = useState(false);
+  const [activeTab, setActiveTab] = useState("progress");
 
   // Form state
   const [newMeasurement, setNewMeasurement] = useState({
@@ -194,62 +195,67 @@ export default function MeasurementsPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
-        <header className="flex items-center gap-4 mb-8">
-          <Button variant="outline" size="icon" asChild>
-            <Link href="/">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold">Body Measurements</h1>
-            <p className="text-muted-foreground">
-              Track your physical progress over time
-            </p>
+        <header className="space-y-4 mb-8">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon" asChild>
+              <Link href="/">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold truncate">Body Measurements</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                Track your physical progress over time
+              </p>
+            </div>
           </div>
-          <Button onClick={() => setIsAddingMeasurement(true)}>
+          <Button 
+            onClick={() => setIsAddingMeasurement(true)}
+            className="w-full sm:w-auto"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Measurement
           </Button>
         </header>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           <Card>
-            <CardContent className="pt-6 text-center">
-              <Ruler className="h-6 w-6 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold">
+            <CardContent className="p-3 text-center">
+              <Ruler className="h-4 w-4 mx-auto mb-1 text-blue-500" />
+              <div className="text-lg sm:text-xl font-bold truncate">
                 {latestWeight
                   ? formatValue(latestWeight.value, "weight")
                   : "---"}
               </div>
               <div className="text-xs text-muted-foreground">
-                Current Weight
+                Weight
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="pt-6 text-center">
-              <TrendingUp className="h-6 w-6 mx-auto mb-2 text-green-500" />
-              <div className="text-2xl font-bold">
+            <CardContent className="p-3 text-center">
+              <TrendingUp className="h-4 w-4 mx-auto mb-1 text-green-500" />
+              <div className="text-lg sm:text-xl font-bold truncate">
                 {latestBodyFat ? `${latestBodyFat.value}%` : "---"}
               </div>
-              <div className="text-xs text-muted-foreground">Body Fat %</div>
+              <div className="text-xs text-muted-foreground">Body Fat</div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="pt-6 text-center">
-              <Calendar className="h-6 w-6 mx-auto mb-2 text-purple-500" />
-              <div className="text-2xl font-bold">{measurements.length}</div>
-              <div className="text-xs text-muted-foreground">Total Records</div>
+            <CardContent className="p-3 text-center">
+              <Calendar className="h-4 w-4 mx-auto mb-1 text-purple-500" />
+              <div className="text-lg sm:text-xl font-bold">{measurements.length}</div>
+              <div className="text-xs text-muted-foreground">Total</div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="pt-6 text-center">
-              <Ruler className="h-6 w-6 mx-auto mb-2 text-orange-500" />
-              <div className="text-2xl font-bold">
+            <CardContent className="p-3 text-center">
+              <Ruler className="h-4 w-4 mx-auto mb-1 text-orange-500" />
+              <div className="text-lg sm:text-xl font-bold">
                 {
                   measurements.filter(
                     (m) =>
@@ -258,7 +264,7 @@ export default function MeasurementsPage() {
                   ).length
                 }
               </div>
-              <div className="text-xs text-muted-foreground">This Month</div>
+              <div className="text-xs text-muted-foreground">Month</div>
             </CardContent>
           </Card>
         </div>
@@ -271,9 +277,9 @@ export default function MeasurementsPage() {
               <CardDescription>Record a new body measurement</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0">
                 <div>
-                  <Label htmlFor="type">Measurement Type</Label>
+                  <Label htmlFor="type" className="text-sm font-medium">Measurement Type</Label>
                   <Select
                     value={newMeasurement.measurementType}
                     onValueChange={(value: BodyMeasurementType) =>
@@ -283,7 +289,7 @@ export default function MeasurementsPage() {
                       }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -297,7 +303,7 @@ export default function MeasurementsPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="value">Value</Label>
+                  <Label htmlFor="value" className="text-sm font-medium">Value</Label>
                   <Input
                     id="value"
                     type="number"
@@ -310,11 +316,12 @@ export default function MeasurementsPage() {
                       }))
                     }
                     placeholder="Enter value"
+                    className="w-full"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="notes">Notes (optional)</Label>
+                  <Label htmlFor="notes" className="text-sm font-medium">Notes (optional)</Label>
                   <Input
                     id="notes"
                     value={newMeasurement.notes}
@@ -325,20 +332,23 @@ export default function MeasurementsPage() {
                       }))
                     }
                     placeholder="Add notes..."
+                    className="w-full"
                   />
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   onClick={handleAddMeasurement}
                   disabled={!newMeasurement.value}
+                  className="w-full sm:w-auto"
                 >
                   Add Measurement
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setIsAddingMeasurement(false)}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
@@ -348,13 +358,35 @@ export default function MeasurementsPage() {
         )}
 
         {/* Charts */}
-        <Tabs defaultValue="progress" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="progress">Progress Charts</TabsTrigger>
-            <TabsTrigger value="history">Measurement History</TabsTrigger>
-          </TabsList>
+        <div className="space-y-6">
+          {/* Mobile: Dropdown selector */}
+          <div className="sm:hidden">
+            <Select 
+              value={activeTab} 
+              onValueChange={setActiveTab}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="progress">Progress Charts</SelectItem>
+                <SelectItem value="history">Measurement History</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <TabsContent value="progress" className="space-y-4">
+          {/* Desktop: Traditional tabs */}
+          <div className="hidden sm:block">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="progress">Progress Charts</TabsTrigger>
+                <TabsTrigger value="history">Measurement History</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          {/* Progress Charts Content */}
+          {activeTab === "progress" && (
             <Card>
               <CardHeader>
                 <CardTitle>Progress Tracking</CardTitle>
@@ -368,7 +400,7 @@ export default function MeasurementsPage() {
                       setSelectedType(value)
                     }
                   >
-                    <SelectTrigger className="w-64">
+                    <SelectTrigger className="w-full sm:w-64">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -433,9 +465,10 @@ export default function MeasurementsPage() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+          )}
 
-          <TabsContent value="history" className="space-y-4">
+          {/* Measurement History Content */}
+          {activeTab === "history" && (
             <Card>
               <CardHeader>
                 <CardTitle>Measurement History</CardTitle>
@@ -451,24 +484,24 @@ export default function MeasurementsPage() {
                         key={measurement.id}
                         className="flex items-center justify-between p-3 border rounded-lg group"
                       >
-                        <div className="flex items-center gap-3">
-                          <Ruler className="h-5 w-5 text-blue-500" />
-                          <div>
-                            <div className="font-medium">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <Ruler className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium truncate">
                               {MEASUREMENT_TYPES.find(
                                 (t) => t.value === measurement.measurementType,
                               )?.label || measurement.measurementType}
                             </div>
                             {measurement.notes && (
-                              <div className="text-sm text-muted-foreground">
+                              <div className="text-sm text-muted-foreground truncate">
                                 {measurement.notes}
                               </div>
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           <div className="text-right">
-                            <div className="font-medium">
+                            <div className="font-medium text-sm">
                               {formatValue(
                                 measurement.value,
                                 measurement.measurementType,
@@ -484,7 +517,7 @@ export default function MeasurementsPage() {
                             onClick={() =>
                               handleDeleteMeasurement(measurement.id)
                             }
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -510,8 +543,8 @@ export default function MeasurementsPage() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </div>
     </div>
   );

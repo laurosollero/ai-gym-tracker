@@ -225,36 +225,39 @@ function WorkoutPageContent() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
-        <header className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" asChild>
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold">Workout Session</h1>
-                {template && (
-                  <BookOpen className="h-5 w-5 text-muted-foreground" />
-                )}
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">
-                  Duration: {sessionDuration} minutes
-                </p>
-                {template && (
-                  <p className="text-sm text-blue-600 dark:text-blue-400">
-                    From template: {template.name}
+        <header className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="icon" asChild>
+                <Link href="/">
+                  <ArrowLeft className="h-4 w-4" />
+                </Link>
+              </Button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-bold">Workout Session</h1>
+                  {template && (
+                    <BookOpen className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">
+                    Duration: {sessionDuration} minutes
                   </p>
-                )}
+                  {template && (
+                    <p className="text-sm text-blue-600 dark:text-blue-400">
+                      From template: {template.name}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
           <Button
             onClick={handleFinishWorkout}
             disabled={isLoading || currentSession.exercises.length === 0}
-            className="flex items-center gap-2"
+            className="w-full sm:w-auto flex items-center justify-center gap-2"
+            size="lg"
           >
             <Save className="h-4 w-4" />
             Finish Workout

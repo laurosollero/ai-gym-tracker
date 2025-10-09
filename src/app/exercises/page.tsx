@@ -274,31 +274,34 @@ export default function ExercisesPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
-        <header className="flex items-center gap-4 mb-8">
-          <Button variant="outline" size="icon" asChild>
-            <Link href="/">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Dumbbell className="h-8 w-8" />
-              Exercise Library
-            </h1>
-            <p className="text-muted-foreground">
-              Browse and manage your exercise collection
-            </p>
+        <header className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="icon" asChild>
+              <Link href="/">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2">
+                <Dumbbell className="h-6 w-6 sm:h-8 sm:w-8" />
+                Exercise Library
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                Browse and manage your exercise collection
+              </p>
+            </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
               onClick={handleExportCustom}
               disabled={customExercisesCount === 0}
+              className="w-full sm:w-auto justify-center"
             >
               <Download className="h-4 w-4 mr-2" />
               Export Custom
             </Button>
-            <Button onClick={() => setShowCreateDialog(true)}>
+            <Button onClick={() => setShowCreateDialog(true)} className="w-full sm:w-auto justify-center">
               <Plus className="h-4 w-4 mr-2" />
               Create Exercise
             </Button>
@@ -306,25 +309,23 @@ export default function ExercisesPage() {
         </header>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
           <Card>
-            <CardContent className="pt-6 text-center">
-              <div className="text-2xl font-bold">{exercises.length}</div>
-              <div className="text-sm text-muted-foreground">
-                Total Exercises
-              </div>
+            <CardContent className="p-3 text-center">
+              <div className="text-lg font-bold">{exercises.length}</div>
+              <div className="text-xs text-muted-foreground">Total</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6 text-center">
-              <div className="text-2xl font-bold">{builtInExercisesCount}</div>
-              <div className="text-sm text-muted-foreground">Built-in</div>
+            <CardContent className="p-3 text-center">
+              <div className="text-lg font-bold">{builtInExercisesCount}</div>
+              <div className="text-xs text-muted-foreground">Built-in</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6 text-center">
-              <div className="text-2xl font-bold">{customExercisesCount}</div>
-              <div className="text-sm text-muted-foreground">Custom</div>
+            <CardContent className="p-3 text-center">
+              <div className="text-lg font-bold">{customExercisesCount}</div>
+              <div className="text-xs text-muted-foreground">Custom</div>
             </CardContent>
           </Card>
         </div>
@@ -332,23 +333,26 @@ export default function ExercisesPage() {
         {/* Search and Filters */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <Search className="h-5 w-5" />
               Search & Filter
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-4 flex-wrap">
-              <div className="flex-1 min-w-64">
-                <Input
-                  placeholder="Search exercises..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full"
-                />
-              </div>
+            {/* Search Input */}
+            <div>
+              <Input
+                placeholder="Search exercises..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            
+            {/* Filters Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <Select value={selectedMuscle} onValueChange={setSelectedMuscle}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Muscle Groups" />
                 </SelectTrigger>
                 <SelectContent>
@@ -363,7 +367,7 @@ export default function ExercisesPage() {
                 value={selectedEquipment}
                 onValueChange={setSelectedEquipment}
               >
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Equipment" />
                 </SelectTrigger>
                 <SelectContent>
@@ -376,7 +380,7 @@ export default function ExercisesPage() {
               </Select>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
+                  <Button variant="outline" className="w-full justify-center">
                     <Download className="h-4 w-4 mr-2" />
                     Export
                   </Button>
@@ -409,26 +413,44 @@ export default function ExercisesPage() {
           </CardContent>
         </Card>
 
-        {/* Exercise Type Tabs */}
-        <Tabs
-          value={exerciseType}
-          onValueChange={(value) =>
-            setExerciseType(value as typeof exerciseType)
-          }
-        >
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="all">
-              All Exercises ({exercises.length})
-            </TabsTrigger>
-            <TabsTrigger value="built-in">
-              Built-in ({builtInExercisesCount})
-            </TabsTrigger>
-            <TabsTrigger value="custom">
-              Custom ({customExercisesCount})
-            </TabsTrigger>
-          </TabsList>
+        {/* Exercise Type Selection */}
+        <div className="mb-6">
+          {/* Mobile: Dropdown selector */}
+          <div className="sm:hidden">
+            <Select value={exerciseType} onValueChange={(value) => setExerciseType(value as typeof exerciseType)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Exercise type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Exercises ({exercises.length})</SelectItem>
+                <SelectItem value="built-in">Built-in ({builtInExercisesCount})</SelectItem>
+                <SelectItem value="custom">Custom ({customExercisesCount})</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <TabsContent value={exerciseType}>
+          {/* Desktop: Tabs */}
+          <Tabs
+            value={exerciseType}
+            onValueChange={(value) => setExerciseType(value as typeof exerciseType)}
+            className="hidden sm:block"
+          >
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="all">
+                All Exercises ({exercises.length})
+              </TabsTrigger>
+              <TabsTrigger value="built-in">
+                Built-in ({builtInExercisesCount})
+              </TabsTrigger>
+              <TabsTrigger value="custom">
+                Custom ({customExercisesCount})
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        {/* Exercise Content */}
+        <div>
             {/* Exercise Grid */}
             {filteredExercises.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -558,8 +580,7 @@ export default function ExercisesPage() {
                 </CardContent>
               </Card>
             )}
-          </TabsContent>
-        </Tabs>
+        </div>
 
         {/* Create/Edit Exercise Dialog */}
         <CustomExerciseDialog

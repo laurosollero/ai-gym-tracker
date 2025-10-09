@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { templateRepository } from "@/lib/db/repositories";
 import { useAppStore } from "@/lib/store";
 import {
@@ -52,6 +53,7 @@ import Link from "next/link";
 import QRCode from "qrcode";
 
 export default function TemplatesPage() {
+  const router = useRouter();
   const { user } = useAppStore();
   const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<WorkoutTemplate[]>(
@@ -119,7 +121,7 @@ export default function TemplatesPage() {
 
   const handleStartTemplate = (templateId: string) => {
     // Navigate to workout page with template ID
-    window.location.href = `/workout?template=${templateId}`;
+    router.push(`/workout?template=${templateId}`);
   };
 
   const handleShareTemplate = async (template: WorkoutTemplate) => {
@@ -185,34 +187,34 @@ export default function TemplatesPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
-        <header className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
+        <header className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
             <Button variant="outline" size="icon" asChild>
               <Link href="/">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Workout Templates</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold">Workout Templates</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Start your workouts faster with saved templates
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button asChild>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button asChild className="w-full sm:w-auto">
               <Link
                 href="/templates/create"
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2"
               >
                 <BookOpen className="h-4 w-4" />
                 Create Template
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className="w-full sm:w-auto">
               <Link
                 href="/template-manager"
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2"
               >
                 <Settings className="h-4 w-4" />
                 Import/Export
@@ -511,9 +513,9 @@ function TemplateCard({ template, onStart, onShare }: TemplateCardProps) {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="flex-1">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg flex items-center gap-2 leading-tight">
               {template.name}
               {template.isBuiltIn && (
                 <Star className="h-4 w-4 text-yellow-500" />
@@ -525,24 +527,29 @@ function TemplateCard({ template, onStart, onShare }: TemplateCardProps) {
               </CardDescription>
             )}
           </div>
-          <div className="flex gap-2">
-            {onShare && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onShare(template)}
-              >
-                <Share2 className="h-4 w-4" />
-              </Button>
-            )}
-            {!template.isBuiltIn && (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/templates/create?edit=${template.id}`}>
-                  <Edit className="h-4 w-4" />
-                </Link>
-              </Button>
-            )}
-            <Button onClick={onStart} className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <div className="flex gap-2">
+              {onShare && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onShare(template)}
+                  className="flex-1 sm:flex-none"
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span className="sm:hidden ml-2">Share</span>
+                </Button>
+              )}
+              {!template.isBuiltIn && (
+                <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
+                  <Link href={`/templates/create?edit=${template.id}`}>
+                    <Edit className="h-4 w-4" />
+                    <span className="sm:hidden ml-2">Edit</span>
+                  </Link>
+                </Button>
+              )}
+            </div>
+            <Button onClick={onStart} className="flex items-center justify-center gap-2" size="lg">
               <Play className="h-4 w-4" />
               Start
             </Button>
