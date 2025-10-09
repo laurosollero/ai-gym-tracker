@@ -31,8 +31,8 @@ function WorkoutPageContent() {
   const [sessionNotes, setSessionNotes] = useState("");
   const [template, setTemplate] = useState<WorkoutTemplate | null>(null);
   const [exercises, setExercises] = useState<Map<string, Exercise>>(new Map());
-  const [recoveredSessionId, setRecoveredSessionId] = useState<string | null>(
-    null,
+  const [recoveredSessionId, setRecoveredSessionId] = useState<string | undefined>(
+    undefined,
   );
   const [hasAttemptedRecovery, setHasAttemptedRecovery] = useState(false);
 
@@ -270,7 +270,7 @@ function WorkoutPageContent() {
         {/* Session Recovery Notification */}
         <SessionRecoveryNotification
           sessionId={recoveredSessionId}
-          onDismiss={() => setRecoveredSessionId(null)}
+          onDismiss={() => setRecoveredSessionId(undefined)}
         />
 
         {/* Exercises */}
