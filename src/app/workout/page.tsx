@@ -34,6 +34,7 @@ function WorkoutPageContent() {
   const [recoveredSessionId, setRecoveredSessionId] = useState<string | null>(
     null,
   );
+  const [hasAttemptedRecovery, setHasAttemptedRecovery] = useState(false);
 
   const templateId = searchParams?.get("template");
 
@@ -57,9 +58,11 @@ function WorkoutPageContent() {
   // Initialize session if none exists or recover existing session
   useEffect(() => {
     const initSession = async () => {
-      if (!user) return;
+      if (!user || hasAttemptedRecovery) return;
 
       setIsLoading(true);
+      setHasAttemptedRecovery(true);
+
       try {
         // First, try to recover an existing session
         const recoveredSession = await recoverCurrentSession();
@@ -134,14 +137,7 @@ function WorkoutPageContent() {
     if (templateId ? template !== null : true) {
       initSession();
     }
-  }, [
-    user,
-    currentSession,
-    setCurrentSession,
-    setSessionActive,
-    template,
-    templateId,
-  ]);
+  }, [user, template, templateId, hasAttemptedRecovery]);
 
   // Load exercise data for the session
   useEffect(() => {
@@ -220,7 +216,9 @@ function WorkoutPageContent() {
   }
 
   const sessionDuration = currentSession.startedAt
-    ? Math.floor((Date.now() - currentSession.startedAt.getTime()) / 1000 / 60)
+    ? Math.floor(
+        (Date.now() - new Date(currentSession.startedAt).getTime()) / 1000 / 60,
+      )
     : 0;
 
   return (
